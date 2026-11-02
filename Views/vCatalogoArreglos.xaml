@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="addFloreriaG5.Views.vCatalogoArreglos"
+             Title="Catálogo de Arreglos"
+             BackgroundColor="#F9F6F0">
+    
+    <Grid RowDefinitions="Auto, *, Auto" Padding="15" RowSpacing="10">
+
+        <!-- Título superior -->
+        <Label Grid.Row="0" 
+               Text="Catálogo de Arreglos Florales" 
+               FontSize="22" 
+               FontAttributes="Bold" 
+               HorizontalOptions="Center" 
+               TextColor="#4A453F"
+               Margin="0,5,0,5"/>
+
+        <!-- Lista en Tarjetas (CollectionView) -->
+        <CollectionView Grid.Row="1" x:Name="cvArreglos" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BorderColor="#E0DCD5" 
+                           CornerRadius="16" 
+                           Padding="14" 
+                           Margin="0,0,0,10" 
+                           BackgroundColor="White"
+                           HasShadow="True">
+
+                        <Grid ColumnDefinitions="100, *" ColumnSpacing="15">
+
+                            <Frame Grid.Column="0" 
+                                   CornerRadius="12" 
+                                   Padding="0" 
+                                   HasShadow="False" 
+                                   HeightRequest="110" 
+                                   WidthRequest="110"
+                                   VerticalOptions="Center"
+                                   IsClippedToBounds="True">
+
+                                <!-- Imagen del arreglo floral -->
+                                <Image Source="{Binding imagen}" 
+                                       Aspect="AspectFill" 
+                                       HeightRequest="110" 
+                                       WidthRequest="110"/>
+
+                            </Frame>
+
+                            <!-- Detalles del producto -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="{Binding nombre}" 
+                                       FontSize="16" 
+                                       FontAttributes="Bold" 
+                                       TextColor="#4A453F"/>
+                                
+                                <Label Text="{Binding descripcion}" 
+                                       FontSize="12" 
+                                       TextColor="#8C857B" 
+                                       MaxLines="2"
+                                       LineBreakMode="TailTruncation"/>
+
+                                <HorizontalStackLayout Spacing="15" Margin="0,2,0,2">
+                                    <Label Text="{Binding precio, StringFormat='${0:F2}'}" 
+                                           FontSize="16" 
+                                           FontAttributes="Bold" 
+                                           TextColor="#707A5E"/>
+
+                                    <Label Text="{Binding stock, StringFormat='Stock: {0}'}" 
+                                           FontSize="12" 
+                                           TextColor="#8C857B" 
+                                           VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Botones de Acción (Comprar / WhatsApp) -->
+                                <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" ColumnSpacing="6" RowSpacing="6" Margin="0,4,0,0">
+                                    
+                                    <Button Text="Comprar" 
+                                            Clicked="Button_Clicked" 
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#707A5E" 
+                                            TextColor="White" 
+                                            FontSize="11"
+                                            FontAttributes="Bold"
+                                            HeightRequest="34"
+                                            CornerRadius="8"
+                                            Grid.Row="0" Grid.Column="0"/>
+
+                                    <Button Text="Chat WhatsApp" 
+                                            Clicked="Button_Clicked_1" 
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#25D366" 
+                                            TextColor="White" 
+                                            FontSize="11"
+                                            FontAttributes="Bold"
+                                            HeightRequest="34"
+                                            CornerRadius="8"
+                                            Grid.Row="0" Grid.Column="1"/>
+                                    
+                                    <Button Text="Detalles" 
+                                           Clicked="Button_Clicked_2" 
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#8C857B" 
+                                            TextColor="White" 
+                                            FontSize="11"
+                                            HeightRequest="32"
+                                            CornerRadius="8"
+                                            Grid.Row="1" Grid.Column="0"/>
+
+
+
+                                    <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*, *" ColumnSpacing="4">
+
+                                        <Button Text="Editar" 
+                                            Clicked="Button_Clicked_3" 
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#D39E82" 
+                                                TextColor="White" 
+                                                FontSize="11"
+                                                HeightRequest="32"
+                                                CornerRadius="8"
+                                                Grid.Column="0"/>
+
+                                        <Button Text="Eliminar" 
+                                            Clicked="Button_Clicked_4" 
+                                            CommandParameter="{Binding .}"
+                                                BackgroundColor="#C0392B" 
+                                                TextColor="White" 
+                                                FontSize="11"
+                                                HeightRequest="32"
+                                                CornerRadius="8"
+                                                Grid.Column="1"/>
+
+                                    </Grid>
+
+                                </Grid>
+                                
+
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Botón para Agregar Nuevo Arreglo (Solo Administrador/Vendedor) -->
+        <Button Grid.Row="2" 
+                x:Name="btnNuevoArreglo"
+                Text="+ Agregar Nuevo Arreglo Floral" 
+                Clicked="btnNuevoArreglo_Clicked" 
+                BackgroundColor="#707A5E" 
+                TextColor="White" 
+                FontAttributes="Bold"
+                CornerRadius="12" 
+                HeightRequest="48"
+                Margin="0,5,0,0"/>
+    </Grid>
+</ContentPage>

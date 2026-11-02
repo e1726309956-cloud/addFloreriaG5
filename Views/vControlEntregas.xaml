@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="addFloreriaG5.Views.vControlEntregas"
+             Title="Control de Entregas"
+             BackgroundColor="#F9F6F0">
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="10">
+            <Label Text="Entregas Programadas" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" 
+                   TextColor="#2C3E50" />
+
+            <CollectionView x:Name="cvEntregas" HeightRequest="650">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BorderColor="#CCCCCC" CornerRadius="10" Padding="12" Margin="0,6" BackgroundColor="White">
+                            <VerticalStackLayout Spacing="5">
+                                <!-- Cabecera -->
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <Label Text="{Binding id_pedido, StringFormat='Pedido #{0}'}" FontAttributes="Bold" FontSize="16" TextColor="#2980B9" Grid.Column="0"/>
+                                    <Label Text="{Binding estado}" FontAttributes="Bold" FontSize="13" TextColor="#E67E22" Grid.Column="1" HorizontalOptions="End"/>
+                                </Grid>
+
+                                <!-- Dirección Real del Cliente -->
+                                <Label Text="{Binding direccion, StringFormat=' Dirección: {0}'}" FontSize="15" FontAttributes="Bold" TextColor="#C0392B"/>
+
+                                <!-- Destinatario y Teléfono -->
+                                <Label Text="{Binding destinatario, StringFormat='Destinatario: {0}'}" FontSize="14" TextColor="#2C3E50"/>
+                                <Label Text="{Binding telefono_destinatario, StringFormat='Tel: {0}'}" FontSize="13" TextColor="Gray"/>
+
+                                <!-- VALOR PENDIENTE A COBRAR -->
+                                <Frame BackgroundColor="#FADBD8" Padding="8" CornerRadius="6" HasShadow="False">
+                                    <Label Text="{Binding observaciones, StringFormat=' {0}'}" 
+           FontSize="14" FontAttributes="Bold" TextColor="#922B21" HorizontalOptions="Center"/>
+                                </Frame>
+
+                                <Label Text="{Binding fecha_entrega, StringFormat=' Fecha: {0}'}" FontSize="12" TextColor="#7F8C8D"/>
+                                <Label Text="{Binding observaciones, StringFormat='Obs: {0}'}" FontSize="12" TextColor="#95A5A6" FontAttributes="Italic"/>
+                                
+
+                                <!-- Botón para abrir el Mapa con la dirección -->
+                                <Button Text=" Ver en el Mapa (Ruta)" 
+                                        BackgroundColor="#2980B9" 
+                                        TextColor="White" 
+                                        FontSize="12"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="Button_Clicked"
+                                        Margin="0,6,0,0"/>
+
+                                <!-- 2. Botón WhatsApp para que el mensajero se comunique con el cliente -->
+                                <Button Text=" Escribir al Cliente por WhatsApp" 
+                                        BackgroundColor="#25D366" 
+                                        TextColor="White" 
+                                        FontSize="12"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="Button_Clicked_2"
+                                        Margin="0,2,0,0"/>
+
+
+                                <!-- 3. Registrar Abono / Pago en tiempo real -->
+                                <Button Text=" Registrar Abono / Pago" 
+                                        BackgroundColor="#E67E22" 
+                                        TextColor="White" 
+                                        FontSize="12"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="Button_Clicked_3"
+                                        Margin="0,2,0,0"/>
+
+
+                                <!-- Botón para cambiar estado a "Entregado" -->
+                                <Button Text="Marcar como Entregado" 
+                                        BackgroundColor="#27AE60" 
+                                        TextColor="White" 
+                                        FontSize="12"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="Button_Clicked_1"
+                                        Margin="0,2,0,0"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            
+            
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

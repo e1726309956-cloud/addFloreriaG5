@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="addFloreriaG5.Views.vArreglosInactivos"
+             Title="Productos Inactivos">
+    <VerticalStackLayout Padding="15" Spacing="10">
+
+        <Label Text="Arreglos dados de baja" 
+               FontSize="20" 
+               FontAttributes="Bold" 
+               HorizontalOptions="Center" />
+
+        <CollectionView x:Name="cvArreglosInactivos" VerticalOptions="FillAndExpand">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame BorderColor="#CCCCCC" CornerRadius="10" Padding="10" Margin="0,5">
+                        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto">
+                            <!-- Información del producto -->
+                            <Label Text="{Binding nombre}" FontAttributes="Bold" FontSize="16" Grid.Row="0" Grid.Column="0"/>
+                            <Label Text="{Binding precio, StringFormat='Precio: ${0:F2}'}" FontSize="14" TextColor="Gray" Grid.Row="1" Grid.Column="0"/>
+
+                            <!-- Botón para Reactivar -->
+                            <Button Text="🔄 Reactivar" 
+                                    BackgroundColor="#4CAF50" 
+                                    TextColor="White" 
+                                    FontSize="12"
+                                    CommandParameter="{Binding .}"
+                                    Clicked="Button_Clicked"
+                                    Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" 
+                                    VerticalOptions="Center"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        
+    </VerticalStackLayout>
+</ContentPage>

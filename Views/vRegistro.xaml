@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="addFloreriaG5.Views.vRegistro"
+             Title="vRegistro">
+    <VerticalStackLayout            
+        Padding="25"
+        Spacing="10">
+
+        <Label
+                Text="Registro de Cliente"
+                FontSize="25"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"/>
+
+        <Entry
+                x:Name="txtNombres"
+                Placeholder="Nombres" />
+
+        <Entry
+                x:Name="txtApellidos"
+                Placeholder="Apellidos" />
+
+        <Entry
+                x:Name="txtCorreo"
+                Placeholder="Correo"
+                Keyboard="Email" />
+
+        <Entry
+                x:Name="txtTelefono"
+                Placeholder="Teléfono"
+                Keyboard="Telephone" />
+
+        <Entry
+                x:Name="txtPassword"
+                Placeholder="Contraseña"
+                IsPassword="True" />
+
+        <Button
+                Text="Registrarse"
+                Clicked="Button_Clicked"
+                BackgroundColor="Green"
+                TextColor="White"/>
+
+        <Button
+                Text="Volver al Login"
+                Clicked="Button_Clicked_1"
+                BackgroundColor="Gray"
+                TextColor="White"/>
+
+    </VerticalStackLayout>
+</ContentPage>

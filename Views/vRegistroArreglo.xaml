@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="addFloreriaG5.Views.vRegistroArreglo"
+             Title="Gestión de Arreglo Floral"
+             BackgroundColor="#F9F6F0">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16" VerticalOptions="Center">
+            <Label Text="Detalles del Arreglo Floral" 
+                   FontSize="24" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" 
+                   TextColor="#4A453F"
+                   Margin="0,0,0,5"/>
+            
+            <Label Text="Complete la información del producto" 
+                   FontSize="13" 
+                   TextColor="#8C857B" 
+                   HorizontalOptions="Center" 
+                   Margin="0,0,0,5"/>
+
+            <!-- Tarjeta Contenedora Principal -->
+            <Frame BackgroundColor="White" 
+                   BorderColor="#E0DCD5" 
+                   CornerRadius="16" 
+                   Padding="16" 
+                   HasShadow="True">
+
+                <VerticalStackLayout Spacing="14">
+                    
+
+                    <Entry x:Name="txtNombre"
+                           Placeholder="Nombre del arreglo"
+                           PlaceholderColor="#B0A8A0"
+                           TextColor="#4A453F"
+                           FontSize="15"
+                           BackgroundColor="Transparent"/>
+
+                    <BoxView HeightRequest="1" Color="#EFECE6" Margin="0,0"/>
+                    
+                    <Editor x:Name="txtDescripcion" 
+                            Placeholder="Descripción detallada del arreglo" 
+                            PlaceholderColor="#B0A8A0"
+                            TextColor="#4A453F"
+                            FontSize="15"
+                            BackgroundColor="Transparent"
+                            HeightRequest="90"/>
+                    <BoxView HeightRequest="1" Color="#EFECE6" Margin="0,0"/>
+
+
+              <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                        <!-- Validamos que el teclado sea numérico con decimales -->
+                <Entry Grid.Column="0" 
+                       x:Name="txtPrecio" 
+                       Placeholder="Precio ($)" 
+                               PlaceholderColor="#B0A8A0"
+                               TextColor="#4A453F"
+                               FontSize="15"
+                               BackgroundColor="Transparent"
+                               Keyboard="Numeric"/>
+                  
+                <!-- Teclado estrictamente numérico entero para stock -->
+                <Entry Grid.Column="1" 
+                       x:Name="txtStock" 
+                       Placeholder="Stock" 
+                               PlaceholderColor="#B0A8A0"
+                               TextColor="#4A453F"
+                               FontSize="15"
+                               BackgroundColor="Transparent"
+                               Keyboard="Numeric"/>
+            </Grid>
+                    <BoxView HeightRequest="1" Color="#EFECE6" Margin="0,0"/>
+
+            <!-- Selector de Categoría (Muestra el Nombre, guarda el ID) -->
+                    <VerticalStackLayout Spacing="4">
+            <Label Text="Seleccione la Categoría:" 
+                   FontSize="13" 
+                               FontAttributes="Bold" 
+                               TextColor="#707A5E"/>
+
+                        <Picker x:Name="pickerCategorias" 
+                    Title="Seleccione una categoría"
+                    TextColor="#4A453F"
+                    TitleColor="#B0A8A0"
+                    ItemDisplayBinding="{Binding nombre}" />
+                    </VerticalStackLayout>
+                    <BoxView HeightRequest="1" Color="#EFECE6" Margin="0,0"/>
+                    <!-- Sección de Imagen -->
+                    <VerticalStackLayout Spacing="6">
+            <Label Text="Imagen del Producto" 
+                   FontSize="13" 
+                               FontAttributes="Bold" 
+                               TextColor="#707A5E"/>
+                        
+            <Entry x:Name="txtImagenUrl" 
+                   Placeholder="Pegar URL de la imagen (https://...)" 
+                               PlaceholderColor="#B0A8A0"
+                               TextColor="#4A453F"
+                               FontSize="14"
+                               BackgroundColor="Transparent"/>
+
+            <Button Text="Seleccionar Imagen de la Galería" 
+                    Clicked="Button_Clicked" 
+                    BackgroundColor="#8C857B" 
+                                TextColor="White" 
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                CornerRadius="10" 
+                                HeightRequest="42"
+                                Margin="0,4,0,0"/>
+
+                        <Frame CornerRadius="12" 
+                               Padding="0" 
+                               HasShadow="False" 
+                               HeightRequest="130" 
+                               WidthRequest="130" 
+                               HorizontalOptions="Center" 
+                               BackgroundColor="#F0EFEB"
+                               IsClippedToBounds="True"
+                               Margin="0,5,0,0">
+                            
+                            <Image x:Name="imgPrevia" 
+                                   HeightRequest="130" 
+                                   WidthRequest="130" 
+                                   HorizontalOptions="Center" 
+                                   Aspect="AspectFill"/>
+                        </Frame>
+
+                        <Label x:Name="lblRutaArchivo" 
+                               Text="Ningún archivo seleccionado" 
+                               FontSize="11" 
+                               TextColor="#8C857B" 
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Button Text="Guardar Arreglo" 
+                    Clicked="Button_Clicked_1" 
+                    BackgroundColor="#707A5E" 
+                    TextColor="White" 
+                    FontAttributes="Bold" 
+                    FontSize="16"
+                    CornerRadius="12" 
+                    HeightRequest="50"
+                    Margin="0,10,0,0"/>
+            
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

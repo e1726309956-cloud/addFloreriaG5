@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="addFloreriaG5.Views.vVerPedidos"
+             Title="Gestión de Pedidos"
+             BackgroundColor="#F9F6F0">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="10">
+            <Label Text="Listado de Pedidos Recibidos" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" />
+
+            <CollectionView x:Name="cvPedidos" HeightRequest="650">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BorderColor="#CCCCCC" CornerRadius="10" Padding="12" Margin="0,6" BackgroundColor="White">
+                            <VerticalStackLayout Spacing="6">
+                                <!-- Cabecera de la Tarjeta -->
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <Label Text="{Binding id_pedido, StringFormat='Pedido #{0}'}" FontAttributes="Bold" FontSize="16" TextColor="#2C3E50" Grid.Column="0"/>
+                                    <Label Text="{Binding estado}" FontAttributes="Bold" FontSize="14" TextColor="#E67E22" Grid.Column="1" HorizontalOptions="End"/>
+                                </Grid>
+
+                                <Label Text="{Binding fecha_pedido, StringFormat='Fecha: {0}'}" FontSize="13" TextColor="Gray"/>
+                                <Label Text="{Binding total, StringFormat='Saldo Restante: ${0:F2}'}" FontSize="15" FontAttributes="Bold" TextColor="#27AE60"/>
+
+                                <!-- HISTORIAL DE PAGOS / ABONOS REALIZADOS -->
+                                <Label Text="Historial de Abonos:" FontSize="12" FontAttributes="Bold" TextColor="#7F8C8D" Margin="0,4,0,0"/>
+                                <CollectionView ItemsSource="{Binding pagos}" HeightRequest="60">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate>
+                                            <HorizontalStackLayout Spacing="10">
+                                                <Label Text="{Binding monto, StringFormat='• ${0:F2}'}" FontSize="12" TextColor="#2980B9" FontAttributes="Bold"/>
+                                                <Label Text="{Binding metodo_pago}" FontSize="12" TextColor="Gray"/>
+                                                <Label Text="{Binding fecha_pago}" FontSize="11" TextColor="#95A5A6"/>
+                                            </HorizontalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+
+                                <!-- Botón para Negociar por WhatsApp -->
+                                <Button Text="Negociar por WhatsApp" 
+                                        BackgroundColor="#25D366" 
+                                        TextColor="White" 
+                                        FontSize="12"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="Button_Clicked"
+                                        Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
+                                        Margin="0,6,0,0"/>
+
+                                <!-- Botón para Registrar Pago / Abono -->
+                                <Button Text="Registrar Pago / Abono" 
+                                        BackgroundColor="#8E44AD" 
+                                        TextColor="White" 
+                                        FontSize="12"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="Button_Clicked_1"
+                                        Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" 
+                                        Margin="0,4,0,0"/>
+
+                                <!-- Botón para cambiar estado manualmente -->
+                                <Button Text="Cambiar Estado (Pago Mínimo / Completo)" 
+        BackgroundColor="#2980B9" 
+        TextColor="White" 
+        FontSize="12"
+        CommandParameter="{Binding .}"
+        Clicked="Button_Clicked_2"
+        Margin="0,2,0,0"/>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+
+    </ScrollView>
+</ContentPage>

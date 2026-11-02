@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="addFloreriaG5.Views.vProcesoCompra"
+             Title="Resumen de tu Compra"
+             BackgroundColor="#F9F6F0">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="Tus Arreglos Seleccionados" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" 
+                   TextColor="#4A453F"
+                   Margin="0,0,0,5"/>
+
+            <!-- Lista de productos en el carrito -->
+            <CollectionView x:Name="cvCarrito" HeightRequest="220">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame BorderColor="#E0DCD5" 
+                               CornerRadius="12" 
+                               Padding="12" 
+                               Margin="0,0,0,10" 
+                               BackgroundColor="White"
+                               HasShadow="True">
+
+                            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10" VerticalOptions="Center">
+                                
+
+                                <!-- Nombre y Precio -->
+                                <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding Arreglo.nombre}" FontAttributes="Bold" FontSize="14" TextColor="#4A453F"/>
+                                    <Label Text="{Binding Arreglo.precio, StringFormat='${0:F2} c/u'}" FontSize="12" TextColor="#8C857B"/>
+                                </VerticalStackLayout>
+
+                                <!-- Cantidad Editable -->
+                                <HorizontalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                                    <Label Text="Cant:" FontSize="12" VerticalOptions="Center" TextColor="#8C857B"/>
+                                    <Entry Text="{Binding Cantidad}" 
+                                           Keyboard="Numeric" 
+                                           WidthRequest="42" 
+                                           HeightRequest="38"
+                                           FontSize="13"
+                                           TextColor="#4A453F"
+                                           BackgroundColor="#F0EFEB"
+                                           HorizontalTextAlignment="Center"
+                               TextChanged="OnCantidadEntryChanged"/>
+                                </HorizontalStackLayout>
+
+                                <!-- Subtotal -->
+                                <Label Grid.Column="2" 
+                           Text="{Binding Subtotal, StringFormat='${0:F2}'}" 
+                           FontAttributes="Bold" 
+                           FontSize="15" 
+                           TextColor="#707A5E" 
+                           VerticalOptions="Center" 
+                           HorizontalOptions="End"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Botón para Seguir Comprando -->
+            <Button Text=" Seguir Comprando (Volver al Catálogo)" 
+                    Clicked="OnSeguirComprandoClicked" 
+                    BackgroundColor="#8C857B" 
+                    TextColor="White" 
+                    FontAttributes="Bold"
+                    CornerRadius="12" 
+                    HeightRequest="46"/>
+
+            <!-- Tarjeta de Cálculos Totales -->
+            <Frame BorderColor="#E0DCD5" CornerRadius="16" Padding="16" BackgroundColor="White" HasShadow="True">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Datos de Facturación" FontAttributes="Bold" FontSize="15" TextColor="#707A5E"/>
+
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="Subtotal General:" TextColor="#8C857B"/>
+                        <Label Grid.Column="1" x:Name="lblSubtotal" Text="$0.00" FontAttributes="Bold" TextColor="#4A453F"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="IVA (15%):" TextColor="#8C857B"/>
+                        <Label Grid.Column="1" x:Name="lblIva" Text="$0.00" FontAttributes="Bold" TextColor="#4A453F"/>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="#EFECE6" Margin="0,2"/>
+
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Grid.Column="0" Text="TOTAL A PAGAR:" FontAttributes="Bold" FontSize="16" TextColor="#4A453F"/>
+                        <Label Grid.Column="1" x:Name="lblTotal" Text="$0.00" FontAttributes="Bold" FontSize="18" TextColor="#707A5E"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Datos de Envío -->
+            <Label Text="Información de Envío (Obligatorio)" FontAttributes="Bold" FontSize="16" TextColor="#4A453F" Margin="0,5,0,0"/>
+
+            <Frame BorderColor="#E0DCD5" CornerRadius="16" Padding="14" BackgroundColor="White" HasShadow="True">
+                <VerticalStackLayout Spacing="12">
+                    
+            <Entry x:Name="txtNombreCliente" 
+                           Placeholder="Nombre completo de quien recibe" 
+                           PlaceholderColor="#B0A8A0" 
+                           TextColor="#4A453F" 
+                           BackgroundColor="Transparent" 
+                           FontSize="14" />
+                    
+                    <BoxView HeightRequest="1" Color="#EFECE6"/>
+                    
+            <Entry x:Name="txtTelefono" 
+                   Placeholder="Teléfono de contacto" 
+                           Keyboard="Telephone" 
+                           PlaceholderColor="#B0A8A0" 
+                           TextColor="#4A453F" 
+                           BackgroundColor="Transparent" 
+                           FontSize="14"/>
+
+                    <BoxView HeightRequest="1" Color="#EFECE6"/>
+
+                    <Editor x:Name="txtDireccion" 
+                   Placeholder="Dirección exacta de entrega (Calle, Número, Referencia)" 
+                            HeightRequest="80" 
+                            PlaceholderColor="#B0A8A0" 
+                            TextColor="#4A453F" 
+                            BackgroundColor="Transparent" 
+                            FontSize="14" />
+
+                </VerticalStackLayout>
+            </Frame>
+
+
+            <!-- Botón Confirmar -->
+            <Button Text="Confirmar y Enviar Pedido" 
+                    Clicked="Button_Clicked" 
+                    BackgroundColor="#707A5E" 
+                    TextColor="White" 
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    CornerRadius="12" 
+                    HeightRequest="50"
+                    Margin="0,10,0,10"/>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

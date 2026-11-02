@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="addFloreriaG5.Views.vEditarArreglo"
+             Title="Editar Arreglo Floral">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+
+            <Label Text="Modificar Arreglo" 
+                   FontSize="20" 
+                   FontAttributes="Bold" 
+                   HorizontalOptions="Center" 
+                   Margin="0,0,0,10"/>
+
+            <Entry x:Name="txtNombre" Placeholder="Nombre del arreglo" />
+            <Editor x:Name="txtDescripcion" Placeholder="Descripción detallada" HeightRequest="80" />
+
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                <Entry Grid.Column="0" x:Name="txtPrecio" Placeholder="Precio ($)" Keyboard="Numeric" />
+                <Entry Grid.Column="1" x:Name="txtStock" Placeholder="Stock" Keyboard="Numeric" />
+            </Grid>
+
+            <!-- Selector de Categoría -->
+            <Label Text="Categoría:" FontAttributes="Bold" />
+            <Picker x:Name="pickerCategorias" 
+                    Title="Seleccione una categoría" 
+                    ItemDisplayBinding="{Binding nombre}" />
+
+            <!-- Sección de Imagen -->
+            <Label Text="Imagen del Producto" FontAttributes="Bold" Margin="0,5,0,0" />
+            <Entry x:Name="txtImagenUrl" Placeholder="URL de la imagen" />
+
+            <Button Text="📁 Cambiar Imagen de la Galería" 
+                    Clicked="Button_Clicked" 
+                    BackgroundColor="#607D8B" 
+                    TextColor="White" 
+                    CornerRadius="8" />
+
+            <Image x:Name="imgPrevia" HeightRequest="130" WidthRequest="130" HorizontalOptions="Center" BackgroundColor="#F0F0F0" Aspect="AspectFill" />
+
+            <!-- Botón principal de actualización -->
+            <Button Text="Actualizar Arreglo" 
+                    Clicked="Button_Clicked_1" 
+                    BackgroundColor="#FF9800" 
+                    TextColor="White" 
+                    CornerRadius="8" 
+                    HeightRequest="50"
+                    Margin="0,15,0,0"/>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

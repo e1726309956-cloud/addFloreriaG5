@@ -66,18 +66,40 @@
                     HorizontalTextAlignment="Center"
                     LineBreakMode="WordWrap"/>
 
-                <!-- BOTÓN -->
-                <Button
-                    x:Name="btnAceptar"
-                    Text="Continuar"
-                    Clicked="Cerrar_Clicked"
-                    BackgroundColor="#9B3E5C"
-                    TextColor="White"
-                    FontSize="16"
-                    FontAttributes="Bold"
-                    HeightRequest="48"
-                    CornerRadius="16"
-                    Margin="0,12,0,0"/>
+                <!-- BOTONES DEL MENSAJE -->
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      Margin="0,12,0,0">
+
+                    <!-- CANCELAR -->
+                    <Button
+                        x:Name="btnCancelar"
+                        Grid.Column="0"
+                        Text="No"
+                        IsVisible="False"
+                        BackgroundColor="#FFF6F7"
+                        TextColor="#9B3E5C"
+                        BorderColor="#9B3E5C"
+                        BorderWidth="1"
+                        CornerRadius="16"
+                        HeightRequest="48"
+                        Clicked="Cancelar_Clicked"/>
+
+                    <!-- ACEPTAR / CONFIRMAR -->
+                    <Button
+                        x:Name="btnAceptar"
+                        Grid.Column="1"
+                        Text="Continuar"
+                        BackgroundColor="#9B3E5C"
+                        TextColor="White"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        CornerRadius="16"
+                        HeightRequest="48"
+                        Clicked="Cerrar_Clicked"/>
+
+                </Grid>
+
 
             </VerticalStackLayout>
 

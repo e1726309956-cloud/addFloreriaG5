@@ -89,42 +89,81 @@ public partial class vEditarArreglo : ContentPage
 
     }
 
-    private async void Button_Clicked_1(object sender, EventArgs e)
+
+    private async void Guardar_Clicked(object sender, EventArgs e)
     {
-        // Validaciones básicas y numéricas
+        // 1. VALIDAR CAMPOS OBLIGATORIOS
         if (string.IsNullOrWhiteSpace(txtNombre.Text) ||
             string.IsNullOrWhiteSpace(txtPrecio.Text) ||
-            string.IsNullOrWhiteSpace(txtStock.Text) ||
-            pickerCategorias.SelectedItem == null)
+            string.IsNullOrWhiteSpace(txtStock.Text))
         {
-            await DisplayAlert("Error", "Complete todos los campos obligatorios.", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Campos incompletos",
+                "Completa los campos obligatorios.",
+                "advertencia");
+
             return;
         }
 
-        if (!decimal.TryParse(txtPrecio.Text, out decimal precioValidado) || precioValidado <= 0)
+        // 2. VALIDAR CATEGORÍA
+        if (pickerCategorias.SelectedItem is not CategoriaModel
+            categoriaSeleccionada)
         {
-            await DisplayAlert("Error", "El precio debe ser un número válido mayor a 0.", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Categoría requerida",
+                "Selecciona una categoría para continuar.",
+                "advertencia");
+
             return;
         }
 
-        if (!int.TryParse(txtStock.Text, out int stockValidado) || stockValidado < 0)
+        // 3. VALIDAR PRECIO
+        if (!decimal.TryParse(
+            txtPrecio.Text?.Trim(),
+            out decimal precioValidado) || precioValidado <= 0)
         {
-            await DisplayAlert("Error", "El stock debe ser un número entero válido.", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Precio inválido",
+                "Ingresa un precio válido mayor a cero.",
+                "error");
+
+            txtPrecio.Focus();
             return;
         }
 
+        // 4. VALIDAR STOCK
+        if (!int.TryParse(
+            txtStock.Text?.Trim(),
+            out int stockValidado) || stockValidado < 0)
+        {
+            await MensajeModal.MostrarAsync(
+                this,
+                "Stock inválido",
+                "Ingresa un número entero igual o mayor a cero.",
+                "error");
+
+            txtStock.Focus();
+            return;
+        }
+
+        // 5. ACTUALIZAR EL ARREGLO EN SUPABASE
         try
         {
             SupabaseService servicio = new SupabaseService();
-            var categoriaSeleccionada = (CategoriaModel)pickerCategorias.SelectedItem;
 
-            string urlOImagenFinal = string.IsNullOrWhiteSpace(txtImagenUrl.Text) ? rutaImagenLocal : txtImagenUrl.Text;
+            string urlOImagenFinal =
+                !string.IsNullOrWhiteSpace(txtImagenUrl.Text)
+                    ? txtImagenUrl.Text.Trim()
+                    : rutaImagenLocal;
 
-            // Objeto con los datos actualizados
             var arregloActualizado = new
             {
-                nombre = txtNombre.Text,
-                descripcion = txtDescripcion.Text ?? string.Empty,
+                nombre = txtNombre.Text.Trim(),
+                descripcion = txtDescripcion.Text?.Trim()
+                    ?? string.Empty,
                 precio = precioValidado,
                 stock = stockValidado,
                 imagen = urlOImagenFinal,
@@ -132,36 +171,69 @@ public partial class vEditarArreglo : ContentPage
             };
 
             string json = JsonSerializer.Serialize(arregloActualizado);
-            StringContent contenido = new StringContent(json, Encoding.UTF8, "application/json");
 
-            // En Supabase, para actualizar se usa una petición PATCH filtrando por id
-            string endpoint = $"{servicio.GetUrl()}/rest/v1/arreglos?id_arreglo=eq.{idArregloActual}";
+            using var contenido = new StringContent(
+                json,
+                Encoding.UTF8,
+                "application/json");
 
-            // HttpClient de .NET no tiene un método PatchAsync nativo estándar directo en todas las versiones antiguas, 
-            // pero podemos usar HttpRequestMessage con HttpMethod.Patch:
-            var request = new HttpRequestMessage(new HttpMethod("PATCH"), endpoint)
+            string endpoint =
+                $"{servicio.GetUrl()}/rest/v1/arreglos?id_arreglo=eq.{idArregloActual}";
+
+            using var request = new HttpRequestMessage(
+                HttpMethod.Patch,
+                endpoint)
             {
                 Content = contenido
             };
 
-            var respuesta = await servicio.GetClient().SendAsync(request);
+            using var respuesta = await servicio
+                .GetClient()
+                .SendAsync(request);
 
+            // 6. ACTUALIZACIÓN EXITOSA
             if (respuesta.IsSuccessStatusCode)
             {
-                await DisplayAlert("Éxito", "Arreglo actualizado correctamente", "Aceptar");
-                await Navigation.PopAsync(); // Regresa al catálogo y este se refrescará al volver
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "¡Cambios guardados!",
+                    "El arreglo floral se actualizó correctamente.",
+                    "exito");
+
+                await Navigation.PopAsync();
             }
             else
             {
+                // Guardar detalles técnicos para depuración
                 string error = await respuesta.Content.ReadAsStringAsync();
-                await DisplayAlert("Error de Base de Datos", error, "Aceptar");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"Error de Supabase al editar arreglo: {error}");
+
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "No se pudo actualizar",
+                    "Ocurrió un problema al guardar los cambios.",
+                    "error");
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "Aceptar");
+            System.Diagnostics.Debug.WriteLine(
+                $"Error al editar arreglo: {ex}");
+
+            await MensajeModal.MostrarAsync(
+                this,
+                "Error al guardar",
+                "No fue posible actualizar el arreglo. Inténtalo nuevamente.",
+                "error");
         }
     }
 
-    
+    private async void Volver_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
+    }
+
+
 }

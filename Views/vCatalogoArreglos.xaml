@@ -422,7 +422,7 @@
                                     <Button
                                         Grid.Column="2"
                                         Text="Desactivar"
-                                        Clicked="Button_Clicked_4"
+                                        Clicked="btnCambiarEstadoArreglo_Clicked"
                                         CommandParameter="{Binding .}"
                                         BackgroundColor="#9B3E5C"
                                         TextColor="White"
@@ -484,6 +484,171 @@
 
         </Grid>
 
+
+            <!-- VENTANA PERSONALIZADA DE DETALLES -->
+        <Grid
+        x:Name="panelDetalles"
+        IsVisible="False"
+        BackgroundColor="#99000000"
+        Padding="20">
+
+            <Border
+            BackgroundColor="#FFFFFF"
+            Stroke="#EBD7DC"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 26"
+            Padding="22"
+            MaximumWidthRequest="380"
+            HorizontalOptions="Fill"
+            VerticalOptions="Center">
+
+                <Border.Shadow>
+                    <Shadow
+                    Brush="#7A4D5A"
+                    Offset="0,5"
+                    Radius="16"
+                    Opacity="0.20"/>
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="18">
+
+                    <!-- ENCABEZADO -->
+                    <Grid ColumnDefinitions="*,Auto">
+
+                        <Label
+                        Text="Detalles del arreglo"
+                        FontSize="21"
+                        FontAttributes="Bold"
+                        TextColor="#752B43"
+                        VerticalTextAlignment="Center"/>
+
+                        <Button
+                        Grid.Column="1"
+                        Text="✕"
+                        FontSize="18"
+                        TextColor="#752B43"
+                        BackgroundColor="Transparent"
+                        Clicked="CerrarDetalles_Clicked"
+                        WidthRequest="44"
+                        HeightRequest="44"/>
+                    </Grid>
+
+                    <BoxView
+                    HeightRequest="1"
+                    Color="#EBD7DC"/>
+
+                    <!-- INFORMACIÓN DEL ARREGLO -->
+                    <Grid
+                    ColumnDefinitions="95,*"
+                    ColumnSpacing="14">
+
+                        <Border
+                        BackgroundColor="#F8E8ED"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 15"
+                        WidthRequest="95"
+                        HeightRequest="100">
+
+                            <Image
+                            x:Name="imgDetalle"
+                            Aspect="AspectFit"/>
+                        </Border>
+
+                        <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="7"
+                        VerticalOptions="Center">
+
+                            <Label
+                            x:Name="lblDetalleNombre"
+                            FontSize="19"
+                            FontAttributes="Bold"
+                            TextColor="#752B43"
+                            LineBreakMode="WordWrap"/>
+
+                            <Label
+                            x:Name="lblDetalleDescripcion"
+                            FontSize="13"
+                            TextColor="#867A78"
+                            LineBreakMode="WordWrap"/>
+
+                            <Label
+                            x:Name="lblDetalleEstado"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            TextColor="#698356"/>
+
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- PRECIO Y STOCK -->
+                    <Grid
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="10">
+
+                        <Border
+                        BackgroundColor="#F7F3EB"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 15"
+                        Padding="14">
+
+                            <VerticalStackLayout Spacing="6">
+
+                                <Label
+                                Text="Precio"
+                                FontSize="12"
+                                TextColor="#857B73"/>
+
+                                <Label
+                                x:Name="lblDetallePrecio"
+                                FontSize="21"
+                                FontAttributes="Bold"
+                                TextColor="#63754D"/>
+
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border
+                        Grid.Column="1"
+                        BackgroundColor="#FFF1F4"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 15"
+                        Padding="14">
+
+                            <VerticalStackLayout Spacing="6">
+
+                                <Label
+                                Text="Stock disponible"
+                                FontSize="12"
+                                TextColor="#857B73"/>
+
+                                <Label
+                                x:Name="lblDetalleStock"
+                                FontSize="19"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"/>
+
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- CERRAR -->
+                    <Button
+                    Text="Cerrar detalles"
+                    Clicked="CerrarDetalles_Clicked"
+                    BackgroundColor="#9B3E5C"
+                    TextColor="White"
+                    FontSize="15"
+                    FontAttributes="Bold"
+                    CornerRadius="15"
+                    HeightRequest="48"/>
+
+                </VerticalStackLayout>
+
+            </Border>
+        </Grid>
+
     </Grid>
+
 
 </ContentPage>

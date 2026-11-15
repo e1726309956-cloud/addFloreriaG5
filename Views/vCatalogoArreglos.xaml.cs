@@ -167,20 +167,55 @@ public partial class vCatalogoArreglos : ContentPage
         await Navigation.PushAsync(new vRegistroArreglo());
     }
 
-    private async void Button_Clicked_2(object sender, EventArgs e)
-    {
-        if (sender is Button button && button.CommandParameter is ArregloModel arreglo)
-        {
-            string detalleMensaje =
-                $"Nombre: {arreglo.nombre}\n\n" +
-                $"Descripción: {arreglo.descripcion}\n\n" +
-                $"Precio: ${arreglo.precio:F2}\n" +
-                $"Stock Disponible: {arreglo.stock} unidades\n" +
-                $"Estado: {(arreglo.estado ? "Activo" : "Inactivo")}";
 
-            await DisplayAlert("Detalles del Arreglo", detalleMensaje, "Aceptar");
+    private void Button_Clicked_2(object sender, EventArgs e)
+    {
+        if (sender is Button button &&
+            button.CommandParameter is ArregloModel arreglo)
+        {
+            lblDetalleNombre.Text = arreglo.nombre;
+
+            lblDetalleDescripcion.Text = arreglo.descripcion;
+
+            lblDetallePrecio.Text = $"${arreglo.precio:F2}";
+
+            lblDetalleStock.Text = $"{arreglo.stock} unidades";
+
+            lblDetalleEstado.Text =
+                arreglo.estado ? "● Activo" : "● Inactivo";
+
+            lblDetalleEstado.TextColor = Color.FromArgb(
+                arreglo.estado ? "#698356" : "#A04B64");
+
+            // Imagen del arreglo
+            imgDetalle.Source = null;
+
+            if (!string.IsNullOrWhiteSpace(arreglo.imagen))
+            {
+                if (Uri.TryCreate(
+                    arreglo.imagen,
+                    UriKind.Absolute,
+                    out var uri) &&
+                    (uri.Scheme == "https" || uri.Scheme == "http"))
+                {
+                    imgDetalle.Source = ImageSource.FromUri(uri);
+                }
+                else
+                {
+                    imgDetalle.Source =
+                        ImageSource.FromFile(arreglo.imagen);
+                }
+            }
+
+            panelDetalles.IsVisible = true;
         }
     }
+
+    private void CerrarDetalles_Clicked(object sender, EventArgs e)
+    {
+        panelDetalles.IsVisible = false;
+    }
+
 
     private async void Button_Clicked_3(object sender, EventArgs e)
     {
@@ -190,19 +225,18 @@ public partial class vCatalogoArreglos : ContentPage
         }
     }
 
-    private async void Button_Clicked_4(object sender, EventArgs e)
+    private async void btnCambiarEstadoArreglo_Clicked(object sender, EventArgs e)
     {
         if (sender is Button button && button.CommandParameter is ArregloModel arreglo)
         {
             bool nuevoEstado = !arreglo.estado;
 
             string accion = nuevoEstado ? "activar" : "desactivar";
-            bool confirmar = await DisplayAlert(
-                "Confirmar",
-                $"¿Estás seguro de {accion} el arreglo '{arreglo.nombre}'?",
-                "Sí",
-                "No");
-
+            bool confirmar = await MensajeModal.ConfirmarAsync(
+                    this,
+                    nuevoEstado ? "Activar arreglo" : "Desactivar arreglo",
+                    $"¿Confirmas el cambio de estado de '{arreglo.nombre}'?"
+            );
             if (!confirmar)
                 return;
 

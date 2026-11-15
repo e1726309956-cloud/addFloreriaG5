@@ -70,76 +70,150 @@ public partial class vRegistroArreglo : ContentPage
 
     }
 
-    private async void Button_Clicked_1(object sender, EventArgs e)
+
+    private async void Guardar_Clicked(object sender, EventArgs e)
     {
-        // 1. Validar campos vacíos generales
+        // 1. VALIDAR CAMPOS OBLIGATORIOS
         if (string.IsNullOrWhiteSpace(txtNombre.Text) ||
             string.IsNullOrWhiteSpace(txtPrecio.Text) ||
             string.IsNullOrWhiteSpace(txtStock.Text) ||
             pickerCategorias.SelectedItem == null)
         {
-            await DisplayAlert("Error", "Complete todos los campos obligatorios y seleccione una categoría", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Campos incompletos",
+                "Completa los campos obligatorios y selecciona una categoría.",
+                "advertencia");
+
             return;
         }
 
-        // 2. VALIDACIÓN ESTRICTA: Comprobar que el PRECIO sea un número válido
-        if (!decimal.TryParse(txtPrecio.Text, out decimal precioValidado) || precioValidado <= 0)
+        // 2. VALIDAR PRECIO
+        if (!decimal.TryParse(
+            txtPrecio.Text?.Trim(),
+            out decimal precioValidado) || precioValidado <= 0)
         {
-            await DisplayAlert("Error de validación", "El precio debe ser un número válido mayor a 0 (use punto o coma según su región).", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Precio inválido",
+                "Ingresa un precio válido mayor a cero.",
+                "error");
+
             txtPrecio.Focus();
             return;
         }
 
-        // 3. VALIDACIÓN ESTRICTA: Comprobar que el STOCK sea un número entero válido
-        if (!int.TryParse(txtStock.Text, out int stockValidado) || stockValidado < 0)
+        // 3. VALIDAR STOCK
+        if (!int.TryParse(
+            txtStock.Text?.Trim(),
+            out int stockValidado) || stockValidado < 0)
         {
-            await DisplayAlert("Error de validación", "El stock debe ser un número entero válido (0 o mayor).", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Stock inválido",
+                "Ingresa un número entero igual o mayor a cero.",
+                "error");
+
             txtStock.Focus();
             return;
         }
 
+        // 4. VALIDAR CATEGORÍA
+        if (pickerCategorias.SelectedItem is not CategoriaModel
+            categoriaSeleccionada)
+        {
+            await MensajeModal.MostrarAsync(
+                this,
+                "Categoría requerida",
+                "Selecciona una categoría para continuar.",
+                "advertencia");
+
+            return;
+        }
+
+        // 5. GUARDAR EL ARREGLO EN SUPABASE
         try
         {
             SupabaseService servicio = new SupabaseService();
 
-            // Obtenemos el ID de la categoría seleccionada en el Picker gracias al Binding
-            var categoriaSeleccionada = (CategoriaModel)pickerCategorias.SelectedItem;
-            int idCategoriaReal = categoriaSeleccionada.id_categoria;
-
-            string urlOImagenFinal = string.IsNullOrWhiteSpace(txtImagenUrl.Text) ? rutaImagenLocal : txtImagenUrl.Text;
+            string urlOImagenFinal =
+                string.IsNullOrWhiteSpace(txtImagenUrl.Text)
+                    ? rutaImagenLocal
+                    : txtImagenUrl.Text.Trim();
 
             var nuevoArreglo = new
             {
-                nombre = txtNombre.Text,
-                descripcion = txtDescripcion.Text ?? string.Empty,
-                precio = precioValidado,          // Usamos el valor ya validado
-                stock = stockValidado,            // Usamos el valor ya validado
+                nombre = txtNombre.Text.Trim(),
+                descripcion = txtDescripcion.Text?.Trim() ?? string.Empty,
+                precio = precioValidado,
+                stock = stockValidado,
                 imagen = urlOImagenFinal,
-                id_categoria = idCategoriaReal,   // ID capturado automáticamente del nombre seleccionado
+                id_categoria = categoriaSeleccionada.id_categoria,
                 estado = true
             };
 
             string json = JsonSerializer.Serialize(nuevoArreglo);
-            StringContent contenido = new StringContent(json, Encoding.UTF8, "application/json");
 
-            string endpoint = $"{servicio.GetUrl()}/rest/v1/arreglos";
-            var respuesta = await servicio.GetClient().PostAsync(endpoint, contenido);
+            using StringContent contenido = new StringContent(
+                json,
+                Encoding.UTF8,
+                "application/json");
 
+            string endpoint =
+                $"{servicio.GetUrl()}/rest/v1/arreglos";
+
+            using var respuesta = await servicio
+                .GetClient()
+                .PostAsync(endpoint, contenido);
+
+            // 6. REGISTRO EXITOSO
             if (respuesta.IsSuccessStatusCode)
             {
-                await DisplayAlert("Éxito", "Arreglo floral registrado correctamente", "Aceptar");
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "¡Arreglo registrado!",
+                    "El nuevo arreglo floral se guardó correctamente.",
+                    "exito");
+
                 await Navigation.PopAsync();
             }
             else
             {
+                // Conservar el error técnico para depuración
                 string error = await respuesta.Content.ReadAsStringAsync();
-                await DisplayAlert("Error de Base de Datos", error, "Aceptar");
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"Error Supabase: {error}");
+
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "No se pudo guardar",
+                    "Ocurrió un problema al registrar el arreglo. Inténtalo nuevamente.",
+                    "error");
             }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "Aceptar");
+            System.Diagnostics.Debug.WriteLine(
+                $"Error al guardar arreglo: {ex}");
+
+            await MensajeModal.MostrarAsync(
+                this,
+                "Error de conexión",
+                "No fue posible completar el registro. Verifica la conexión e inténtalo nuevamente.",
+                "error");
         }
     }
 
+
+
+    private async void Volver_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
+    }
+
+    private void Button_Clicked_2(object sender, EventArgs e)
+    {
+
+    }
 }

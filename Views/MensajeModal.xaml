@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="addFloreriaG5.Views.MensajeModal"
+    BackgroundColor="#FFF8F5"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
+
+    <Grid Padding="28">
+
+        <Border
+            BackgroundColor="White"
+            Stroke="#EBD7DC"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 28"
+            Padding="28,32"
+            MaximumWidthRequest="380"
+            HorizontalOptions="Fill"
+            VerticalOptions="Center">
+
+            <Border.Shadow>
+                <Shadow
+                    Brush="#AC7484"
+                    Offset="0,5"
+                    Radius="16"
+                    Opacity="0.15"/>
+            </Border.Shadow>
+
+            <VerticalStackLayout Spacing="16">
+
+                <!-- ICONO -->
+                <Border
+                    BackgroundColor="#F8E6EB"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 45"
+                    WidthRequest="80"
+                    HeightRequest="80"
+                    HorizontalOptions="Center">
+
+                    <Label
+                        x:Name="lblIcono"
+                        Text="✓"
+                        FontSize="40"
+                        FontAttributes="Bold"
+                        TextColor="#9B3E5C"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"/>
+                </Border>
+
+                <!-- TÍTULO -->
+                <Label
+                    x:Name="lblTitulo"
+                    Text="¡Bienvenido!"
+                    FontSize="24"
+                    FontAttributes="Bold"
+                    TextColor="#772F49"
+                    HorizontalTextAlignment="Center"/>
+
+                <!-- MENSAJE -->
+                <Label
+                    x:Name="lblMensaje"
+                    FontSize="15"
+                    TextColor="#80636D"
+                    HorizontalTextAlignment="Center"
+                    LineBreakMode="WordWrap"/>
+
+                <!-- BOTÓN -->
+                <Button
+                    x:Name="btnAceptar"
+                    Text="Continuar"
+                    Clicked="Cerrar_Clicked"
+                    BackgroundColor="#9B3E5C"
+                    TextColor="White"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    HeightRequest="48"
+                    CornerRadius="16"
+                    Margin="0,12,0,0"/>
+
+            </VerticalStackLayout>
+
+        </Border>
+
+    </Grid>
+</ContentPage>

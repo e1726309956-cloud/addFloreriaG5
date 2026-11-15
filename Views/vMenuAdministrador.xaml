@@ -1,113 +1,368 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="addFloreriaG5.Views.vMenuAdministrador"
-             Title="Panel de Administración"
-             BackgroundColor="#F9F6F0">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="25" Spacing="16" VerticalOptions="Center">
-            
-            <Label
-                x:Name="lblUsuario"
-                FontSize="18"
-                FontAttributes="Bold"
-                HorizontalOptions="Center"
-                TextColor="#707A5E"/>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    x:Class="addFloreriaG5.Views.vMenuAdministrador"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
 
-        <!-- Encabezado -->
-        <Label x:Name="lblTituloAdmin" 
-                   Text="Panel de Control" 
-                   FontSize="26" 
-                   FontAttributes="Bold" 
-                   HorizontalOptions="Center" 
-                   TextColor="#4A453F"/>
+    <Grid>
 
-            <Label Text="Gestión general de florería, pedidos y rutas" 
-                   FontSize="13" 
-                   TextColor="#8C857B" 
-                   HorizontalOptions="Center" 
-                   Margin="0,0,0,10"/>
+        <!-- FONDO FLORAL -->
+        <Image
+            Source="fondo_login_floral.png"
+            Aspect="AspectFill"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            InputTransparent="True"/>
 
-            <!-- Botones de Acceso -->
-            <Frame BackgroundColor="White" 
-                   BorderColor="#E0DCD5" 
-                   CornerRadius="16" 
-                   Padding="15" 
-                   HasShadow="True">
+        <ScrollView
+            Orientation="Vertical"
+            VerticalScrollBarVisibility="Never">
 
-                <Grid RowDefinitions="Auto, Auto, Auto" 
-                      ColumnDefinitions="*, *" 
-                      RowSpacing="10" 
-                      ColumnSpacing="10">
-                    
-            
-        <Button Text=" Ver y Gestionar Catálogo (Arreglos)" 
-                    Clicked="Button_Clicked" 
-BackgroundColor="#707A5E" 
-                            TextColor="White" 
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            CornerRadius="12" 
-                            HeightRequest="60"
-                            Grid.Row="0" Grid.Column="0"/>
+            <VerticalStackLayout
+                Padding="22,25,22,40"
+                Spacing="20"
+                MaximumWidthRequest="480"
+                HorizontalOptions="Center">
 
-        <Button Text=" Ver Pedidos y Negociar (WhatsApp)" 
-                    Clicked="Button_Clicked_1" 
-BackgroundColor="#5A634B"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            CornerRadius="12"
-                            HeightRequest="60"
-                            Grid.Row="0" Grid.Column="1"/>
+                <!-- ENCABEZADO -->
+                <VerticalStackLayout
+                    Spacing="10"
+                    Margin="0,10,0,15">
 
-        <Button Text=" Control de Entregas" 
-                    Clicked="Button_Clicked_2" 
-BackgroundColor="#D39E82"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            CornerRadius="12"
-                            HeightRequest="60"
-                            Grid.Row="1" Grid.Column="0"/>
+                    <Label
+                        x:Name="lblTituloAdmin"
+                        Text="Bienvenido"
+                        FontSize="26"
+                        FontAttributes="Bold"
+                        TextColor="#752B43"
+                        HorizontalTextAlignment="Center"
+                        Margin="0,15,0,0"/>
 
-        <Button Text=" Gestionar Usuarios y Roles" 
-                    Clicked="Button_Clicked_3" 
-BackgroundColor="#8C857B" 
-                            TextColor="White" 
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            CornerRadius="12" 
-                            HeightRequest="60"
-                            Grid.Row="1" Grid.Column="1"/>
+                    <Label
+                        Text="¿Qué deseas gestionar hoy?"
+                        FontSize="13"
+                        TextColor="#82776D"
+                        HorizontalTextAlignment="Center"/>
 
-            <!-- Botón para ver Productos Inactivos -->
-            <Button Text=" Ver Productos Inactivos"
-BackgroundColor="#C28F74"
-                            TextColor="White"
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            CornerRadius="12"
-                            HeightRequest="50"
-                            Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-        Clicked="Button_Clicked_5" />
+                </VerticalStackLayout>
+
+                <!-- CUADRÍCULA DE OPCIONES -->
+                <Grid
+                    ColumnDefinitions="*,*"
+                    RowDefinitions="Auto,Auto"
+                    ColumnSpacing="12"
+                    RowSpacing="12">
+
+                    <!-- CATÁLOGO -->
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        BackgroundColor="White"
+                        Stroke="#EBDCE0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="12"
+                        HeightRequest="150">
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="Button_Clicked"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="12"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#8B9779"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 15"
+                                WidthRequest="56"
+                                HeightRequest="56"
+                                HorizontalOptions="Start">
+
+                                <mi:MauiIcon
+                                    Icon="{mi:Material Icon=LocalFlorist}"
+                                    IconColor="White"
+                                    IconSize="32"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+
+                            </Border>
+
+                            <Label
+                                Text="Catálogo"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"
+                                LineBreakMode="WordWrap"/>
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                    <!-- PEDIDOS -->
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        BackgroundColor="White"
+                        Stroke="#EBDCE0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="12"
+                        HeightRequest="150">
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="Button_Clicked_1"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="12"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#D79B91"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 15"
+                                WidthRequest="56"
+                                HeightRequest="56">
+
+                                <mi:MauiIcon
+                                    Icon="{mi:Material Icon=ShoppingCart}"
+                                    IconColor="White"
+                                    IconSize="32"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+
+                            </Border>
+
+                            <Label
+                                Text="Pedidos"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"/>
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                    <!-- ENTREGAS -->
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        BackgroundColor="White"
+                        Stroke="#EBDCE0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="12"
+                        HeightRequest="150">
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="Button_Clicked_2"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="12"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#D79B91"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 15"
+                                WidthRequest="56"
+                                HeightRequest="56">
+
+                                <mi:MauiIcon
+                                    Icon="{mi:Material Icon=LocalShipping}"
+                                    IconColor="White"
+                                    IconSize="32"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+
+                            </Border>
+
+                            <Label
+                                    Text="Entregas"
+                                    FontSize="14"
+                                    FontAttributes="Bold"
+                                    TextColor="#752B43"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalTextAlignment="Center"
+                                    LineBreakMode="WordWrap"
+                                    MaxLines="2"/>  
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                    <!-- USUARIOS -->
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        BackgroundColor="White"
+                        Stroke="#EBDCE0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="12"
+                        HeightRequest="150">
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="Button_Clicked_3"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="12"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#8B9779"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 15"
+                                WidthRequest="56"
+                                HeightRequest="56">
+
+                                <mi:MauiIcon
+                                    Icon="{mi:Material Icon=People}"
+                                    IconColor="White"
+                                    IconSize="32"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+
+                            </Border>
+
+                            <Label
+                                Text="Usuarios"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"
+                                LineBreakMode="WordWrap"/>
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
                 </Grid>
-            </Frame>
 
+                <!-- PRODUCTOS INACTIVOS -->
+                <Border
+                    BackgroundColor="#FFFFFF"
+                    Stroke="#EBDCE0"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="16"
+                    HeightRequest="90">
 
-            <!-- Botón de Cerrar Sesión -->
-        <Button Text="Cerrar Sesión" 
-                    Clicked="Button_Clicked_4" 
-                    BackgroundColor="Transparent" 
-                    TextColor="#C0392B" 
-                    BorderColor="#C0392B"
-                    BorderWidth="1.5"
-                    FontAttributes="Bold"
-                    CornerRadius="12" 
-                    Margin="0,15,0,0" 
-                    HeightRequest="45"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="Button_Clicked_5"/>
+                    </Border.GestureRecognizers>
 
-    </VerticalStackLayout>
-    </ScrollView>
+                    <Grid
+                        ColumnDefinitions="56,*,Auto"
+                        ColumnSpacing="12">
+
+                        <!-- ICONO -->
+                        <Border
+                            Grid.Column="0"
+                            BackgroundColor="#C68B93"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 14"
+                            WidthRequest="54"
+                            HeightRequest="54"
+                            VerticalOptions="Center">
+
+                            <mi:MauiIcon
+                                Icon="{mi:Material Icon=Inventory2}"
+                                IconColor="White"
+                                IconSize="29"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"/>
+
+                        </Border>
+
+                        <!-- TEXTO -->
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="4"
+                            VerticalOptions="Center">
+
+                            <Label
+                                Text="Productos inactivos"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"/>
+
+                            <Label
+                                Text="Consultar y recuperar arreglos"
+                                FontSize="11"
+                                TextColor="#86767B"
+                                LineBreakMode="WordWrap"/>
+
+                        </VerticalStackLayout>
+
+                        <!-- FLECHA -->
+                        <mi:MauiIcon
+                            Grid.Column="2"
+                            Icon="{mi:Material Icon=ChevronRight}"
+                            IconColor="#752B43"
+                            IconSize="26"
+                            VerticalOptions="Center"/>
+
+                    </Grid>
+                </Border>
+
+                <!-- CERRAR SESIÓN -->
+                <Border
+                    BackgroundColor="#FFF9F6"
+                    Stroke="#923B58"
+                    StrokeThickness="1.5"
+                    StrokeShape="RoundRectangle 18"
+                    HeightRequest="54"
+                    Margin="0,15,0,0">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="Button_Clicked_4"/>
+                    </Border.GestureRecognizers>
+
+                    <HorizontalStackLayout
+                        Spacing="12"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+
+                        <mi:MauiIcon
+                            Icon="{mi:Material Icon=Logout}"
+                            IconColor="#923B58"
+                            IconSize="24"
+                            VerticalOptions="Center"/>
+
+                        <Label
+                            Text="Cerrar sesión"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="#923B58"
+                            VerticalTextAlignment="Center"/>
+
+                    </HorizontalStackLayout>
+
+                </Border>
+
+            </VerticalStackLayout>
+
+        </ScrollView>
+
+    </Grid>
+
 </ContentPage>

@@ -17,6 +17,7 @@ namespace addFloreriaG5.Views
         public int stock { get; set; }
         public string imagen { get; set; }
         public int id_categoria { get; set; }
+        public bool estado { get; set; }
     }
 
     public class CategoriaModel

@@ -1,52 +1,309 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="addFloreriaG5.Views.vRegistro"
-             Title="vRegistro">
-    <VerticalStackLayout            
-        Padding="25"
-        Spacing="10">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="addFloreriaG5.Views.vRegistro"
+    Title="Registro"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
 
-        <Label
-                Text="Registro de Cliente"
-                FontSize="25"
-                FontAttributes="Bold"
-                HorizontalOptions="Center"/>
+    <Grid>
 
-        <Entry
-                x:Name="txtNombres"
-                Placeholder="Nombres" />
+        <!-- FONDO FLORAL -->
+        <Image
+            Source="fondo_login_floral.png"
+            Aspect="AspectFill"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            InputTransparent="True" />
 
-        <Entry
-                x:Name="txtApellidos"
-                Placeholder="Apellidos" />
+        <!-- CONTENIDO -->
+        <ScrollView
+            Orientation="Vertical"
+            VerticalScrollBarVisibility="Default"
+            VerticalOptions="Fill"
+            HorizontalOptions="Fill">
 
-        <Entry
-                x:Name="txtCorreo"
-                Placeholder="Correo"
-                Keyboard="Email" />
+            <VerticalStackLayout
+                MaximumWidthRequest="450"
+                HorizontalOptions="Center"
+                Spacing="0"
+                Padding="0,20,0,35">
 
-        <Entry
-                x:Name="txtTelefono"
-                Placeholder="Teléfono"
-                Keyboard="Telephone" />
+                <!-- LOGO -->
+                <Image
+                    Source="logo_final.png"
+                    WidthRequest="220"
+                    HeightRequest="165"
+                    Aspect="AspectFit"
+                    HorizontalOptions="Center"
+                    Margin="0,10,0,18" />
 
-        <Entry
-                x:Name="txtPassword"
-                Placeholder="Contraseña"
-                IsPassword="True" />
+                <!-- CARD -->
+                <Border
+                    Margin="24,8,24,20"
+                    Padding="22,25"
+                    BackgroundColor="#FFFFFF"
+                    Stroke="#F1E3E4"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 24">
 
-        <Button
-                Text="Registrarse"
-                Clicked="Button_Clicked"
-                BackgroundColor="Green"
-                TextColor="White"/>
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="#BC8C82"
+                            Offset="0,4"
+                            Radius="12"
+                            Opacity="0.10" />
+                    </Border.Shadow>
 
-        <Button
-                Text="Volver al Login"
-                Clicked="Button_Clicked_1"
-                BackgroundColor="Gray"
-                TextColor="White"/>
+                    <VerticalStackLayout Spacing="12">
 
-    </VerticalStackLayout>
+                        <!-- TÍTULO -->
+                        <Label
+                            Text="Crear cuenta"
+                            TextColor="#7D273E"
+                            FontSize="26"
+                            FontAttributes="Bold"
+                            HorizontalTextAlignment="Center" />
+
+                        <Label
+                            Text="Completa tus datos para registrarte"
+                            TextColor="#A07D86"
+                            FontSize="13"
+                            HorizontalTextAlignment="Center"
+                            Margin="0,0,0,8" />
+
+                        <!-- NOMBRES -->
+                        <Label
+                            Text="Nombres"
+                            TextColor="#7D273E"
+                            FontSize="15"
+                            FontAttributes="Bold" />
+
+                        <Border
+                            BackgroundColor="#FFF4F6"
+                            Stroke="#D7B4BC"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 13"
+                            Padding="12,0">
+
+                            <Entry
+                                x:Name="txtNombres"
+                                Placeholder="Ingresa tus nombres"
+                                PlaceholderColor="#A89297"
+                                TextColor="#68454D"
+                                BackgroundColor="Transparent"
+                                FontSize="15"
+                                HeightRequest="48"
+                                ReturnType="Next"
+                                Completed="txtNombres_Completed" />
+                        </Border>
+
+                        <!-- APELLIDOS -->
+                        <Label
+                            Text="Apellidos"
+                            TextColor="#7D273E"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            Margin="0,4,0,0" />
+
+                        <Border
+                            BackgroundColor="#FFF4F6"
+                            Stroke="#D7B4BC"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 13"
+                            Padding="12,0">
+
+                            <Entry
+                                x:Name="txtApellidos"
+                                Placeholder="Ingresa tus apellidos"
+                                PlaceholderColor="#A89297"
+                                TextColor="#68454D"
+                                BackgroundColor="Transparent"
+                                FontSize="15"
+                                HeightRequest="48"
+                                ReturnType="Next"
+                                Completed="txtApellidos_Completed" />
+                        </Border>
+
+                        <!-- CORREO -->
+                        <Label
+                            Text="Correo electrónico"
+                            TextColor="#7D273E"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            Margin="0,4,0,0" />
+
+                        <Border
+                            BackgroundColor="#FFF4F6"
+                            Stroke="#D7B4BC"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 13"
+                            Padding="12,0">
+
+                            <Entry
+                                x:Name="txtCorreo"
+                                Placeholder="Ingresa tu correo"
+                                PlaceholderColor="#A89297"
+                                TextColor="#68454D"
+                                Keyboard="Email"
+                                BackgroundColor="Transparent"
+                                FontSize="15"
+                                HeightRequest="48"
+                                ReturnType="Next"
+                                Completed="txtCorreo_Completed" />
+                        </Border>
+
+                        <!-- TELÉFONO -->
+                        <Label
+                            Text="Teléfono"
+                            TextColor="#7D273E"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            Margin="0,4,0,0" />
+
+                        <Border
+                            BackgroundColor="#FFF4F6"
+                            Stroke="#D7B4BC"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 13"
+                            Padding="12,0">
+
+                            <Entry
+                                x:Name="txtTelefono"
+                                Placeholder="Ingresa tu teléfono"
+                                PlaceholderColor="#A89297"
+                                TextColor="#68454D"
+                                Keyboard="Telephone"
+                                BackgroundColor="Transparent"
+                                FontSize="15"
+                                HeightRequest="48"
+                                ReturnType="Next"
+                                Completed="txtTelefono_Completed" />
+                        </Border>
+
+                        <!-- CONTRASEÑA -->
+                        <Label
+                            Text="Contraseña"
+                            TextColor="#7D273E"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            Margin="0,4,0,0" />
+
+                        <Border
+                            BackgroundColor="#FFF4F6"
+                            Stroke="#D7B4BC"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 13"
+                            Padding="12,0">
+
+                            <Grid ColumnDefinitions="*,40">
+
+                                <Entry
+                                    x:Name="txtPassword"
+                                    Grid.Column="0"
+                                    Placeholder="Crea una contraseña"
+                                    PlaceholderColor="#A89297"
+                                    TextColor="#68454D"
+                                    IsPassword="True"
+                                    BackgroundColor="Transparent"
+                                    FontSize="15"
+                                    HeightRequest="48"
+                                    ReturnType="Next"
+                                    Completed="txtPassword_Completed" />
+
+                                <ImageButton
+                                    Grid.Column="1"
+                                    Source="ojo.png"
+                                    BackgroundColor="Transparent"
+                                    WidthRequest="28"
+                                    HeightRequest="28"
+                                    Padding="4"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    Clicked="TogglePassword_Clicked"
+                                    SemanticProperties.Description="Mostrar u ocultar contraseña" />
+
+                            </Grid>
+                        </Border>
+
+                        <!-- CONFIRMAR CONTRASEÑA -->
+                        <Label
+                            Text="Confirmar contraseña"
+                            TextColor="#7D273E"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            Margin="0,4,0,0" />
+
+                        <Border
+                            BackgroundColor="#FFF4F6"
+                            Stroke="#D7B4BC"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 13"
+                            Padding="12,0">
+
+                            <Grid ColumnDefinitions="*,40">
+
+                                <Entry
+                                    x:Name="txtConfirmPassword"
+                                    Grid.Column="0"
+                                    Placeholder="Repite tu contraseña"
+                                    PlaceholderColor="#A89297"
+                                    TextColor="#68454D"
+                                    IsPassword="True"
+                                    BackgroundColor="Transparent"
+                                    FontSize="15"
+                                    HeightRequest="48"
+                                    ReturnType="Done" />
+
+                                <ImageButton
+                                    Grid.Column="1"
+                                    Source="ojo.png"
+                                    BackgroundColor="Transparent"
+                                    WidthRequest="28"
+                                    HeightRequest="28"
+                                    Padding="4"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    Clicked="ToggleConfirmPassword_Clicked"
+                                    SemanticProperties.Description="Mostrar u ocultar confirmación de contraseña" />
+
+                            </Grid>
+                        </Border>
+
+                        <!-- BOTÓN REGISTRARSE -->
+                        <Button
+                            Text="Registrarse"
+                            Clicked="Button_Clicked"
+                            BackgroundColor="#9B3E5C"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            CornerRadius="18"
+                            HeightRequest="46"
+                            WidthRequest="230"
+                            HorizontalOptions="Center"
+                            Margin="0,18,0,4" />
+
+                        <!-- BOTÓN VOLVER -->
+                        <Button
+                            Text="Ya tengo una cuenta"
+                            Clicked="Button_Clicked_1"
+                            BackgroundColor="#FFF6F7"
+                            TextColor="#812A44"
+                            BorderColor="#A33B59"
+                            BorderWidth="1.3"
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            CornerRadius="18"
+                            HeightRequest="46"
+                            WidthRequest="230"
+                            HorizontalOptions="Center" />
+
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

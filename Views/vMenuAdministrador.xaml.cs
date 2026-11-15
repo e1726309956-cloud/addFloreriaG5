@@ -7,7 +7,7 @@ public partial class vMenuAdministrador : ContentPage
 	{
 		InitializeComponent();
         nombreAdministrador = nombre;
-        lblTituloAdmin.Text = $"Bienvenido, {nombreAdministrador}";
+        lblTituloAdmin.Text = $"¡Hola, {nombreAdministrador}!";
     }
 
     private async void Button_Clicked(object sender, EventArgs e)

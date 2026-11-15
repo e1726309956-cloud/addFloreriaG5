@@ -70,7 +70,7 @@ public partial class vLogin : ContentPage
 
                 if (idRol == 1)
                 {
-                    await DisplayAlert("Bienvenido", $"Hola Administrador, {nombre}", "Aceptar");
+                    await MensajeModal.MostrarAsync(this,"Bienvenido", $"Hola Administrador, {nombre}", "Aceptar");
                     await Navigation.PushAsync(new vMenuAdministrador(nombre));
                 }
                 else if (idRol == 2)
@@ -83,11 +83,6 @@ public partial class vLogin : ContentPage
                     await DisplayAlert("Bienvenido", $"Hola, {nombre}", "Aceptar");
                     await Navigation.PushAsync(new vMenuCliente(nombre));
                 }
-
-                await DisplayAlert(
-                    "Éxito",
-                    mensaje,
-                    "Aceptar");
 
                 // Aquí puedes abrir la página principal
                 // await Navigation.PushAsync(new vMenu());
@@ -114,4 +109,20 @@ public partial class vLogin : ContentPage
     {
         await Navigation.PushAsync(new vRegistro());
     }
+
+    private void TogglePassword_Clicked(
+        object sender,
+        EventArgs e)
+    {
+        txtPassword.IsPassword =
+            !txtPassword.IsPassword;
+    }
+
+
+    private void txtCorreo_Completed(object sender, EventArgs e)
+    {
+        txtPassword.Focus();
+    }
+
+
 }

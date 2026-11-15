@@ -18,36 +18,107 @@ public partial class vVerPedidos : ContentPage
         await CargarPedidos();
     }
 
+
     private async Task CargarPedidos()
     {
         try
         {
             SupabaseService servicio = new SupabaseService();
+            var client = servicio.GetClient();
+            string url = servicio.GetUrl();
 
-            // Pedimos los pedidos y unimos la tabla pagos con 'pagos(*)'
-            string endpoint = $"{servicio.GetUrl()}/rest/v1/pedidos?select=*,pagos(*)&order=id_pedido.desc";
+            // 1. Consultar pedidos y pagos
+            var respuesta = await client.GetAsync(
+                $"{url}/rest/v1/pedidos?select=*,pagos(*)&order=id_pedido.desc");
 
-            var respuesta = await servicio.GetClient().GetAsync(endpoint);
-            if (respuesta.IsSuccessStatusCode)
-            {
-                string contenido = await respuesta.Content.ReadAsStringAsync();
-                var listaPedidos = JsonSerializer.Deserialize<List<PedidoModel>>(contenido, new JsonSerializerOptions
+            respuesta.EnsureSuccessStatusCode();
+
+            string json = await respuesta.Content.ReadAsStringAsync();
+
+            var pedidos = JsonSerializer.Deserialize<List<PedidoModel>>(
+                json,
+                new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
-                });
+                }) ?? new();
 
-                cvPedidos.ItemsSource = listaPedidos;
-            }
-            else
+            // 2. Consultar los arreglos de cada pedido
+            var respuestaDetalles = await client.GetAsync(
+                $"{url}/rest/v1/detalle_pedido?select=id_pedido,id_arreglo");
+
+            respuestaDetalles.EnsureSuccessStatusCode();
+
+            string jsonDetalles =
+                await respuestaDetalles.Content.ReadAsStringAsync();
+
+            var detalles = JsonSerializer.Deserialize<List<DetalleImagenPedido>>(
+                jsonDetalles,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new();
+
+            // 3. Consultar fotografías y nombres
+            var respuestaArreglos = await client.GetAsync(
+                $"{url}/rest/v1/arreglos?select=id_arreglo,nombre,imagen");
+
+            respuestaArreglos.EnsureSuccessStatusCode();
+
+            string jsonArreglos =
+                await respuestaArreglos.Content.ReadAsStringAsync();
+
+            var arreglos = JsonSerializer.Deserialize<List<ArregloImagenPedido>>(
+                jsonArreglos,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new();
+
+            var arreglosPorId = arreglos.ToDictionary(
+                a => a.id_arreglo);
+
+            // 4. Asignar la primera imagen a cada pedido
+            foreach (var pedido in pedidos)
             {
-                string error = await respuesta.Content.ReadAsStringAsync();
-                await DisplayAlert("Error", "No se pudo cargar la lista: " + error, "Aceptar");
+                var detalle = detalles.FirstOrDefault(
+                    d => d.id_pedido == pedido.id_pedido);
+
+                if (detalle != null &&
+                    arreglosPorId.TryGetValue(
+                        detalle.id_arreglo,
+                        out var arreglo))
+                {
+                    pedido.imagenArreglo = arreglo.imagen;
+                    pedido.nombreArreglo = arreglo.nombre;
+                }
             }
+
+            cvPedidos.ItemsSource = pedidos;
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", "Excepción al cargar pedidos: " + ex.Message, "Aceptar");
+            System.Diagnostics.Debug.WriteLine(ex);
+
+            await MensajeModal.MostrarAsync(
+                this,
+                "Error de carga",
+                "No se pudieron cargar los pedidos.",
+                "error");
         }
+    }
+
+    // MODELOS AUXILIARES PARA LA CONSULTA
+    private class DetalleImagenPedido
+    {
+        public int id_pedido { get; set; }
+        public int id_arreglo { get; set; }
+    }
+
+    private class ArregloImagenPedido
+    {
+        public int id_arreglo { get; set; }
+        public string nombre { get; set; } = string.Empty;
+        public string imagen { get; set; } = string.Empty;
     }
 
 

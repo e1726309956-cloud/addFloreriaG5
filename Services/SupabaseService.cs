@@ -1,39 +1,39 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿
+using addFloreriaG5.Configuration;
 
-namespace addFloreriaG5.Services
+namespace addFloreriaG5.Services;
+
+public class SupabaseService
 {
-    public class SupabaseService
+    private readonly HttpClient client;
+
+    public SupabaseService()
     {
-        private readonly string url =
-            "https://ncomuzviwluyoszgossv.supabase.co";
+        // Obtener configuración centralizada
+        string apiKey = SupabaseSettings.PublishableKey;
 
-        private readonly string apiKey =
-            "sb_publishable_9H2lEm5VxWOLya8rFyAjVg_d5vCAb4W";
-
-        private readonly HttpClient client;
-
-        public SupabaseService()
+        if (string.IsNullOrWhiteSpace(apiKey) ||
+            string.IsNullOrWhiteSpace(SupabaseSettings.Url))
         {
-            client = new HttpClient();
-
-            client.DefaultRequestHeaders.Add(
-                "apikey",
-                apiKey);
-
-            client.DefaultRequestHeaders.Add(
-                "Authorization",
-                "Bearer " + apiKey);
+            throw new InvalidOperationException(
+                "La configuración de Supabase no está inicializada.");
         }
 
-        public HttpClient GetClient()
-        {
-            return client;
-        }
+        client = new HttpClient();
 
-        public string GetUrl()
-        {
-            return url;
-        }
+        // Clave pública del proyecto
+        client.DefaultRequestHeaders.Add(
+            "apikey",
+            apiKey);
+    }
+
+    public HttpClient GetClient()
+    {
+        return client;
+    }
+
+    public string GetUrl()
+    {
+        return SupabaseSettings.Url;
     }
 }

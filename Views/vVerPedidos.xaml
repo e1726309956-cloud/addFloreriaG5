@@ -23,8 +23,59 @@
                                     <Label Text="{Binding estado}" FontAttributes="Bold" FontSize="14" TextColor="#E67E22" Grid.Column="1" HorizontalOptions="End"/>
                                 </Grid>
 
-                                <Label Text="{Binding fecha_pedido, StringFormat='Fecha: {0}'}" FontSize="13" TextColor="Gray"/>
-                                <Label Text="{Binding total, StringFormat='Saldo Restante: ${0:F2}'}" FontSize="15" FontAttributes="Bold" TextColor="#27AE60"/>
+
+                                <!-- IMAGEN E INFORMACIÓN DEL ARREGLO -->
+                                <Grid
+                                    ColumnDefinitions="100,*"
+                                    ColumnSpacing="14"
+                                    Margin="0,10,0,10">
+
+                                    <!-- FOTOGRAFÍA DEL ARREGLO -->
+                                    <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="#FFF4F6"
+                                    Stroke="#E9DCE0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 15"
+                                    WidthRequest="100"
+                                    HeightRequest="100">
+
+                                        <Image
+                                        Source="{Binding imagenArreglo}"
+                                        Aspect="AspectFill"
+                                        WidthRequest="100"
+                                        HeightRequest="100"/>
+                                    </Border>
+
+                                    <!-- INFORMACIÓN DEL ARREGLO -->
+                                    <VerticalStackLayout
+                                        Grid.Column="1"
+                                        Spacing="7"
+                                        VerticalOptions="Center">
+
+                                        <Label
+                                        Text="{Binding nombreArreglo}"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        TextColor="#752B43"
+                                        MaxLines="2"
+                                        LineBreakMode="TailTruncation"/>
+
+                                        <Label
+                                        Text="{Binding fecha_pedido,
+                                            StringFormat='Fecha: {0}'}"
+                                        FontSize="12"
+                                        TextColor="#8A7A78"/>
+
+                                        <Label
+                                        Text="{Binding total,
+                                            StringFormat='Saldo restante: ${0:F2}'}"
+                                        FontSize="15"
+                                        FontAttributes="Bold"
+                                        TextColor="#63754D"/>
+
+                                    </VerticalStackLayout>
+                                </Grid>
 
                                 <!-- HISTORIAL DE PAGOS / ABONOS REALIZADOS -->
                                 <Label Text="Historial de Abonos:" FontSize="12" FontAttributes="Bold" TextColor="#7F8C8D" Margin="0,4,0,0"/>
@@ -62,12 +113,12 @@
 
                                 <!-- Botón para cambiar estado manualmente -->
                                 <Button Text="Cambiar Estado (Pago Mínimo / Completo)" 
-        BackgroundColor="#2980B9" 
-        TextColor="White" 
-        FontSize="12"
-        CommandParameter="{Binding .}"
-        Clicked="Button_Clicked_2"
-        Margin="0,2,0,0"/>
+                                        BackgroundColor="#2980B9" 
+                                        TextColor="White" 
+                                        FontSize="12"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="Button_Clicked_2"
+                                        Margin="0,2,0,0"/>      
                             </VerticalStackLayout>
                         </Frame>
                     </DataTemplate>

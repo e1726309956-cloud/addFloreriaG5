@@ -13,6 +13,11 @@ namespace addFloreriaG5.Models
         public string estado { get; set; } = string.Empty;
         public string direccion_envio { get; set; } = string.Empty;
         public string telefono_envio { get; set; } = string.Empty;
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string imagenArreglo { get; set; } = string.Empty;
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string nombreArreglo { get; set; } = string.Empty;
 
         // Lista para almacenar los pagos asociados a este pedido
         public List<PagoModel> pagos { get; set; } = new();

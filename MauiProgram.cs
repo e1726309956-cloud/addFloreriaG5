@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MauiIcons.Material;
+using System.Text.Json;
+using addFloreriaG5.Configuration;
 
 namespace addFloreriaG5
 {
@@ -8,6 +10,7 @@ namespace addFloreriaG5
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
             builder
                 .UseMauiApp<App>()
                 .UseMaterialMauiIcons()
@@ -17,8 +20,25 @@ namespace addFloreriaG5
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            // CARGAR CONFIGURACIÓN DE SUPABASE
+            using var stream = typeof(MauiProgram)
+                .Assembly
+                .GetManifestResourceStream("supabase.settings.json")
+                ?? throw new InvalidOperationException(
+                    "No se encontró supabase.settings.json");
+
+            using var documento = JsonDocument.Parse(stream);
+
+            var supabase = documento.RootElement
+                .GetProperty("Supabase");
+
+            SupabaseSettings.Configure(
+                supabase.GetProperty("Url").GetString() ?? "",
+                supabase.GetProperty("PublishableKey").GetString() ?? ""
+            );
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 
 
 #if ANDROID

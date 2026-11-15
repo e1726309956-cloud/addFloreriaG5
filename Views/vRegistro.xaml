@@ -275,7 +275,7 @@
                         <!-- BOTÓN REGISTRARSE -->
                         <Button
                             Text="Registrarse"
-                            Clicked="Button_Clicked"
+                            Clicked="Registro_Clicked"
                             BackgroundColor="#9B3E5C"
                             TextColor="White"
                             FontAttributes="Bold"

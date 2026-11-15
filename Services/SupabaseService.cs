@@ -1,5 +1,6 @@
 ﻿
 using addFloreriaG5.Configuration;
+using System.Net.Http.Headers;
 
 namespace addFloreriaG5.Services;
 
@@ -9,22 +10,21 @@ public class SupabaseService
 
     public SupabaseService()
     {
-        // Obtener configuración centralizada
-        string apiKey = SupabaseSettings.PublishableKey;
-
-        if (string.IsNullOrWhiteSpace(apiKey) ||
-            string.IsNullOrWhiteSpace(SupabaseSettings.Url))
-        {
-            throw new InvalidOperationException(
-                "La configuración de Supabase no está inicializada.");
-        }
-
         client = new HttpClient();
 
-        // Clave pública del proyecto
+        // CLAVE PÚBLICA DEL NUEVO PROYECTO
         client.DefaultRequestHeaders.Add(
             "apikey",
-            apiKey);
+            SupabaseSettings.PublishableKey);
+
+        // TOKEN DEL USUARIO AUTENTICADO
+        if (SesionAuth.TieneSesion)
+        {
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue(
+                    "Bearer",
+                    SesionAuth.AccessToken);
+        }
     }
 
     public HttpClient GetClient()

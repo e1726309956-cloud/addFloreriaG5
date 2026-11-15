@@ -10,82 +10,131 @@ public partial class vRegistro : ContentPage
         InitializeComponent();
     }
 
-    private async void Button_Clicked(object sender, EventArgs e)
+
+    private async void Registro_Clicked(object sender, EventArgs e)
     {
-        // Validar campos vacíos
-        if (string.IsNullOrWhiteSpace(txtNombres.Text) ||
-            string.IsNullOrWhiteSpace(txtApellidos.Text) ||
-            string.IsNullOrWhiteSpace(txtCorreo.Text) ||
-            string.IsNullOrWhiteSpace(txtTelefono.Text) ||
-            string.IsNullOrWhiteSpace(txtPassword.Text) ||
-            string.IsNullOrWhiteSpace(txtConfirmPassword.Text))
+        string nombres =
+            txtNombres.Text?.Trim() ?? "";
+
+        string apellidos =
+            txtApellidos.Text?.Trim() ?? "";
+
+        string correo =
+            txtCorreo.Text?.Trim() ?? "";
+
+        string telefono =
+            txtTelefono.Text?.Trim() ?? "";
+
+        string password =
+            txtPassword.Text ?? "";
+
+        string confirmarPassword =
+            txtConfirmPassword.Text ?? "";
+
+        // 1. CAMPOS OBLIGATORIOS
+        if (string.IsNullOrWhiteSpace(nombres) ||
+            string.IsNullOrWhiteSpace(apellidos) ||
+            string.IsNullOrWhiteSpace(correo) ||
+            string.IsNullOrWhiteSpace(telefono) ||
+            string.IsNullOrWhiteSpace(password) ||
+            string.IsNullOrWhiteSpace(confirmarPassword))
         {
-            await DisplayAlert("Error", "Complete todos los campos", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Campos obligatorios",
+                "Completa todos los campos para registrarte.",
+                "advertencia");
+
             return;
         }
 
-        // Validar coincidencia de contraseñas
-        if (txtPassword.Text != txtConfirmPassword.Text)
+        // 2. VALIDAR CORREO
+        if (!System.Net.Mail.MailAddress.TryCreate(
+                correo,
+                out var direccion) ||
+            !string.Equals(
+                direccion.Address,
+                correo,
+                StringComparison.OrdinalIgnoreCase))
         {
-            await DisplayAlert("Error", "Las contraseñas no coinciden", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Correo incorrecto",
+                "Ingresa un correo electrónico válido.",
+                "advertencia");
+
             return;
         }
 
+        // 3. VALIDAR CONTRASEÑAS
+        if (password != confirmarPassword)
+        {
+            await MensajeModal.MostrarAsync(
+                this,
+                "Contraseñas diferentes",
+                "Las contraseñas no coinciden.",
+                "advertencia");
+
+            return;
+        }
+
+        if (password.Length < 8)
+        {
+            await MensajeModal.MostrarAsync(
+                this,
+                "Contraseña insegura",
+                "Utiliza una contraseña de al menos 8 caracteres.",
+                "advertencia");
+
+            return;
+        }
+
+        // 4. REGISTRAR EN SUPABASE AUTH
         try
         {
-            SupabaseService servicio = new SupabaseService();
+            AuthService authService = new AuthService();
 
-            // Verificar si el correo ya existe
-            string verificar = $"{servicio.GetUrl()}/rest/v1/usuarios?correo=eq.{txtCorreo.Text}";
-            var respuestaVerificar = await servicio.GetClient().GetAsync(verificar);
-            string existe = await respuestaVerificar.Content.ReadAsStringAsync();
+            await authService.RegistrarClienteAsync(
+                nombres,
+                apellidos,
+                correo,
+                telefono,
+                password);
 
-            if (existe != "[]")
-            {
-                await DisplayAlert("Error", "El correo ya se encuentra registrado", "Aceptar");
-                return;
-            }
+            // Limpiar contraseñas
+            txtPassword.Text = string.Empty;
+            txtConfirmPassword.Text = string.Empty;
 
-            // Crear usuario
-            var nuevoUsuario = new
-            {
-                nombres = txtNombres.Text,
-                apellidos = txtApellidos.Text,
-                correo = txtCorreo.Text,
-                password = txtPassword.Text,
-                telefono = txtTelefono.Text,
-                id_rol = 3,
-                estado = true,
-                fecha_registro = DateTime.Now
-            };
+            // 5. MOSTRAR MENSAJE
+            await MensajeModal.MostrarAsync(
+                this,
+                "Registro recibido",
+                "Revisa tu correo para confirmar tu cuenta si se solicita. Después podrás iniciar sesión.",
+                "exito");
 
-            string json = System.Text.Json.JsonSerializer.Serialize(nuevoUsuario);
-
-            StringContent contenido = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json");
-
-            string endpoint = $"{servicio.GetUrl()}/rest/v1/usuarios";
-
-            var respuesta = await servicio.GetClient().PostAsync(endpoint, contenido);
-
-            if (respuesta.IsSuccessStatusCode)
-            {
-                await DisplayAlert("Éxito", "Usuario registrado correctamente", "Aceptar");
-                await Navigation.PopAsync();
-            }
-            else
-            {
-                string error = await respuesta.Content.ReadAsStringAsync();
-                await DisplayAlert("Error", error, "Aceptar");
-            }
+            // 6. REGRESAR AL LOGIN
+            await Navigation.PopAsync();
+        }
+        catch (InvalidOperationException)
+        {
+            await MensajeModal.MostrarAsync(
+                this,
+                "No se pudo registrar",
+                "Verifica la información e inténtalo nuevamente.",
+                "error");
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "Aceptar");
+            System.Diagnostics.Debug.WriteLine(ex);
+
+            await MensajeModal.MostrarAsync(
+                this,
+                "Error de registro",
+                "Ocurrió un problema al crear la cuenta.",
+                "error");
         }
     }
+
 
     private async void Button_Clicked_1(object sender, EventArgs e)
     {

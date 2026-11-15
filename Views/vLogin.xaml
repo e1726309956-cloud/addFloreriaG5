@@ -163,7 +163,7 @@
                         <!-- BOTÓN INGRESAR -->
                         <Button
                             Text="Ingresar"
-                            Clicked="Button_Clicked_1"
+                            Clicked="Ingresar_Clicked"
                             BackgroundColor="#9B3E5C"
                             TextColor="White"
                             FontAttributes="Bold"

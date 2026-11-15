@@ -10,100 +10,140 @@ public partial class vLogin : ContentPage
 		InitializeComponent();
 	}
 
-    private async void Button_Clicked_1(object sender, EventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(txtCorreo.Text))
-        {
-            await DisplayAlert(
-                "Error",
-                "Ingrese el correo",
-                "Aceptar");
-            return;
-        }
 
-        if (string.IsNullOrWhiteSpace(txtPassword.Text))
+    private async void Ingresar_Clicked(
+        object sender,
+        EventArgs e)
+    {
+        string correo = txtCorreo.Text?.Trim() ?? "";
+        string password = txtPassword.Text ?? "";
+
+        // VALIDAR CAMPOS
+        if (string.IsNullOrWhiteSpace(correo) ||
+            string.IsNullOrWhiteSpace(password))
         {
-            await DisplayAlert(
-                "Error",
-                "Ingrese la contraseña",
-                "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Campos obligatorios",
+                "Ingresa tu correo y contraseña.",
+                "advertencia");
             return;
         }
 
         try
         {
-            SupabaseService servicio = new SupabaseService();
+            AuthService authService = new AuthService();
 
-            string endpoint =
-                $"{servicio.GetUrl()}/rest/v1/usuarios?correo=eq.{txtCorreo.Text}&password=eq.{txtPassword.Text}";
+            // 1. VALIDAR CREDENCIALES EN SUPABASE AUTH
+            AuthSession sesion =
+                await authService.IniciarSesionAsync(
+                    correo,
+                    password);
 
-            var respuesta =
-                await servicio.GetClient().GetAsync(endpoint);
+            // 2. CONSULTAR EL PERFIL DEL USUARIO
+            PerfilUsuario? perfil =
+                await authService.ObtenerPerfilAsync(
+                    sesion.AccessToken,
+                    sesion.User!.Id);
 
-            string contenido =
-                await respuesta.Content.ReadAsStringAsync();
-
-            if (contenido != "[]")
+            if (perfil == null)
             {
-                using JsonDocument doc = JsonDocument.Parse(contenido);
-
-                int idRol = doc.RootElement[0]
-                    .GetProperty("id_rol")
-                    .GetInt32();
-
-                string nombre = doc.RootElement[0]
-                    .GetProperty("nombres")
-                    .GetString();
-
-                // Intentamos capturar el teléfono si la columna existe en tu tabla 'usuarios'
-                string telefono = "";
-                if (doc.RootElement[0].TryGetProperty("telefono", out var telProp))
-                {
-                    telefono = telProp.GetString() ?? "";
-                }
-
-                // >>> GUARDAMOS LOS DATOS EN LA SESIÓN GLOBAL <<<
-                SesionUsuario.Nombre = nombre;
-                SesionUsuario.Telefono = telefono;
-
-                string mensaje = "";
-
-                if (idRol == 1)
-                {
-                    await MensajeModal.MostrarAsync(this,"Bienvenido", $"Hola Administrador, {nombre}", "Aceptar");
-                    await Navigation.PushAsync(new vMenuAdministrador(nombre));
-                }
-                else if (idRol == 2)
-                {
-                    await DisplayAlert("Bienvenido", $"Hola Vendedor, {nombre}", "Aceptar");
-                    await Navigation.PushAsync(new vMenuVendedor(nombre));
-                }
-                else
-                {
-                    await DisplayAlert("Bienvenido", $"Hola, {nombre}", "Aceptar");
-                    await Navigation.PushAsync(new vMenuCliente(nombre));
-                }
-
-                // Aquí puedes abrir la página principal
-                // await Navigation.PushAsync(new vMenu());
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "Acceso denegado",
+                    "Tu cuenta no tiene un perfil registrado.",
+                    "error");
+                return;
             }
-            else
+
+            // 3. VERIFICAR ESTADO
+            if (!perfil.estado)
             {
-                await DisplayAlert(
-                    "Error",
-                    "Correo o contraseña incorrectos",
-                    "Aceptar");
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "Cuenta inactiva",
+                    "Comunícate con el administrador.",
+                    "advertencia");
+                return;
             }
+
+            // 4. VALIDAR ROLES PERMITIDOS
+            if (perfil.id_rol != 1 &&
+                perfil.id_rol != 3)
+            {
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "Acceso denegado",
+                    "Tu usuario no tiene un rol autorizado.",
+                    "error");
+                return;
+            }
+
+            // 5. GUARDAR SESIÓN
+            SesionAuth.GuardarSesion(sesion);
+
+            SesionUsuario.Nombre = perfil.nombres;
+            SesionUsuario.Telefono = perfil.telefono;
+
+            // 6. ABRIR MENÚ CORRESPONDIENTE
+            if (perfil.id_rol == 1)
+            {
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "Bienvenido",
+                    $"Hola, {perfil.nombres}.",
+                    "exito");
+
+                await Navigation.PushAsync(
+                    new vMenuAdministrador(
+                        perfil.nombres));
+            }
+            else if (perfil.id_rol == 3)
+            {
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "Bienvenido",
+                    $"Hola, {perfil.nombres}.",
+                    "exito");
+
+                await Navigation.PushAsync(
+                    new vMenuCliente(
+                        perfil.nombres));
+            }
+
+            // No conservar la contraseña en el formulario
+            txtPassword.Text = string.Empty;
+        }
+        catch (InvalidOperationException)
+        {
+            await MensajeModal.MostrarAsync(
+                this,
+                "No se pudo iniciar sesión",
+                "Verifica tu correo, contraseña y confirmación de cuenta.",
+                "error");
+        }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+
+            await MensajeModal.MostrarAsync(
+                this,
+                "Error de conexión",
+                "No fue posible conectar con Supabase.",
+                "error");
         }
         catch (Exception ex)
         {
-            await DisplayAlert(
-                "Error",
-                ex.Message,
-                "Aceptar");
-        }
+            System.Diagnostics.Debug.WriteLine(ex);
 
+            await MensajeModal.MostrarAsync(
+                this,
+                "Error",
+                "Ocurrió un problema al iniciar sesión.",
+                "error");
+        }
     }
+
 
     private async void Button_Clicked_2(object sender, EventArgs e)
     {

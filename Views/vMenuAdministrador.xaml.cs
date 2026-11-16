@@ -1,3 +1,6 @@
+using addFloreriaG5.Models;
+using addFloreriaG5.Services;
+
 namespace addFloreriaG5.Views;
 
 public partial class vMenuAdministrador : ContentPage
@@ -33,18 +36,61 @@ public partial class vMenuAdministrador : ContentPage
 
     }
 
-    private async void Button_Clicked_4(object sender, EventArgs e)
+    
+    private async void CerrarSesion_Clicked(
+        object sender,
+        EventArgs e)
     {
-        bool confirmar = await DisplayAlert("Cerrar Sesión", "¿Estás seguro de salir?", "Sí", "No");
-        if (confirmar)
-        {
-            Application.Current.MainPage = new NavigationPage(new vLogin());
-        }
+        bool confirmar = await MensajeModal.ConfirmarAsync(
+            this,
+            "Cerrar sesión",
+            "¿Estás seguro de que deseas cerrar tu sesión?");
 
+        if (!confirmar)
+            return;
+
+        // Limpiar la sesión de autenticación local
+        SesionAuth.CerrarSesionLocal();
+
+        // Limpiar los datos temporales del usuario
+        SesionUsuario.Nombre = string.Empty;
+        SesionUsuario.Telefono = string.Empty;
+
+        // Regresar al login
+        var ventana =
+            Application.Current?.Windows.FirstOrDefault();
+
+        if (ventana != null)
+        {
+            ventana.Page = new NavigationPage(
+                new vLogin());
+        }
     }
+
 
     private async void Button_Clicked_5(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new vArreglosInactivos());
     }
+
+    private async void Categorias_Tapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        await Navigation.PushAsync(
+            new vGestionCategorias());
+    }
+
+    private async void Reporteria_Tapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        await MensajeModal.MostrarAsync(
+            this,
+            "Reportería",
+            "Próximamente podrás consultar reportes de ventas, pedidos y productos.",
+            "advertencia");
+    }
+
+
 }

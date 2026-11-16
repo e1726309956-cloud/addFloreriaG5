@@ -1,19 +1,344 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="addFloreriaG5.Views.vMenuCliente"
-             Title="vMenuCliente">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
 
-        <Label
-x:Name="lblUsuario"
-FontSize="20"
-FontAttributes="Bold"
-HorizontalOptions="Center"/>
-        
-    </VerticalStackLayout>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    x:Class="addFloreriaG5.Views.vMenuCliente"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
+
+    <Grid>
+
+        <!-- FONDO FLORAL -->
+        <Image
+            Source="fondo_login_floral.png"
+            Aspect="AspectFill"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            InputTransparent="True"/>
+
+        <ScrollView
+            VerticalScrollBarVisibility="Never">
+
+            <VerticalStackLayout
+                Padding="22,25,22,40"
+                Spacing="19"
+                MaximumWidthRequest="480"
+                HorizontalOptions="Center">
+
+                <!-- ENCABEZADO -->
+                <VerticalStackLayout
+                    Spacing="8"
+                    HorizontalOptions="Center">
+
+                    <Image
+                        Source="logo_final.png"
+                        WidthRequest="90"
+                        HeightRequest="90"
+                        Aspect="AspectFit"/>
+
+                </VerticalStackLayout>
+
+                <!-- MENSAJE DE BIENVENIDA -->
+                <Border
+                    BackgroundColor="#F9E9EE"
+                    Stroke="#EBD1DA"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="18">
+
+                    <VerticalStackLayout Spacing="10">
+
+                        <Label
+                            Text="Flores para momentos especiales"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            TextColor="#752B43"/>
+
+                        <Label
+                            Text="Descubre nuestra colección de arreglos florales y encuentra el detalle perfecto."
+                            FontSize="13"
+                            TextColor="#806771"
+                            LineBreakMode="WordWrap"/>
+
+                        <HorizontalStackLayout Spacing="8">
+                            <mi:MauiIcon
+                                Icon="{mi:Material Icon=Favorite}"
+                                IconColor="#9B3E5C"
+                                IconSize="18"/>
+
+                            <Label
+                                Text="Detalles creados con amor"
+                                FontSize="12"
+                                TextColor="#9B3E5C"
+                                VerticalTextAlignment="Center"/>
+                        </HorizontalStackLayout>
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label
+                    Text="¿Qué deseas hacer hoy?"
+                    FontSize="17"
+                    FontAttributes="Bold"
+                    TextColor="#752B43"/>
+
+                <!-- OPCIONES -->
+                <Grid
+                    ColumnDefinitions="*,*"
+                    RowDefinitions="Auto,Auto"
+                    ColumnSpacing="12"
+                    RowSpacing="12">
+
+                    <!-- CATÁLOGO -->
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        BackgroundColor="White"
+                        Stroke="#EBDCE0"
+                        StrokeShape="RoundRectangle 20"
+                        HeightRequest="145"
+                        Padding="12">
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="Catalogo_Tapped"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="10"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#8B9779"
+                                WidthRequest="54"
+                                HeightRequest="54"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 15"
+                                HorizontalOptions="Center">
+
+                                <mi:MauiIcon
+                                    Icon="{mi:Material Icon=LocalFlorist}"
+                                    IconColor="White"
+                                    IconSize="30"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+                            </Border>
+
+                            <Label
+                                Text="Catálogo"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"
+                                HorizontalTextAlignment="Center"/>
+
+                            <Label
+                                Text="Explorar arreglos"
+                                FontSize="11"
+                                TextColor="#8A7A78"
+                                HorizontalTextAlignment="Center"/>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- MIS PEDIDOS -->
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        BackgroundColor="White"
+                        Stroke="#EBDCE0"
+                        StrokeShape="RoundRectangle 20"
+                        HeightRequest="145"
+                        Padding="12">
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="MisPedidos_Tapped"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="10"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#C68B93"
+                                WidthRequest="54"
+                                HeightRequest="54"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 15"
+                                HorizontalOptions="Center">
+
+                                <mi:MauiIcon
+                                    Icon="{mi:Material Icon=ShoppingCart}"
+                                    IconColor="White"
+                                    IconSize="30"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+                            </Border>
+
+                            <Label
+                                Text="Mis pedidos"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"
+                                HorizontalTextAlignment="Center"/>
+
+                            <Label
+                                Text="Seguir mis compras"
+                                FontSize="11"
+                                TextColor="#8A7A78"
+                                HorizontalTextAlignment="Center"/>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- MI PERFIL -->
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        BackgroundColor="White"
+                        Stroke="#EBDCE0"
+                        StrokeShape="RoundRectangle 20"
+                        HeightRequest="145"
+                        Padding="12">
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="MiPerfil_Tapped"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="10"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#C68B93"
+                                WidthRequest="54"
+                                HeightRequest="54"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 15"
+                                HorizontalOptions="Center">
+
+                                <mi:MauiIcon
+                                    Icon="{mi:Material Icon=Person}"
+                                    IconColor="White"
+                                    IconSize="30"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+                            </Border>
+
+                            <Label
+                                Text="Mi perfil"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"
+                                HorizontalTextAlignment="Center"/>
+
+                            <Label
+                                Text="Mis datos"
+                                FontSize="11"
+                                TextColor="#8A7A78"
+                                HorizontalTextAlignment="Center"/>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- FAVORITOS -->
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        BackgroundColor="White"
+                        Stroke="#EBDCE0"
+                        StrokeShape="RoundRectangle 20"
+                        HeightRequest="145"
+                        Padding="12">
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="Favoritos_Tapped"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="10"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#8B9779"
+                                WidthRequest="54"
+                                HeightRequest="54"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 15"
+                                HorizontalOptions="Center">
+
+                                <mi:MauiIcon
+                                    Icon="{mi:Material Icon=Favorite}"
+                                    IconColor="White"
+                                    IconSize="30"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+                            </Border>
+
+                            <Label
+                                Text="Favoritos"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"
+                                HorizontalTextAlignment="Center"/>
+
+                            <Label
+                                Text="Mis preferidos"
+                                FontSize="11"
+                                TextColor="#8A7A78"
+                                HorizontalTextAlignment="Center"/>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                </Grid>
+
+                <!-- CERRAR SESIÓN -->
+                <Border
+                    BackgroundColor="#FFF9F6"
+                    Stroke="#9B3E5C"
+                    StrokeThickness="1.5"
+                    StrokeShape="RoundRectangle 17"
+                    HeightRequest="54"
+                    Margin="0,10,0,0">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="CerrarSesion_Tapped"/>
+                    </Border.GestureRecognizers>
+
+                    <HorizontalStackLayout
+                        Spacing="12"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+
+                        <mi:MauiIcon
+                            Icon="{mi:Material Icon=Logout}"
+                            IconColor="#9B3E5C"
+                            IconSize="23"/>
+
+                        <Label
+                            Text="Cerrar sesión"
+                            FontSize="15"
+                            FontAttributes="Bold"
+                            TextColor="#9B3E5C"
+                            VerticalTextAlignment="Center"/>
+
+                    </HorizontalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+
+        </ScrollView>
+
+    </Grid>
 </ContentPage>

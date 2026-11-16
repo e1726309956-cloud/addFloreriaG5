@@ -18,6 +18,14 @@ namespace addFloreriaG5.Views
         public string imagen { get; set; }
         public int id_categoria { get; set; }
         public bool estado { get; set; }
+
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool MostrarAccionesAdmin { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool MostrarAccionesCliente { get; set; }
+
     }
 
     public class CategoriaModel

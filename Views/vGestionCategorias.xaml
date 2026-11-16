@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    x:Class="addFloreriaG5.Views.vGestionCategorias"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <!-- FONDO -->
+        <Image
+            Source="fondo_login_floral.png"
+            Aspect="AspectFill"
+            InputTransparent="True"/>
+
+        <Grid
+            Padding="18,20,18,18"
+            RowDefinitions="Auto,Auto,*,Auto"
+            RowSpacing="16"
+            MaximumWidthRequest="600"
+            HorizontalOptions="Center">
+
+            <!-- ENCABEZADO -->
+            <Grid
+                Grid.Row="0"
+                ColumnDefinitions="48,*"
+                ColumnSpacing="10">
+
+                <Border
+                    BackgroundColor="White"
+                    Stroke="#E6D6DA"
+                    StrokeShape="RoundRectangle 14"
+                    WidthRequest="44"
+                    HeightRequest="44">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="Volver_Tapped"/>
+                    </Border.GestureRecognizers>
+
+                    <mi:MauiIcon
+                        Icon="{mi:Material Icon=ArrowBack}"
+                        IconColor="#752B43"
+                        IconSize="24"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"/>
+                </Border>
+
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Spacing="4">
+
+                    <Label
+                        Text="NOVA FLORERÍA"
+                        FontSize="13"
+                        FontAttributes="Bold"
+                        TextColor="#9B3E5C"
+                        HorizontalTextAlignment="Center"/>
+
+                    <Label
+                        Text="Gestión de categorías"
+                        FontSize="22"
+                        FontAttributes="Bold"
+                        TextColor="#752B43"
+                        HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- FORMULARIO -->
+            <Border
+                Grid.Row="1"
+                BackgroundColor="White"
+                Stroke="#E9DCE0"
+                StrokeShape="RoundRectangle 20"
+                Padding="18">
+
+                <VerticalStackLayout Spacing="12">
+
+                    <Label
+                        x:Name="lblTituloFormulario"
+                        Text="Nueva categoría"
+                        FontSize="17"
+                        FontAttributes="Bold"
+                        TextColor="#752B43"/>
+
+                    <Border
+                        BackgroundColor="#FFF4F6"
+                        Stroke="#D7B4BC"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="10,0">
+
+                        <Entry
+                            x:Name="txtNombreCategoria"
+                            Placeholder="Nombre de la categoría"
+                            PlaceholderColor="#A89297"
+                            TextColor="#68454D"
+                            MaxLength="100"
+                            HeightRequest="48"/>
+                    </Border>
+
+                    <Grid
+                        ColumnDefinitions="*,Auto"
+                        ColumnSpacing="10">
+
+                        <Button
+                            x:Name="btnGuardar"
+                            Grid.Column="0"
+                            Text="Guardar categoría"
+                            Clicked="Guardar_Clicked"
+                            BackgroundColor="#9B3E5C"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            CornerRadius="13"
+                            HeightRequest="48"/>
+
+                        <Button
+                            x:Name="btnCancelar"
+                            Grid.Column="1"
+                            Text="Cancelar"
+                            IsVisible="False"
+                            Clicked="Cancelar_Clicked"
+                            BackgroundColor="#F5E9EC"
+                            TextColor="#752B43"
+                            CornerRadius="13"
+                            HeightRequest="48"/>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- LISTADO -->
+            <VerticalStackLayout
+                Grid.Row="2"
+                Spacing="10">
+
+                <Label
+                    Text="Categorías registradas"
+                    FontSize="17"
+                    FontAttributes="Bold"
+                    TextColor="#752B43"/>
+
+                <CollectionView
+                    x:Name="cvCategorias"
+                    SelectionMode="None"
+                    VerticalOptions="FillAndExpand">
+
+                    <CollectionView.EmptyView>
+                        <Label
+                            Text="No hay categorías registradas."
+                            TextColor="#8A7A78"
+                            HorizontalTextAlignment="Center"
+                            Margin="0,35"/>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                BackgroundColor="White"
+                                Stroke="#E9DCE0"
+                                StrokeShape="RoundRectangle 16"
+                                Padding="14"
+                                Margin="0,0,0,10">
+
+                                <Grid
+                                    ColumnDefinitions="45,*,Auto"
+                                    ColumnSpacing="10">
+
+                                    <Border
+                                        Grid.Column="0"
+                                        BackgroundColor="#F9E9EE"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 12"
+                                        WidthRequest="43"
+                                        HeightRequest="43">
+
+                                        <mi:MauiIcon
+                                            Icon="{mi:Material Icon=LocalFlorist}"
+                                            IconColor="#9B3E5C"
+                                            IconSize="24"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"/>
+                                    </Border>
+
+                                    <VerticalStackLayout
+                                        Grid.Column="1"
+                                        Spacing="3"
+                                        VerticalOptions="Center">
+
+                                        <Label
+                                            Text="{Binding nombre}"
+                                            FontSize="15"
+                                            FontAttributes="Bold"
+                                            TextColor="#752B43"/>
+
+                                        <Label
+                                            Text="{Binding id_categoria, StringFormat='Código: {0}'}"
+                                            FontSize="11"
+                                            TextColor="#8A7A78"/>
+                                    </VerticalStackLayout>
+
+                                    <Button
+                                        Grid.Column="2"
+                                        Text="Editar"
+                                        Clicked="Editar_Clicked"
+                                        CommandParameter="{Binding .}"
+                                        BackgroundColor="#F9ECE8"
+                                        TextColor="#9B3E5C"
+                                        CornerRadius="12"
+                                        FontAttributes="Bold"
+                                        HeightRequest="42"
+                                        VerticalOptions="Center"/>
+
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                </CollectionView>
+            </VerticalStackLayout>
+
+            <!-- CARGA -->
+            <ActivityIndicator
+                Grid.Row="3"
+                x:Name="indicadorCarga"
+                IsVisible="False"
+                IsRunning="False"
+                Color="#9B3E5C"
+                HorizontalOptions="Center"/>
+        </Grid>
+    </Grid>
+</ContentPage>

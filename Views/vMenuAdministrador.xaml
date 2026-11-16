@@ -255,73 +255,109 @@
 
                 </Grid>
 
-                <!-- PRODUCTOS INACTIVOS -->
-                <Border
-                    BackgroundColor="#FFFFFF"
-                    Stroke="#EBDCE0"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 20"
-                    Padding="16"
-                    HeightRequest="90">
 
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer
-                            Tapped="Button_Clicked_5"/>
-                    </Border.GestureRecognizers>
-
-                    <Grid
-                        ColumnDefinitions="56,*,Auto"
+                <!-- CATEGORÍAS Y REPORTERÍA -->
+                <Grid
+                        ColumnDefinitions="*,*"
                         ColumnSpacing="12">
 
-                        <!-- ICONO -->
-                        <Border
-                            Grid.Column="0"
-                            BackgroundColor="#C68B93"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 14"
-                            WidthRequest="54"
-                            HeightRequest="54"
-                            VerticalOptions="Center">
+                    <!-- CATEGORÍAS -->
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="White"
+                        Stroke="#EBDCE0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="12"
+                        HeightRequest="150">
 
-                            <mi:MauiIcon
-                                Icon="{mi:Material Icon=Inventory2}"
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="Categorias_Tapped"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="12"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+
+                            <Border
+                            BackgroundColor="#8B9779"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 15"
+                            WidthRequest="56"
+                            HeightRequest="56"
+                            HorizontalOptions="Center">
+
+                                <mi:MauiIcon
+                                Icon="{mi:Material Icon=Category}"
                                 IconColor="White"
-                                IconSize="29"
+                                IconSize="32"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"/>
-
-                        </Border>
-
-                        <!-- TEXTO -->
-                        <VerticalStackLayout
-                            Grid.Column="1"
-                            Spacing="4"
-                            VerticalOptions="Center">
+                            </Border>
 
                             <Label
-                                Text="Productos inactivos"
-                                FontSize="15"
+                                Text="Categorías"
+                                FontSize="14"
                                 FontAttributes="Bold"
-                                TextColor="#752B43"/>
-
-                            <Label
-                                Text="Consultar y recuperar arreglos"
-                                FontSize="11"
-                                TextColor="#86767B"
-                                LineBreakMode="WordWrap"/>
+                                TextColor="#752B43"
+                                HorizontalTextAlignment="Center"/>
 
                         </VerticalStackLayout>
+                    </Border>
 
-                        <!-- FLECHA -->
-                        <mi:MauiIcon
-                            Grid.Column="2"
-                            Icon="{mi:Material Icon=ChevronRight}"
-                            IconColor="#752B43"
-                            IconSize="26"
-                            VerticalOptions="Center"/>
+                    <!-- REPORTERÍA -->
+                    <Border
+                            Grid.Column="1"
+                            BackgroundColor="White"
+                            Stroke="#EBDCE0"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="12"
+                            HeightRequest="150">
 
-                    </Grid>
-                </Border>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="Reporteria_Tapped"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout
+                            Spacing="12"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+
+                            <Border
+                                BackgroundColor="#C68B93"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 15"
+                                WidthRequest="56"
+                                HeightRequest="56"
+                                HorizontalOptions="Center">
+
+                                <mi:MauiIcon
+                                    Icon="{mi:Material Icon=BarChart}"
+                                    IconColor="White"
+                                    IconSize="32"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"/>
+                            </Border>
+
+                            <Label
+                            Text="Reportería"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            TextColor="#752B43"
+                            HorizontalTextAlignment="Center"/>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                </Grid>
+
+
+
+
 
                 <!-- CERRAR SESIÓN -->
                 <Border
@@ -334,7 +370,7 @@
 
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer
-                            Tapped="Button_Clicked_4"/>
+                            Tapped="CerrarSesion_Clicked"/>
                     </Border.GestureRecognizers>
 
                     <HorizontalStackLayout

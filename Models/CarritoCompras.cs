@@ -30,11 +30,41 @@ namespace addFloreriaG5.Models
         }
     }
 
-    public class ItemCarrito
+
+    public class ItemCarrito : System.ComponentModel.INotifyPropertyChanged
     {
-        public ArregloModel Arreglo { get; set; }
-        public int Cantidad { get; set; }
-        public decimal Subtotal => Arreglo.precio * Cantidad;
+        public event System.ComponentModel.PropertyChangedEventHandler?
+            PropertyChanged;
+
+        private int cantidad = 1;
+
+        public ArregloModel Arreglo { get; set; } = null!;
+
+        public int Cantidad
+        {
+            get => cantidad;
+
+            set
+            {
+                if (cantidad == value)
+                    return;
+
+                cantidad = value;
+
+                OnPropertyChanged(nameof(Cantidad));
+                OnPropertyChanged(nameof(Subtotal));
+            }
+        }
+
+        public decimal Subtotal =>
+            Arreglo.precio * Cantidad;
+
+        private void OnPropertyChanged(string propiedad)
+        {
+            PropertyChanged?.Invoke(
+                this,
+                new System.ComponentModel.PropertyChangedEventArgs(propiedad));
+        }
     }
 
 }

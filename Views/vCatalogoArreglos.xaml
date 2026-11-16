@@ -73,14 +73,7 @@
                     VerticalOptions="Center">
 
                     <Label
-                        Text="NOVA FLORERÍA"
-                        FontSize="15"
-                        FontAttributes="Bold"
-                        TextColor="#9B3E5C"
-                        CharacterSpacing="2"
-                        HorizontalTextAlignment="Center"/>
-
-                    <Label
+                        x:Name="lblTituloCatalogo"
                         Text="Catálogo de Arreglos"
                         FontSize="23"
                         FontAttributes="Bold"
@@ -136,6 +129,7 @@
             <!-- =================================== -->
 
             <Grid
+                x:Name="panelFiltros"
                 Grid.Row="2"
                 ColumnDefinitions="*,*,*"
                 ColumnSpacing="8">
@@ -382,41 +376,45 @@
                                 <!-- BOTONES DE ACCION                   -->
                                 <!-- =================================== -->
 
+                                <!-- =================================== -->
+                                <!-- ACCIONES SEGÚN EL ROL               -->
+                                <!-- =================================== -->
+
+                                <!-- BOTONES DEL ADMINISTRADOR -->
                                 <Grid
                                     ColumnDefinitions="*,*,*"
-                                    ColumnSpacing="7">
+                                    ColumnSpacing="8"
+                                    IsVisible="{Binding MostrarAccionesAdmin}">
 
                                     <!-- DETALLES -->
                                     <Button
-                                        Grid.Column="0"
-                                        Text="Detalles"
-                                        Clicked="Button_Clicked_2"
-                                        CommandParameter="{Binding .}"
-                                        BackgroundColor="#F2F4EA"
-                                        TextColor="#63754D"
-                                        BorderColor="#B7C3A4"
-                                        BorderWidth="1"
-                                        FontSize="12"
-                                        FontAttributes="Bold"
-                                        CornerRadius="11"
-                                        HeightRequest="40"
-                                        Padding="3,0"/>
+                                    Grid.Column="0"
+                                    Text="Detalles"
+                                    Clicked="Button_Clicked_2"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="#F2F4EA"
+                                    TextColor="#63754D"
+                                    BorderColor="#B7C3A4"
+                                    BorderWidth="1"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    CornerRadius="11"
+                                    HeightRequest="45"/>
 
                                     <!-- EDITAR -->
                                     <Button
-                                        Grid.Column="1"
-                                        Text="Editar"
-                                        Clicked="Button_Clicked_3"
-                                        CommandParameter="{Binding .}"
-                                        BackgroundColor="#F9ECE8"
-                                        TextColor="#A56F58"
-                                        BorderColor="#E2C1B4"
-                                        BorderWidth="1"
-                                        FontSize="12"
-                                        FontAttributes="Bold"
-                                        CornerRadius="11"
-                                        HeightRequest="40"
-                                        Padding="3,0"/>
+                                    Grid.Column="1"
+                                    Text="Editar"
+                                    Clicked="Button_Clicked_3"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="#F9ECE8"
+                                    TextColor="#A56F58"
+                                    BorderColor="#E2C1B4"
+                                    BorderWidth="1"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    CornerRadius="11"
+                                    HeightRequest="45"/>
 
                                     <!-- ACTIVAR / DESACTIVAR -->
                                     <Button
@@ -429,31 +427,63 @@
                                         FontSize="11"
                                         FontAttributes="Bold"
                                         CornerRadius="11"
-                                        HeightRequest="40"
-                                        Padding="2,0">
+                                        HeightRequest="45">
 
                                         <Button.Triggers>
-
                                             <DataTrigger
                                                 TargetType="Button"
                                                 Binding="{Binding estado}"
                                                 Value="False">
 
                                                 <Setter
-                                                    Property="Text"
-                                                    Value="Activar"/>
+                                                Property="Text"
+                                                Value="Activar"/>
 
                                                 <Setter
-                                                    Property="BackgroundColor"
-                                                    Value="#8B9779"/>
-
+                                                Property="BackgroundColor"
+                                                Value="#8B9779"/>
                                             </DataTrigger>
-
                                         </Button.Triggers>
-
                                     </Button>
 
                                 </Grid>
+
+                                <!-- BOTONES DEL CLIENTE -->
+                                <Grid
+                                    ColumnDefinitions="*,*"
+                                    ColumnSpacing="10"
+                                    IsVisible="{Binding MostrarAccionesCliente}">
+
+                                    <!-- DETALLES -->
+                                    <Button
+                                    Grid.Column="0"
+                                    Text="Detalles"
+                                    Clicked="Button_Clicked_2"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="#F2F4EA"
+                                    TextColor="#63754D"
+                                    BorderColor="#B7C3A4"
+                                    BorderWidth="1"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    CornerRadius="11"
+                                    HeightRequest="45"/>
+
+                                    <!-- AGREGAR AL CARRITO -->
+                                    <Button
+                                    Grid.Column="1"
+                                    Text="Agregar al carrito"
+                                    Clicked="AgregarCarrito_Clicked"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="#9B3E5C"
+                                    TextColor="White"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    CornerRadius="11"
+                                    HeightRequest="45"/>
+
+                                </Grid>
+
 
                             </VerticalStackLayout>
 
@@ -477,6 +507,22 @@
                 BackgroundColor="#8B9779"
                 TextColor="White"
                 FontSize="16"
+                FontAttributes="Bold"
+                CornerRadius="18"
+                HeightRequest="54"
+                Margin="0,5,0,0"/>
+
+
+            <!-- CARRITO: SOLO CLIENTE -->
+            <Button
+                Grid.Row="4"
+                x:Name="btnVerCarrito"
+                Text="Ver mi carrito"
+                IsVisible="False"
+                Clicked="VerCarrito_Clicked"
+                BackgroundColor="#9B3E5C"
+                TextColor="White"
+                FontSize="15"
                 FontAttributes="Bold"
                 CornerRadius="18"
                 HeightRequest="54"

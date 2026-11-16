@@ -2,9 +2,10 @@ namespace addFloreriaG5.Views;
 
 using addFloreriaG5.Models;
 using addFloreriaG5.Services;
+using addFloreriaG5.Views;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using addFloreriaG5.Views;
 
 public partial class vProcesoCompra : ContentPage
 {
@@ -31,37 +32,50 @@ public partial class vProcesoCompra : ContentPage
         CargarDatosPantalla();
     }
 
+
     private void CargarDatosPantalla()
     {
-        // Mostramos los elementos en el CollectionView
+        // Actualizar el listado
         cvCarrito.ItemsSource = null;
         cvCarrito.ItemsSource = CarritoCompras.Items;
 
-        // Autocompletamos automáticamente con los datos del usuario que inició sesión
+        // Ajustar altura según la cantidad de productos
+        int cantidadProductos = CarritoCompras.Items.Count;
+
+        cvCarrito.HeightRequest = cantidadProductos == 0
+            ? 80
+            : Math.Min(cantidadProductos * 115, 350);
+
+        // Completar datos del usuario
         if (string.IsNullOrWhiteSpace(txtNombreCliente.Text))
         {
-            txtNombreCliente.Text = SesionUsuario.Nombre;   // Carga el nombre del login
-            txtTelefono.Text = SesionUsuario.Telefono;     // Carga el teléfono del login
+            txtNombreCliente.Text = SesionUsuario.Nombre;
         }
 
+        if (string.IsNullOrWhiteSpace(txtTelefono.Text))
+        {
+            txtTelefono.Text = SesionUsuario.Telefono;
+        }
+
+        // Actualizar totales
         CalcularTotalesGenerales();
     }
-
     private void CalcularTotalesGenerales()
     {
         decimal subtotalGeneral = 0.00m;
+
         foreach (var item in CarritoCompras.Items)
         {
             subtotalGeneral += item.Subtotal;
         }
 
-        decimal ivaGeneral = subtotalGeneral * 0.15m; // 15% IVA
-        decimal totalGeneral = subtotalGeneral + ivaGeneral;
+        // El total mostrado no añade IVA
+        decimal totalGeneral = subtotalGeneral;
 
         lblSubtotal.Text = $"${subtotalGeneral:F2}";
-        lblIva.Text = $"${ivaGeneral:F2}";
         lblTotal.Text = $"${totalGeneral:F2}";
     }
+
 
     // Botón: Seguir Comprando (Devuelve al catálogo para elegir más)
     private async void OnSeguirComprandoClicked(object sender, EventArgs e)
@@ -71,165 +85,190 @@ public partial class vProcesoCompra : ContentPage
 
 
     // Método para actualizar la cantidad cuando el usuario la edita en la lista
-    private void OnCantidadEntryChanged(object sender, TextChangedEventArgs e)
+
+
+    private void OnCantidadEntryChanged(
+        object sender,
+        TextChangedEventArgs e)
     {
-        if (sender is Entry entry && entry.BindingContext is ItemCarrito itemSeleccionado)
-        {
-            if (int.TryParse(e.NewTextValue, out int nuevaCantidad) && nuevaCantidad > 0)
-            {
-                itemSeleccionado.Cantidad = nuevaCantidad;
-                CalcularTotalesGenerales();
-            }
-            else if (string.IsNullOrWhiteSpace(e.NewTextValue))
-            {
-                itemSeleccionado.Cantidad = 1;
-                CalcularTotalesGenerales();
-            }
-        }
+        if (sender is not Entry entry ||
+            entry.BindingContext is not ItemCarrito item)
+            return;
+
+        // Validar que se ingrese un número
+        if (!int.TryParse(e.NewTextValue, out int cantidad))
+            return;
+
+        // Validar cantidad y stock disponible
+        if (cantidad < 1 || cantidad > item.Arreglo.stock)
+            return;
+
+        // Actualizar la cantidad del producto
+        item.Cantidad = cantidad;
+
+        // Actualizar únicamente los totales generales
+        CalcularTotalesGenerales();
     }
 
 
 
-    private async void Button_Clicked(object sender, EventArgs e)
+    private async void Button_Clicked(
+        object sender,
+        EventArgs e)
     {
-        if (CarritoCompras.Items.Count == 0)
+        if (!btnConfirmarPedido.IsEnabled)
+            return;
+
+        // VALIDAR SESIÓN
+        if (!SesionAuth.TieneSesion)
         {
-            await DisplayAlert("Carrito vacío", "No tienes ningún arreglo seleccionado.", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Sesión vencida",
+                "Vuelve a iniciar sesión para realizar tu pedido.",
+                "advertencia");
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(txtNombreCliente.Text) ||
-            string.IsNullOrWhiteSpace(txtTelefono.Text) ||
-            string.IsNullOrWhiteSpace(txtDireccion.Text))
+        // VALIDAR CARRITO
+        if (CarritoCompras.Items.Count == 0)
         {
-            await DisplayAlert("Campos obligatorios", "La dirección de entrega, el nombre y el teléfono son obligatorios.", "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this,
+                "Carrito vacío",
+                "Selecciona al menos un arreglo floral.",
+                "advertencia");
             return;
         }
+
+        // VALIDAR DATOS
+        string nombre = txtNombreCliente.Text?.Trim() ?? "";
+        string telefono = txtTelefono.Text?.Trim() ?? "";
+        string direccion = txtDireccion.Text?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(nombre) ||
+            string.IsNullOrWhiteSpace(telefono) ||
+            string.IsNullOrWhiteSpace(direccion))
+        {
+            await MensajeModal.MostrarAsync(
+                this,
+                "Campos obligatorios",
+                "Completa el nombre, teléfono y dirección de entrega.",
+                "advertencia");
+            return;
+        }
+
+        // VALIDAR CANTIDADES
+        if (CarritoCompras.Items.Any(
+            x => x.Cantidad <= 0 ||
+                 x.Cantidad > x.Arreglo.stock))
+        {
+            await MensajeModal.MostrarAsync(
+                this,
+                "Cantidad inválida",
+                "Revisa las cantidades y existencias disponibles.",
+                "advertencia");
+            return;
+        }
+
+        bool confirmar = await MensajeModal.ConfirmarAsync(
+            this,
+            "Confirmar pedido",
+            "¿Deseas registrar tu pedido con los arreglos seleccionados?");
+
+        if (!confirmar)
+            return;
+
+        btnConfirmarPedido.IsEnabled = false;
+        btnConfirmarPedido.Text = "Registrando pedido...";
 
         try
         {
-            SupabaseService servicio = new SupabaseService();
-            var client = servicio.GetClient();
+            var servicio = new SupabaseService();
 
-            // Calculamos el total final a guardar
-            decimal totalFinal = CarritoCompras.Items.Sum(i => i.Subtotal) * 1.15m;
+            // Enviar únicamente ID y cantidad.
+            // Supabase calculará precios y totales.
+            var productos = CarritoCompras.Items
+                .Select(x => new
+                {
+                    id_arreglo = x.Arreglo.id_arreglo,
+                    cantidad = x.Cantidad
+                })
+                .ToList();
 
-            // PASO 1: Guardar la cabecera en la tabla 'pedidos' (¡INCLUYENDO LA DIRECCIÓN DE ENVÍO!)
-            var nuevoPedido = new
+            var solicitud = new
             {
-                id_cliente = 1,
-                fecha_pedido = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                total = totalFinal,
-                estado = "Pendiente",
-                direccion_envio = txtDireccion.Text.Trim(),
-                telefono_envio = txtTelefono.Text.Trim() // <-- ¡AQUÍ ESTABA EL DETALLE! Guardamos el teléfono real
+                p_items = productos,
+                p_direccion = direccion,
+                p_telefono = telefono
             };
 
-            string jsonPedido = JsonSerializer.Serialize(nuevoPedido);
-            StringContent contenidoPedido = new StringContent(jsonPedido, Encoding.UTF8, "application/json");
+            string endpoint =
+                $"{servicio.GetUrl()}/rest/v1/rpc/confirmar_pedido_nova";
 
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Add("Prefer", "return=representation");
+            using var respuesta = await servicio
+                .GetClient()
+                .PostAsJsonAsync(endpoint, solicitud);
 
-            string endpointPedido = $"{servicio.GetUrl()}/rest/v1/pedidos";
-            var respuestaPedido = await client.PostAsync(endpointPedido, contenidoPedido);
-
-            if (!respuestaPedido.IsSuccessStatusCode)
+            if (!respuesta.IsSuccessStatusCode)
             {
-                string error = await respuestaPedido.Content.ReadAsStringAsync();
-                await DisplayAlert("Error", "No se pudo registrar el pedido: " + error, "Aceptar");
+                string error =
+                    await respuesta.Content.ReadAsStringAsync();
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"Error al registrar pedido: {error}");
+
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "No se pudo registrar",
+                    "Verifica las existencias de los arreglos e inténtalo nuevamente.",
+                    "error");
                 return;
             }
 
-            // Obtenemos el id_pedido recién creado
-            string resultadoJson = await respuestaPedido.Content.ReadAsStringAsync();
-            var listaPedidosCreados = JsonSerializer.Deserialize<List<PedidoCreadoModel>>(resultadoJson, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
+            // La función devuelve el ID del pedido
+            int idPedido = await respuesta.Content
+                .ReadFromJsonAsync<int>();
 
-            int idPedidoGenerado = listaPedidosCreados.FirstOrDefault()?.id_pedido ?? 0;
+            if (idPedido <= 0)
+                throw new InvalidOperationException(
+                    "Supabase no devolvió un pedido válido.");
 
-            if (idPedidoGenerado > 0)
-            {
-                // PASO 2: Recorrer CADA producto del carrito, guardarlo en 'detalle_pedido' y actualizar su stock
-                bool errorDetalleOcurrido = false;
+            // Limpiar carrito después del éxito
+            CarritoCompras.Limpiar();
 
-                foreach (var item in CarritoCompras.Items)
-                {
-                    // A. Guardar el detalle del pedido
-                    var detallePedido = new
-                    {
-                        id_pedido = idPedidoGenerado,
-                        id_arreglo = item.Arreglo.id_arreglo,
-                        cantidad = item.Cantidad,
-                        precio_unitario = item.Arreglo.precio,
-                        subtotal = item.Subtotal
-                    };
+            await MensajeModal.MostrarAsync(
+                this,
+                "¡Pedido registrado!",
+                $"Tu pedido #{idPedido} se registró correctamente.",
+                "exito");
 
-                    string jsonDetalle = JsonSerializer.Serialize(detallePedido);
-                    StringContent contenidoDetalle = new StringContent(jsonDetalle, Encoding.UTF8, "application/json");
-                    string endpointDetalle = $"{servicio.GetUrl()}/rest/v1/detalle_pedido";
-                    var respuestaDetalle = await client.PostAsync(endpointDetalle, contenidoDetalle);
-
-                    if (respuestaDetalle.IsSuccessStatusCode)
-                    {
-                        // B. DISMINUIR EL STOCK EN LA TABLA 'arreglos'
-                        int nuevoStock = item.Arreglo.stock - item.Cantidad;
-                        if (nuevoStock < 0) nuevoStock = 0; // Evita stock negativo
-
-                        var actualizarStock = new
-                        {
-                            stock = nuevoStock
-                        };
-
-                        string jsonStock = JsonSerializer.Serialize(actualizarStock);
-                        StringContent contenidoStock = new StringContent(jsonStock, Encoding.UTF8, "application/json");
-
-                        string endpointStock = $"{servicio.GetUrl()}/rest/v1/arreglos?id_arreglo=eq.{item.Arreglo.id_arreglo}";
-
-                        var requestStock = new HttpRequestMessage(new HttpMethod("PATCH"), endpointStock)
-                        {
-                            Content = contenidoStock
-                        };
-                        requestStock.Headers.Add("Prefer", "return=minimal");
-
-                        await client.SendAsync(requestStock);
-
-                        // Actualizamos el objeto local en memoria por si el usuario sigue navegando
-                        item.Arreglo.stock = nuevoStock;
-                    }
-                    else
-                    {
-                        errorDetalleOcurrido = true;
-                    }
-                }
-
-                if (!errorDetalleOcurrido)
-                {
-                    await DisplayAlert("¡Éxito!", "¡Tu pedido múltiple ha sido registrado con éxito y el stock se ha actualizado!", "Aceptar");
-
-                    // Limpiamos el carrito tras la compra exitosa
-                    CarritoCompras.Limpiar();
-
-                    // Obtenemos únicamente el texto del nombre digitado en el Entry
-                    string nombreCliente = txtNombreCliente.Text;
-
-                    // Enviamos solo el nombre al menú administrador
-                    Navigation.InsertPageBefore(new vMenuAdministrador(nombreCliente), Navigation.NavigationStack.First());
-                    await Navigation.PopToRootAsync();
-                }
-                else
-                {
-                    await DisplayAlert("Advertencia", "El pedido se creó, pero hubo problemas registrando algunos detalles.", "Aceptar");
-                }
-            }
+            // Regresar al catálogo del cliente
+            await Navigation.PopAsync();
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "Aceptar");
-        }
+            System.Diagnostics.Debug.WriteLine(ex);
 
+            await MensajeModal.MostrarAsync(
+                this,
+                "No se pudo confirmar",
+                "No se pudo verificar el resultado del pedido. Consulta tus pedidos antes de volver a intentarlo.",
+                "advertencia");
+        }
+        finally
+        {
+            btnConfirmarPedido.IsEnabled = true;
+            btnConfirmarPedido.Text = "Confirmar pedido";
+        }
+    }
+
+
+    private async void Volver_Tapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        await Navigation.PopAsync();
     }
 }
 

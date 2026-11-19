@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="addFloreriaG5.Views.vMontoAbono"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <Grid
+            Padding="22"
+            MinimumHeightRequest="540"
+            VerticalOptions="Center"
+            MaximumWidthRequest="450">
+
+            <Border
+                BackgroundColor="White"
+                Stroke="#EBDCE0"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 24"
+                Padding="24">
+
+                <VerticalStackLayout Spacing="18">
+
+                    <!-- ENCABEZADO -->
+                    <VerticalStackLayout
+                        Spacing="7"
+                        HorizontalOptions="Center">
+
+                        <Label
+                            Text="Registrar abono"
+                            FontSize="23"
+                            FontAttributes="Bold"
+                            TextColor="#752B43"
+                            HorizontalTextAlignment="Center"/>
+
+                        <Label
+                            x:Name="lblPedido"
+                            FontSize="13"
+                            TextColor="#8A7A78"
+                            HorizontalTextAlignment="Center"/>
+
+                    </VerticalStackLayout>
+
+                    <!-- SALDO PENDIENTE -->
+                    <Border
+                        BackgroundColor="#F9ECE8"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="18">
+
+                        <VerticalStackLayout
+                            Spacing="7"
+                            HorizontalOptions="Center">
+
+                            <Label
+                                Text="Saldo pendiente"
+                                FontSize="13"
+                                TextColor="#8A7A78"/>
+
+                            <Label
+                                x:Name="lblSaldo"
+                                FontSize="29"
+                                FontAttributes="Bold"
+                                TextColor="#9B3E5C"
+                                HorizontalTextAlignment="Center"/>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- INGRESAR MONTO -->
+                    <VerticalStackLayout Spacing="9">
+
+                        <Label
+                            Text="Monto recibido ($)"
+                            FontSize="14"
+                            FontAttributes="Bold"
+                            TextColor="#752B43"/>
+
+                        <Border
+                            BackgroundColor="#FFFFFF"
+                            Stroke="#E2C1B4"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 13"
+                            Padding="12,2">
+
+                            <Entry
+                                x:Name="txtMonto"
+                                Placeholder="Ej. 10,00"
+                                Keyboard="Numeric"
+                                FontSize="19"
+                                TextColor="#752B43"
+                                PlaceholderColor="#B49BA4"
+                                BackgroundColor="Transparent"
+                                ClearButtonVisibility="WhileEditing"/>
+
+                        </Border>
+
+                        <Label
+                            Text="Puedes registrar varios abonos hasta completar el pago."
+                            FontSize="12"
+                            TextColor="#8A7A78"
+                            LineBreakMode="WordWrap"/>
+
+                        <!-- VALIDACIÓN -->
+                        <Label
+                            x:Name="lblError"
+                            TextColor="#C0392B"
+                            FontSize="12"
+                            IsVisible="False"
+                            LineBreakMode="WordWrap"/>
+
+                    </VerticalStackLayout>
+
+                    <!-- BOTONES -->
+                    <Grid
+                        ColumnDefinitions="*,*"
+                        ColumnSpacing="10"
+                        Margin="0,8,0,0">
+
+                        <Button
+                            Grid.Column="0"
+                            Text="Cancelar"
+                            Clicked="Cancelar_Clicked"
+                            BackgroundColor="#F5F1F2"
+                            TextColor="#752B43"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            CornerRadius="13"
+                            HeightRequest="50"/>
+
+                        <Button
+                            Grid.Column="1"
+                            Text="Continuar"
+                            Clicked="Continuar_Clicked"
+                            BackgroundColor="#9B3E5C"
+                            TextColor="White"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            CornerRadius="13"
+                            HeightRequest="50"/>
+
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </ScrollView>
+</ContentPage>

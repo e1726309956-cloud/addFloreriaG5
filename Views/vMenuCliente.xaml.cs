@@ -27,11 +27,8 @@ public partial class vMenuCliente : ContentPage
         object sender,
         TappedEventArgs e)
     {
-        await MensajeModal.MostrarAsync(
-            this,
-            "Mis pedidos",
-            "Aquí podrás consultar el historial y estado de tus compras.",
-            "advertencia");
+        await Navigation.PushAsync(
+        new vVerPedidos(false));
     }
 
     // MI PERFIL

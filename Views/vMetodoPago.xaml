@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    x:Class="addFloreriaG5.Views.vMetodoPago"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid Padding="25"
+          VerticalOptions="Center"
+          MaximumWidthRequest="430">
+
+        <Border
+            BackgroundColor="White"
+            Stroke="#EBDCE0"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 25"
+            Padding="24">
+
+            <VerticalStackLayout Spacing="18">
+
+                <!-- ENCABEZADO -->
+                <mi:MauiIcon
+                    Icon="{mi:Material Icon=Payments}"
+                    IconColor="#9B3E5C"
+                    IconSize="42"
+                    HorizontalOptions="Center"/>
+
+                <Label
+                    Text="Método de pago"
+                    FontSize="23"
+                    FontAttributes="Bold"
+                    TextColor="#752B43"
+                    HorizontalTextAlignment="Center"/>
+
+                <Label
+                    Text="Selecciona cómo recibiste el abono del cliente."
+                    FontSize="13"
+                    TextColor="#8A7A78"
+                    HorizontalTextAlignment="Center"/>
+
+                <!-- TRANSFERENCIA -->
+                <Button
+                    Text="Transferencia bancaria"
+                    Clicked="Transferencia_Clicked"
+                    BackgroundColor="#F9ECE8"
+                    TextColor="#9B3E5C"
+                    BorderColor="#E2C1B4"
+                    BorderWidth="1"
+                    FontSize="14"
+                    FontAttributes="Bold"
+                    CornerRadius="14"
+                    HeightRequest="56"/>
+
+                <!-- EFECTIVO -->
+                <Button
+                    Text="Efectivo"
+                    Clicked="Efectivo_Clicked"
+                    BackgroundColor="#EDF3E9"
+                    TextColor="#63754D"
+                    BorderColor="#C8D8BE"
+                    BorderWidth="1"
+                    FontSize="14"
+                    FontAttributes="Bold"
+                    CornerRadius="14"
+                    HeightRequest="56"/>
+
+                <!-- CANCELAR -->
+                <Button
+                    Text="Cancelar"
+                    Clicked="Cancelar_Clicked"
+                    BackgroundColor="#F5F1F2"
+                    TextColor="#8A7A78"
+                    FontSize="13"
+                    CornerRadius="14"
+                    HeightRequest="48"/>
+
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

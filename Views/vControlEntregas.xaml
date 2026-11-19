@@ -65,7 +65,7 @@
                                         TextColor="White" 
                                         FontSize="12"
                                         CommandParameter="{Binding .}"
-                                        Clicked="Button_Clicked_3"
+                                        Clicked="RegistrarAbonoEntrega_Clicked"
                                         Margin="0,2,0,0"/>
 
 

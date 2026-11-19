@@ -1,14 +1,13 @@
 namespace addFloreriaG5.Views;
-
-
 using addFloreriaG5.Models;
 using addFloreriaG5.Services;
 using System.Text;
 using System.Text.Json;
-
+using System.Globalization;
 public partial class vControlEntregas : ContentPage
 {
-	public vControlEntregas()
+    private readonly Dictionary<int, Guid> solicitudesAbonoPendientes = new();
+    public vControlEntregas()
 	{
 		InitializeComponent();
 	}
@@ -163,150 +162,192 @@ public partial class vControlEntregas : ContentPage
 
     }
 
-    private async void Button_Clicked_3(object sender, EventArgs e)
+    private async void RegistrarAbonoEntrega_Clicked(
+        object sender,
+        EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is EntregaModel entrega)
+        // VALIDAR BOTÓN Y ENTREGA
+        if (sender is not Button boton ||
+            boton.CommandParameter is not EntregaModel entrega)
+            return;
+
+        // VALIDAR SESIÓN
+        if (!SesionAuth.TieneSesion)
         {
-            if (entrega.pedido == null)
-            {
-                await DisplayAlert("Error", "No se encontró información del pedido asociado.", "Aceptar");
-                return;
-            }
-
-            // Si por alguna razón el total del objeto pedido viniera en 0, 
-            // intentamos rescatarlo extrayéndolo de las observaciones de la entrega
-            decimal saldoPendiente = entrega.pedido.total;
-            if (saldoPendiente <= 0 && !string.IsNullOrEmpty(entrega.observaciones))
-            {
-                try
-                {
-                    // Extrae el número después del símbolo $ en las observaciones
-                    string obs = entrega.observaciones;
-                    int index = obs.IndexOf('$');
-                    if (index != -1)
-                    {
-                        string sub = obs.Substring(index + 1).Trim();
-                        decimal.TryParse(sub, out saldoPendiente);
-                    }
-                }
-                catch { }
-            }
-
-            string saldoActualStr = saldoPendiente.ToString("F2");
-
-            string resultadoMonto = await DisplayPromptAsync(
-                "Registrar Cobro / Abono",
-                $"Pedido #{entrega.id_pedido}\nSaldo pendiente exacto: ${saldoActualStr}\n\nIngrese el monto recibido:",
-                "Guardar",
-                "Cancelar",
-                initialValue: saldoActualStr, // <-- ¡Coloca el saldo exacto para que el usuario pague el total de una vez si desea!
-                placeholder: "Ej. 10.00",
-                keyboard: Keyboard.Numeric);
-
-            if (string.IsNullOrWhiteSpace(resultadoMonto))
-                return;
-
-            if (!decimal.TryParse(resultadoMonto, out decimal montoAbono) || montoAbono <= 0)
-            {
-                await DisplayAlert("Error", "Ingrese un monto válido.", "Aceptar");
-                return;
-            }
-
-            if (montoAbono > (saldoPendiente > 0 ? saldoPendiente : entrega.pedido.total))
-            {
-                await DisplayAlert("Aviso", "El abono no puede ser mayor al saldo restante.", "Aceptar");
-                return;
-            }
-
-            try
-            {
-                SupabaseService servicio = new SupabaseService();
-                var client = servicio.GetClient();
-
-                // 1. Insertar el pago en la tabla 'pagos'
-                var nuevoPago = new
-                {
-                    id_pedido = entrega.id_pedido,
-                    monto = montoAbono,
-                    metodo_pago = "Efectivo / Contra Entrega",
-                    fecha_pago = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                    estado = "Completado"
-                };
-
-                string jsonPago = JsonSerializer.Serialize(nuevoPago);
-                StringContent contenidoPago = new StringContent(jsonPago, Encoding.UTF8, "application/json");
-
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("Prefer", "return=minimal");
-
-                string endpointPago = $"{servicio.GetUrl()}/rest/v1/pagos";
-                var respuestaPago = await client.PostAsync(endpointPago, contenidoPago);
-
-                if (respuestaPago.IsSuccessStatusCode)
-                {
-                    // 2. Calcular nuevo total restante
-                    decimal baseTotal = saldoPendiente > 0 ? saldoPendiente : entrega.pedido.total;
-                    decimal nuevoTotal = baseTotal - montoAbono;
-                    if (nuevoTotal < 0) nuevoTotal = 0;
-
-                    string nuevoEstadoPedido = nuevoTotal == 0 ? "Pagado Completo" : "Pago Minimo";
-
-                    // 3. Actualizar el pedido en la tabla 'pedidos'
-                    var actualizarPedido = new
-                    {
-                        total = nuevoTotal,
-                        estado = nuevoEstadoPedido
-                    };
-
-                    string jsonPedido = JsonSerializer.Serialize(actualizarPedido);
-                    StringContent contenidoPedido = new StringContent(jsonPedido, Encoding.UTF8, "application/json");
-
-                    string endpointPedido = $"{servicio.GetUrl()}/rest/v1/pedidos?id_pedido=eq.{entrega.id_pedido}";
-                    var requestPedido = new HttpRequestMessage(new HttpMethod("PATCH"), endpointPedido)
-                    {
-                        Content = contenidoPedido
-                    };
-                    requestPedido.Headers.Add("Prefer", "return=minimal");
-
-                    await client.SendAsync(requestPedido);
-
-                    // 4. Actualizar las observaciones de la entrega para que la tarjeta refleje el nuevo saldo de inmediato
-                    var actualizarEntrega = new
-                    {
-                        observaciones = $"Saldo pendiente a cobrar: ${nuevoTotal:F2}"
-                    };
-                    string jsonEntrega = JsonSerializer.Serialize(actualizarEntrega);
-                    StringContent contenidoEntrega = new StringContent(jsonEntrega, Encoding.UTF8, "application/json");
-
-                    string endpointEntrega = $"{servicio.GetUrl()}/rest/v1/entregas?id_entrega=eq.{entrega.id_entrega}";
-                    var requestEntrega = new HttpRequestMessage(new HttpMethod("PATCH"), endpointEntrega)
-                    {
-                        Content = contenidoEntrega
-                    };
-                    requestEntrega.Headers.Add("Prefer", "return=minimal");
-                    await client.SendAsync(requestEntrega);
-
-                    // 5. ACTUALIZACIÓN EN MEMORIA DE LA TARJETA (Para reflejarlo al instante sin recargar toda la vista si se desea)
-                    entrega.pedido.total = nuevoTotal;
-                    entrega.observaciones = $"Saldo pendiente a cobrar: ${nuevoTotal:F2}";
-
-                    await DisplayAlert("¡Éxito!", $"Se registró el cobro de ${montoAbono:F2}.\nNuevo saldo restante: ${nuevoTotal:F2}", "Aceptar");
-
-                    // Recargamos la lista completa de entregas desde la BD para refrescar la interfaz visual
-                    await CargarEntregas();
-                }
-                else
-                {
-                    string error = await respuestaPago.Content.ReadAsStringAsync();
-                    await DisplayAlert("Error", "No se pudo registrar el pago: " + error, "Aceptar");
-                }
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", ex.Message, "Aceptar");
-            }
+            await DisplayAlert(
+                "Sesión vencida",
+                "Inicia sesión nuevamente.",
+                "Aceptar");
+            return;
         }
 
+        // VALIDAR PEDIDO ASOCIADO
+        if (entrega.pedido == null)
+        {
+            await DisplayAlert(
+                "Error",
+                "No se encontró el pedido asociado.",
+                "Aceptar");
+            return;
+        }
 
+        // OBTENER SALDO PENDIENTE
+        decimal saldoPendiente = entrega.pedido.total;
+
+        if (saldoPendiente <= 0)
+        {
+            await DisplayAlert(
+                "Pedido pagado",
+                "Este pedido no tiene saldo pendiente.",
+                "Aceptar");
+            return;
+        }
+
+        // SELECCIONAR MÉTODO DE PAGO
+        string metodoPago = await DisplayActionSheet(
+            "Método de pago",
+            "Cancelar",
+            null,
+            "Efectivo",
+            "Transferencia");
+
+        if (string.IsNullOrWhiteSpace(metodoPago) ||
+            metodoPago == "Cancelar")
+            return;
+
+        // SOLICITAR MONTO
+        string resultadoMonto = await DisplayPromptAsync(
+            "Registrar abono de entrega",
+            $"Pedido #{entrega.id_pedido}\n" +
+            $"Saldo pendiente: ${saldoPendiente:F2}\n\n" +
+            "Ingresa el monto recibido:",
+            "Continuar",
+            "Cancelar",
+            initialValue: saldoPendiente.ToString("F2"),
+            placeholder: "Ej. 20.00",
+            keyboard: Keyboard.Numeric);
+
+        if (string.IsNullOrWhiteSpace(resultadoMonto))
+            return;
+
+        // VALIDAR MONTO
+        bool montoValido = decimal.TryParse(
+            resultadoMonto,
+            NumberStyles.Number,
+            CultureInfo.CurrentCulture,
+            out decimal montoAbono);
+
+        if (!montoValido)
+        {
+            montoValido = decimal.TryParse(
+                resultadoMonto,
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out montoAbono);
+        }
+
+        if (!montoValido ||
+            montoAbono <= 0 ||
+            decimal.Round(montoAbono, 2) != montoAbono)
+        {
+            await DisplayAlert(
+                "Monto inválido",
+                "Ingresa un monto válido mayor que cero, " +
+                "con máximo dos decimales.",
+                "Aceptar");
+            return;
+        }
+
+        if (montoAbono > saldoPendiente)
+        {
+            await DisplayAlert(
+                "Monto incorrecto",
+                "El abono no puede superar " +
+                "el saldo pendiente.",
+                "Aceptar");
+            return;
+        }
+
+        // CONFIRMAR EL PAGO
+        bool confirmar = await DisplayAlert(
+            "Confirmar pago",
+            $"Pedido #{entrega.id_pedido}\n" +
+            $"Monto: ${montoAbono:F2}\n" +
+            $"Método: {metodoPago}\n\n" +
+            "¿Confirmas que recibiste este dinero?",
+            "Sí, registrar",
+            "Cancelar");
+
+        if (!confirmar)
+            return;
+
+        boton.IsEnabled = false;
+
+        try
+        {
+            // CONSERVAR IDENTIFICADOR DE SOLICITUD
+            if (!solicitudesAbonoPendientes.TryGetValue(
+                entrega.id_pedido,
+                out Guid solicitudId))
+            {
+                solicitudId = Guid.NewGuid();
+
+                solicitudesAbonoPendientes[
+                    entrega.id_pedido] = solicitudId;
+            }
+
+            // REGISTRAR MEDIANTE LA FUNCIÓN DE SUPABASE
+            var pagosService = new PagosService();
+
+            ResultadoPago resultado =
+                await pagosService.RegistrarAbonoAsync(
+                    entrega.id_pedido,
+                    montoAbono,
+                    metodoPago,
+                    solicitudId);
+
+            // EL SERVIDOR CONFIRMÓ LA OPERACIÓN
+            solicitudesAbonoPendientes.Remove(
+                entrega.id_pedido);
+
+            // MOSTRAR RESULTADO
+            string mensaje =
+                $"Abono registrado: ${montoAbono:F2}\n" +
+                $"Saldo pendiente: ${resultado.SaldoRestante:F2}\n" +
+                $"Estado: {resultado.Estado}";
+
+            if (resultado.SaldoRestante == 0)
+            {
+                mensaje +=
+                    "\n\n¡El pedido está pagado al 100 %!";
+            }
+
+            await DisplayAlert(
+                "Pago registrado",
+                mensaje,
+                "Aceptar");
+
+            // ACTUALIZAR LISTA DE ENTREGAS
+            await CargarEntregas();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+
+            await DisplayAlert(
+                "No se pudo confirmar",
+                "No se pudo verificar el resultado del pago. " +
+                "Consulta el historial antes de repetirlo.\n\n" +
+                ex.Message,
+                "Aceptar");
+        }
+        finally
+        {
+            boton.IsEnabled = true;
+        }
     }
+
+
+
+
 }

@@ -8,92 +8,36 @@ using System.Text;
 
 public partial class vVerPedidos : ContentPage
 {
-	public vVerPedidos()
-	{
-		InitializeComponent();
-	}
+    private readonly bool modoAdministradorSolicitado;
+    private bool esAdministrador;
+    private int idClienteActual;
+    public vVerPedidos(bool esAdministrador = true)
+    {
+        InitializeComponent();
+        modoAdministradorSolicitado = esAdministrador;
+    }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await CargarPedidos();
-    }
 
-
-    private async Task CargarPedidos()
-    {
         try
         {
-            SupabaseService servicio = new SupabaseService();
-            var client = servicio.GetClient();
-            string url = servicio.GetUrl();
+            bool autorizado = await ValidarAccesoAsync();
 
-            // 1. Consultar pedidos y pagos
-            var respuesta = await client.GetAsync(
-                $"{url}/rest/v1/pedidos?select=*,pagos(*)&order=id_pedido.desc");
-
-            respuesta.EnsureSuccessStatusCode();
-
-            string json = await respuesta.Content.ReadAsStringAsync();
-
-            var pedidos = JsonSerializer.Deserialize<List<PedidoModel>>(
-                json,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }) ?? new();
-
-            // 2. Consultar los arreglos de cada pedido
-            var respuestaDetalles = await client.GetAsync(
-                $"{url}/rest/v1/detalle_pedido?select=id_pedido,id_arreglo");
-
-            respuestaDetalles.EnsureSuccessStatusCode();
-
-            string jsonDetalles =
-                await respuestaDetalles.Content.ReadAsStringAsync();
-
-            var detalles = JsonSerializer.Deserialize<List<DetalleImagenPedido>>(
-                jsonDetalles,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }) ?? new();
-
-            // 3. Consultar fotografías y nombres
-            var respuestaArreglos = await client.GetAsync(
-                $"{url}/rest/v1/arreglos?select=id_arreglo,nombre,imagen");
-
-            respuestaArreglos.EnsureSuccessStatusCode();
-
-            string jsonArreglos =
-                await respuestaArreglos.Content.ReadAsStringAsync();
-
-            var arreglos = JsonSerializer.Deserialize<List<ArregloImagenPedido>>(
-                jsonArreglos,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }) ?? new();
-
-            var arreglosPorId = arreglos.ToDictionary(
-                a => a.id_arreglo);
-
-            // 4. Asignar la primera imagen a cada pedido
-            foreach (var pedido in pedidos)
+            if (!autorizado)
             {
-                var detalle = detalles.FirstOrDefault(
-                    d => d.id_pedido == pedido.id_pedido);
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "Acceso denegado",
+                    "No tienes autorización para consultar esta sección.",
+                    "error");
 
-                if (detalle != null &&
-                    arreglosPorId.TryGetValue(
-                        detalle.id_arreglo,
-                        out var arreglo))
-                {
-                    pedido.imagenArreglo = arreglo.imagen;
-                    pedido.nombreArreglo = arreglo.nombre;
-                }
+                await Navigation.PopAsync();
+                return;
             }
 
-            cvPedidos.ItemsSource = pedidos;
+            await CargarPedidos();
         }
         catch (Exception ex)
         {
@@ -101,11 +45,205 @@ public partial class vVerPedidos : ContentPage
 
             await MensajeModal.MostrarAsync(
                 this,
-                "Error de carga",
-                "No se pudieron cargar los pedidos.",
+                "Error",
+                "No se pudo validar tu sesión.",
                 "error");
+
+            await Navigation.PopAsync();
         }
     }
+
+
+
+
+    private void WhatsApp_Tapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        if (!esAdministrador)
+            return;
+
+        if (e.Parameter is not PedidoModel pedido)
+            return;
+
+        var boton = new Button
+        {
+            CommandParameter = pedido
+        };
+
+        Button_Clicked(boton, EventArgs.Empty);
+    }
+
+
+    private async Task CargarPedidos()
+    {
+        try
+        {
+            var servicio = new SupabaseService();
+            var client = servicio.GetClient();
+            string url = servicio.GetUrl();
+
+            // 1. CONSULTAR PEDIDOS
+            string endpoint = esAdministrador
+                ? $"{url}/rest/v1/pedidos?select=*&order=id_pedido.desc"
+                : $"{url}/rest/v1/pedidos?select=*&id_cliente=eq.{idClienteActual}&order=id_pedido.desc";
+
+            using var respuesta = await client.GetAsync(endpoint);
+
+            string json = await respuesta.Content.ReadAsStringAsync();
+
+            System.Diagnostics.Debug.WriteLine(
+                $"PEDIDOS HTTP {(int)respuesta.StatusCode}: {json}");
+
+            if (!respuesta.IsSuccessStatusCode)
+            {
+                await DisplayAlert(
+                    "Error al consultar pedidos",
+                    $"HTTP {(int)respuesta.StatusCode}\n\n{json}",
+                    "Aceptar");
+                return;
+            }
+
+            var pedidos = JsonSerializer.Deserialize<List<PedidoModel>>(
+                json,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new List<PedidoModel>();
+
+            System.Diagnostics.Debug.WriteLine(
+                $"Pedidos encontrados: {pedidos.Count}");
+
+            foreach (var pedido in pedidos)
+            {
+                pedido.MostrarAccionesAdmin = esAdministrador;
+                pedido.MostrarAccionesCliente = !esAdministrador;
+            }
+
+            // Mostrar inmediatamente los pedidos
+            cvPedidos.ItemsSource = pedidos;
+
+            if (pedidos.Count == 0)
+                return;
+
+            // 2. RECUPERAR DATOS ADICIONALES
+            // Si fallan, conservar el listado principal.
+            try
+            {
+                string ids = string.Join(
+                    ",",
+                    pedidos.Select(p => p.id_pedido));
+
+                // PAGOS
+                using var respuestaPagos = await client.GetAsync(
+                    $"{url}/rest/v1/pagos?select=*&id_pedido=in.({ids})");
+
+                if (respuestaPagos.IsSuccessStatusCode)
+                {
+                    string jsonPagos =
+                        await respuestaPagos.Content.ReadAsStringAsync();
+
+                    var pagos = JsonSerializer.Deserialize<List<PagoModel>>(
+                        jsonPagos,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        }) ?? new List<PagoModel>();
+
+                    foreach (var pedido in pedidos)
+                    {
+                        pedido.pagos = pagos
+                            .Where(p => p.id_pedido == pedido.id_pedido)
+                            .ToList();
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "No se pudieron consultar los pagos: " +
+                        await respuestaPagos.Content.ReadAsStringAsync());
+                }
+
+                // DETALLES DE PEDIDOS
+                using var respuestaDetalles = await client.GetAsync(
+                    $"{url}/rest/v1/detalle_pedido" +
+                    $"?select=id_pedido,id_arreglo&id_pedido=in.({ids})");
+
+                if (respuestaDetalles.IsSuccessStatusCode)
+                {
+                    string jsonDetalles =
+                        await respuestaDetalles.Content.ReadAsStringAsync();
+
+                    var detalles = JsonSerializer.Deserialize<
+                        List<DetalleImagenPedido>>(
+                            jsonDetalles,
+                            new JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true
+                            }) ?? new List<DetalleImagenPedido>();
+
+                    if (detalles.Count > 0)
+                    {
+                        // ARREGLOS
+                        using var respuestaArreglos =
+                            await client.GetAsync(
+                                $"{url}/rest/v1/arreglos" +
+                                "?select=id_arreglo,nombre,imagen");
+
+                        if (respuestaArreglos.IsSuccessStatusCode)
+                        {
+                            string jsonArreglos =
+                                await respuestaArreglos.Content.ReadAsStringAsync();
+
+                            var arreglos = JsonSerializer.Deserialize<
+                                List<ArregloImagenPedido>>(
+                                    jsonArreglos,
+                                    new JsonSerializerOptions
+                                    {
+                                        PropertyNameCaseInsensitive = true
+                                    }) ?? new List<ArregloImagenPedido>();
+
+                            foreach (var pedido in pedidos)
+                            {
+                                var detalle = detalles.FirstOrDefault(
+                                    d => d.id_pedido == pedido.id_pedido);
+
+                                var arreglo = arreglos.FirstOrDefault(
+                                    a => a.id_arreglo ==
+                                         detalle?.id_arreglo);
+
+                                if (arreglo != null)
+                                {
+                                    pedido.nombreArreglo = arreglo.nombre;
+                                    pedido.imagenArreglo = arreglo.imagen;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Actualizar después de recuperar información adicional
+                cvPedidos.ItemsSource = pedidos.ToList();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"Datos adicionales no disponibles: {ex}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
+
+            await DisplayAlert(
+                "Error de carga",
+                ex.Message,
+                "Aceptar");
+        }
+
+
+    }
+
 
     // MODELOS AUXILIARES PARA LA CONSULTA
     private class DetalleImagenPedido
@@ -158,236 +296,154 @@ public partial class vVerPedidos : ContentPage
         }
     }
 
-    private async void Button_Clicked_1(object sender, EventArgs e)
+
+    private async void RegistrarAbono_Clicked(object sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is PedidoModel pedido)
+        if (!esAdministrador || sender is not Button boton || boton.CommandParameter is not PedidoModel pedido)
+            return;
+
+        if (!SesionAuth.TieneSesion)
         {
-            // Ventana para que el admin ingrese cuánto abonó el cliente
-            string resultadoMonto = await DisplayPromptAsync(
-                "Registrar Abono",
-                $"Pedido #{pedido.id_pedido}\nSaldo actual: ${pedido.total:F2}\n\nIngrese el monto del abono recibido:",
-                "Guardar",
-                "Cancelar",
-                placeholder: "Ej. 10.00",
-                keyboard: Keyboard.Numeric);
+            await MensajeModal.MostrarAsync(this, "Sesión vencida", "Inicia sesión nuevamente.", "advertencia");
+            return;
+        }
 
-            if (string.IsNullOrWhiteSpace(resultadoMonto))
-                return;
+        if (pedido.total <= 0)
+        {
+            await MensajeModal.MostrarAsync(this, "Pedido pagado", "Este pedido no tiene saldo pendiente.", "advertencia");
+            return;
+        }
 
-            if (!decimal.TryParse(resultadoMonto, out decimal montoAbono) || montoAbono <= 0)
-            {
-                await DisplayAlert("Error", "Ingrese un monto válido.", "Aceptar");
-                return;
-            }
+        // 1. SELECCIONAR MÉTODO DE PAGO
+        var ventanaMetodo = new vMetodoPago();
+        await Navigation.PushModalAsync(ventanaMetodo);
 
-            if (montoAbono > pedido.total)
-            {
-                await DisplayAlert("Aviso", "El abono no puede ser mayor al saldo restante del pedido.", "Aceptar");
-                return;
-            }
+        string? metodo = await ventanaMetodo.EsperarSeleccionAsync();
+        if (string.IsNullOrWhiteSpace(metodo)) return;
 
-            try
-            {
-                SupabaseService servicio = new SupabaseService();
-                var client = servicio.GetClient();
+        // 2. INGRESAR MONTO DEL ABONO
+        var ventanaMonto = new vMontoAbono(pedido.id_pedido, pedido.total);
+        await Navigation.PushModalAsync(ventanaMonto);
 
-                // 1. Insertar el registro en la tabla 'pagos'
-                var nuevoPago = new
-                {
-                    id_pedido = pedido.id_pedido,
-                    monto = montoAbono,
-                    metodo_pago = "Transferencia WhatsApp",
-                    fecha_pago = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                    estado = "Completado"
-                };
+        decimal? montoSeleccionado = await ventanaMonto.EsperarMontoAsync();
+        if (!montoSeleccionado.HasValue) return;
 
-                string jsonPago = JsonSerializer.Serialize(nuevoPago);
-                StringContent contenidoPago = new StringContent(jsonPago, Encoding.UTF8, "application/json");
+        decimal montoAbono = montoSeleccionado.Value;
 
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("Prefer", "return=minimal");
+        // 3. CONFIRMAR EL PAGO
+        bool confirmar = await MensajeModal.ConfirmarAsync(
+            this, "Confirmar abono",
+            $"Pedido #{pedido.id_pedido}\nMonto: ${montoAbono:F2}\nMétodo: {metodo}\n\n¿Confirmas que recibiste este pago?");
 
-                string endpointPago = $"{servicio.GetUrl()}/rest/v1/pagos";
-                var respuestaPago = await client.PostAsync(endpointPago, contenidoPago);
+        if (!confirmar) return;
 
-                if (respuestaPago.IsSuccessStatusCode)
-                {
-                    // 2. Calcular el nuevo total restante
-                    decimal nuevoTotal = pedido.total - montoAbono;
+        boton.IsEnabled = false;
 
-                    // 3. Evaluar reglas de estado automáticas (40% o Pagado Completo)
-                    string nuevoEstado = "Pendiente";
+        try
+        {
+            // 4. REGISTRAR ABONO EN SUPABASE
+            Guid solicitudId = Guid.NewGuid();
+            var pagosService = new PagosService();
 
-                    if (nuevoTotal == 0)
-                    {
-                        nuevoEstado = "Pagado Completo";
-                    }
-                    else
-                    {
-                        // Sumamos todos los pagos anteriores + este nuevo abono para calcular el total abonado
-                        decimal totalAbonado = 0;
-                        if (pedido.pagos != null)
-                        {
-                            foreach (var p in pedido.pagos)
-                            {
-                                totalAbonado += p.monto;
-                            }
-                        }
-                        totalAbonado += montoAbono;
+            var resultado = await pagosService.RegistrarAbonoAsync(
+                pedido.id_pedido, montoAbono, metodo, solicitudId);
 
-                        // Estimamos el total original sumando el saldo actual y los abonos previos
-                        decimal totalOriginalEstimado = pedido.total;
-                        foreach (var p in pedido.pagos) { totalOriginalEstimado += p.monto; }
+            // 5. MOSTRAR RESULTADO
+            string mensaje = $"Abono registrado: ${montoAbono:F2}\n" +
+                             $"Saldo restante: ${resultado.SaldoRestante:F2}\n" +
+                             $"Estado: {resultado.Estado}";
 
-                        // Si el abonado cubre al menos el 40% del total estimado
-                        if (totalAbonado >= (totalOriginalEstimado * 0.40m))
-                        {
-                            nuevoEstado = "Pago Minimo";
-                        }
-                        else
-                        {
-                            nuevoEstado = "Pago Parcial";
-                        }
-                    }
+            if (resultado.EntregaCreada)
+                mensaje += "\n\nEl pedido alcanzó el 50 % y pasó automáticamente a Control de entregas.";
 
-                    // 4. Actualizar el pedido en la tabla 'pedidos'
-                    var actualizarPedido = new
-                    {
-                        total = nuevoTotal,
-                        estado = nuevoEstado
-                    };
+            await MensajeModal.MostrarAsync(this, "Pago registrado", mensaje, "exito");
 
-                    string jsonPedido = JsonSerializer.Serialize(actualizarPedido);
-                    StringContent contenidoPedido = new StringContent(jsonPedido, Encoding.UTF8, "application/json");
+            // 6. ACTUALIZAR PEDIDOS
+            await CargarPedidos();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex);
 
-                    string endpointPedido = $"{servicio.GetUrl()}/rest/v1/pedidos?id_pedido=eq.{pedido.id_pedido}";
-                    var requestPedido = new HttpRequestMessage(new HttpMethod("PATCH"), endpointPedido)
-                    {
-                        Content = contenidoPedido
-                    };
-                    requestPedido.Headers.Add("Prefer", "return=minimal");
-
-                    await client.SendAsync(requestPedido);
-
-                    // 5. NUEVO: Si el pedido ya cumple con Pago Minimo o Pagado Completo, 
-                    // generamos automáticamente su registro en la tabla 'entregas' usando la dirección y teléfono reales del pedido
-
-                    if (nuevoEstado == "Pago Minimo" || nuevoEstado == "Pagado Completo")
-                    {
-                        var nuevaEntrega = new
-                        {
-                            id_pedido = pedido.id_pedido,
-                            direccion = string.IsNullOrEmpty(pedido.direccion_envio) ? "Sin dirección registrada" : pedido.direccion_envio,
-                            destinatario = "Destinatario Pedido #" + pedido.id_pedido,
-                            telefono_destinatario = string.IsNullOrEmpty(pedido.telefono_envio) ? "0999999999" : pedido.telefono_envio, // <-- ¡Leemos el teléfono real guardado en el pedido!
-                            fecha_entrega = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss"),
-                            observaciones = $"Saldo pendiente a cobrar: ${nuevoTotal:F2}",
-                            estado = "Pendiente"
-                        };
-
-                        string jsonEntrega = JsonSerializer.Serialize(nuevaEntrega);
-                        StringContent contenidoEntrega = new StringContent(jsonEntrega, Encoding.UTF8, "application/json");
-
-                        string endpointEntrega = $"{servicio.GetUrl()}/rest/v1/entregas";
-                        await client.PostAsync(endpointEntrega, contenidoEntrega);
-                    }
-
-
-                    await DisplayAlert("¡Éxito!", $"Se registró el abono de ${montoAbono:F2}.\nSaldo restante: ${nuevoTotal:F2}\nEstado: {nuevoEstado}", "Aceptar");
-
-                    await CargarPedidos();
-                }
-                else
-                {
-                    string error = await respuestaPago.Content.ReadAsStringAsync();
-                    await DisplayAlert("Error", "No se pudo registrar el pago: " + error, "Aceptar");
-                }
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", ex.Message, "Aceptar");
-            }
+            await MensajeModal.MostrarAsync(
+                this, "No se pudo confirmar",
+                "No se pudo verificar el registro del abono. Revisa el historial antes de repetirlo.",
+                "advertencia");
+        }
+        finally
+        {
+            boton.IsEnabled = true;
         }
     }
 
-    private async void Button_Clicked_2(object sender, EventArgs e)
+
+
+    private async Task<bool> ValidarAccesoAsync()
     {
-        if (sender is Button button && button.CommandParameter is PedidoModel pedido)
-        {
-            string accion = await DisplayActionSheet(
-                $"Pedido #{pedido.id_pedido}",
-                "Cancelar",
-                null,
-                "Cambiar a: Pago Minimo",
-                "Cambiar a: Pagado Completo",
-                "Cambiar a: Pendiente");
+        if (!SesionAuth.TieneSesion)
+            return false;
 
-            if (string.IsNullOrEmpty(accion) || accion == "Cancelar")
-                return;
+        var servicio = new SupabaseService();
 
-            string nuevoEstado = "Pendiente";
-            if (accion.Contains("Pago Minimo")) nuevoEstado = "Pago Minimo";
-            else if (accion.Contains("Pagado Completo")) nuevoEstado = "Pagado Completo";
+        string url =
+            $"{servicio.GetUrl()}/rest/v1/usuarios" +
+            "?select=id_usuario,id_rol,estado";
 
-            try
+        using var respuesta = await servicio
+            .GetClient()
+            .GetAsync(url);
+
+        respuesta.EnsureSuccessStatusCode();
+
+        string json =
+            await respuesta.Content.ReadAsStringAsync();
+
+        var perfiles = JsonSerializer.Deserialize<List<PerfilPedido>>(
+            json,
+            new JsonSerializerOptions
             {
-                SupabaseService servicio = new SupabaseService();
-                var client = servicio.GetClient();
+                PropertyNameCaseInsensitive = true
+            });
 
-                var actualizarEstado = new
-                {
-                    estado = nuevoEstado
-                };
+        // La política RLS debe permitir consultar
+        // únicamente el perfil del usuario autenticado.
+        if (perfiles == null || perfiles.Count != 1)
+            return false;
 
-                string json = JsonSerializer.Serialize(actualizarEstado);
-                StringContent contenido = new StringContent(json, Encoding.UTF8, "application/json");
+        var perfil = perfiles[0];
 
-                string endpoint = $"{servicio.GetUrl()}/rest/v1/pedidos?id_pedido=eq.{pedido.id_pedido}";
-                var request = new HttpRequestMessage(new HttpMethod("PATCH"), endpoint)
-                {
-                    Content = contenido
-                };
-                request.Headers.Add("Prefer", "return=minimal");
+        if (!perfil.estado)
+            return false;
 
-                var respuesta = await client.SendAsync(request);
+        esAdministrador = perfil.id_rol == 1;
+        idClienteActual = perfil.id_usuario;
 
-                if (respuesta.IsSuccessStatusCode)
-                {
-                    // NUEVO: Si se cambió manualmente a Pago Minimo o Pagado Completo, 
-                    // generamos automáticamente su registro en la tabla 'entregas' con la dirección y teléfono reales
-                    if (nuevoEstado == "Pago Minimo" || nuevoEstado == "Pagado Completo")
-                    {
-                        var nuevaEntrega = new
-                        {
-                            id_pedido = pedido.id_pedido,
-                            direccion = string.IsNullOrEmpty(pedido.direccion_envio) ? "Sin dirección especificada" : pedido.direccion_envio,
-                            destinatario = "Destinatario Pedido #" + pedido.id_pedido,
-                            telefono_destinatario = string.IsNullOrEmpty(pedido.telefono_envio) ? "0999999999" : pedido.telefono_envio, // <-- ¡Leemos el teléfono real guardado en el pedido!
-                            fecha_entrega = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd HH:mm:ss"),
-                            observaciones = "Generado automáticamente por cambio manual de estado",
-                            estado = "Pendiente"
-                        };
+        // No permitir abrir la vista administrativa
+        // con un perfil que no sea Administrador.
+        if (modoAdministradorSolicitado)
+            return esAdministrador;
 
-                        string jsonEntrega = JsonSerializer.Serialize(nuevaEntrega);
-                        StringContent contenidoEntrega = new StringContent(jsonEntrega, Encoding.UTF8, "application/json");
-
-                        string endpointEntrega = $"{servicio.GetUrl()}/rest/v1/entregas";
-                        await client.PostAsync(endpointEntrega, contenidoEntrega);
-                    }
-
-                    await DisplayAlert("Éxito", $"El estado del pedido cambió a: {nuevoEstado}", "Aceptar");
-                    await CargarPedidos();
-                }
-                else
-                {
-                    string error = await respuesta.Content.ReadAsStringAsync();
-                    await DisplayAlert("Error", "No se pudo actualizar el estado: " + error, "Aceptar");
-                }
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", ex.Message, "Aceptar");
-            }
-        }
+        return perfil.id_rol == 3;
     }
+
+    private class PerfilPedido
+    {
+        public int id_usuario { get; set; }
+        public int id_rol { get; set; }
+        public bool estado { get; set; }
+    }
+    private async void Volver_Tapped(
+        object sender,
+        TappedEventArgs e)
+    {
+        await Navigation.PopAsync();
+    }
+
+    private async void Actualizar_Clicked(
+        object sender,
+        EventArgs e)
+    {
+        await CargarPedidos();
+    }
+
 }

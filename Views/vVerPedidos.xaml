@@ -1,130 +1,442 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="addFloreriaG5.Views.vVerPedidos"
-             Title="Gestión de Pedidos"
-             BackgroundColor="#F9F6F0">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="15" Spacing="10">
-            <Label Text="Listado de Pedidos Recibidos" 
-                   FontSize="20" 
-                   FontAttributes="Bold" 
-                   HorizontalOptions="Center" />
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    x:Class="addFloreriaG5.Views.vVerPedidos"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
 
-            <CollectionView x:Name="cvPedidos" HeightRequest="650">
+    <Grid>
+
+        <!-- FONDO FLORAL -->
+        <Image
+            Source="fondo_login_floral.png"
+            Aspect="AspectFill"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            InputTransparent="True"/>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <Grid
+            Padding="18,22,18,18"
+            RowDefinitions="Auto,Auto,*,Auto"
+            RowSpacing="15"
+            MaximumWidthRequest="620"
+            HorizontalOptions="Fill">
+
+            <!-- ENCABEZADO -->
+            <Grid
+                Grid.Row="0"
+                ColumnDefinitions="45,*,45"
+                ColumnSpacing="10">
+
+                <!-- REGRESAR -->
+                <Border
+                    Grid.Column="0"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    BackgroundColor="White"
+                    Stroke="#E6D6DA"
+                    StrokeShape="RoundRectangle 14">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="Volver_Tapped"/>
+                    </Border.GestureRecognizers>
+
+                    <mi:MauiIcon
+                        Icon="{mi:Material Icon=ArrowBack}"
+                        IconColor="#752B43"
+                        IconSize="24"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"/>
+
+                </Border>
+
+                <!-- TÍTULO -->
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Spacing="5"
+                    VerticalOptions="Center">
+
+                    <Label
+                        Text="NOVA FLORERÍA"
+                        FontSize="13"
+                        FontAttributes="Bold"
+                        CharacterSpacing="2"
+                        TextColor="#9B3E5C"
+                        HorizontalTextAlignment="Center"/>
+
+                    <Label
+                        x:Name="lblTituloPedidos"
+                        Text="Gestión de pedidos"
+                        FontSize="23"
+                        FontAttributes="Bold"
+                        TextColor="#752B43"
+                        HorizontalTextAlignment="Center"/>
+
+                </VerticalStackLayout>
+
+                <mi:MauiIcon
+                    Grid.Column="2"
+                    Icon="{mi:Material Icon=ShoppingCart}"
+                    IconColor="#9B3E5C"
+                    IconSize="27"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"/>
+            </Grid>
+
+            <!-- MENSAJE INFORMATIVO -->
+            <Border
+                Grid.Row="1"
+                BackgroundColor="#F9E9EE"
+                Stroke="#EBD1DA"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 18"
+                Padding="15">
+
+                <VerticalStackLayout Spacing="5">
+
+                    <Label
+                        Text="Historial de pedidos"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        TextColor="#752B43"/>
+
+                    <Label
+                        Text="Consulta el estado de los pedidos y sus abonos registrados."
+                        FontSize="12"
+                        TextColor="#806771"
+                        LineBreakMode="WordWrap"/>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- LISTADO DE PEDIDOS -->
+            <CollectionView
+                Grid.Row="2"
+                x:Name="cvPedidos"
+                SelectionMode="None"
+                VerticalScrollBarVisibility="Default">
+
+                <!-- SIN PEDIDOS -->
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout
+                        Spacing="12"
+                        Padding="15,45"
+                        HorizontalOptions="Center">
+
+                        <mi:MauiIcon
+                            Icon="{mi:Material Icon=ShoppingCart}"
+                            IconColor="#C68B93"
+                            IconSize="48"
+                            HorizontalOptions="Center"/>
+
+                        <Label
+                            Text="No hay pedidos para mostrar"
+                            FontSize="17"
+                            FontAttributes="Bold"
+                            TextColor="#752B43"
+                            HorizontalTextAlignment="Center"/>
+
+                        <Label
+                            Text="Los pedidos registrados aparecerán aquí."
+                            FontSize="12"
+                            TextColor="#8A7A78"
+                            HorizontalTextAlignment="Center"/>
+
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <!-- TARJETAS -->
                 <CollectionView.ItemTemplate>
+
                     <DataTemplate>
-                        <Frame BorderColor="#CCCCCC" CornerRadius="10" Padding="12" Margin="0,6" BackgroundColor="White">
-                            <VerticalStackLayout Spacing="6">
-                                <!-- Cabecera de la Tarjeta -->
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <Label Text="{Binding id_pedido, StringFormat='Pedido #{0}'}" FontAttributes="Bold" FontSize="16" TextColor="#2C3E50" Grid.Column="0"/>
-                                    <Label Text="{Binding estado}" FontAttributes="Bold" FontSize="14" TextColor="#E67E22" Grid.Column="1" HorizontalOptions="End"/>
-                                </Grid>
 
+                        <Border
+                            BackgroundColor="White"
+                            Stroke="#EBDCE0"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="15"
+                            Margin="0,0,0,13">
 
-                                <!-- IMAGEN E INFORMACIÓN DEL ARREGLO -->
+                            <Border.Shadow>
+                                <Shadow
+                                    Brush="#BCA5AA"
+                                    Offset="0,3"
+                                    Radius="7"
+                                    Opacity="0.10"/>
+                            </Border.Shadow>
+
+                            <VerticalStackLayout Spacing="13">
+
+                                <!-- NÚMERO Y ESTADO -->
                                 <Grid
-                                    ColumnDefinitions="100,*"
-                                    ColumnSpacing="14"
-                                    Margin="0,10,0,10">
+                                    ColumnDefinitions="*,Auto"
+                                    ColumnSpacing="8">
 
-                                    <!-- FOTOGRAFÍA DEL ARREGLO -->
+                                    <Label
+                                        Grid.Column="0"
+                                        Text="{Binding id_pedido,
+                                            StringFormat='Pedido #{0}'}"
+                                        FontSize="17"
+                                        FontAttributes="Bold"
+                                        TextColor="#752B43"
+                                        VerticalTextAlignment="Center"/>
+
                                     <Border
-                                    Grid.Column="0"
-                                    BackgroundColor="#FFF4F6"
-                                    Stroke="#E9DCE0"
-                                    StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 15"
-                                    WidthRequest="100"
-                                    HeightRequest="100">
+                                        Grid.Column="1"
+                                        BackgroundColor="#F9E9EE"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 12"
+                                        Padding="10,6">
 
-                                        <Image
-                                        Source="{Binding imagenArreglo}"
-                                        Aspect="AspectFill"
-                                        WidthRequest="100"
-                                        HeightRequest="100"/>
+                                        <Label
+                                            Text="{Binding estado}"
+                                            FontSize="11"
+                                            FontAttributes="Bold"
+                                            TextColor="#9B3E5C"/>
+
                                     </Border>
 
-                                    <!-- INFORMACIÓN DEL ARREGLO -->
+                                </Grid>
+
+                                <!-- PRODUCTO Y FECHA -->
+                                <Grid
+                                    ColumnDefinitions="92,*"
+                                    ColumnSpacing="12">
+
+                                    <!-- IMAGEN -->
+                                    <Border
+                                        Grid.Column="0"
+                                        BackgroundColor="#FFF4F6"
+                                        Stroke="#E9DCE0"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 15"
+                                        WidthRequest="92"
+                                        HeightRequest="100">
+
+                                        <Image
+                                            Source="{Binding imagenArreglo}"
+                                            Aspect="AspectFill"/>
+                                    </Border>
+
+                                    <!-- DATOS -->
                                     <VerticalStackLayout
                                         Grid.Column="1"
                                         Spacing="7"
                                         VerticalOptions="Center">
 
                                         <Label
-                                        Text="{Binding nombreArreglo}"
-                                        FontSize="16"
-                                        FontAttributes="Bold"
-                                        TextColor="#752B43"
-                                        MaxLines="2"
-                                        LineBreakMode="TailTruncation"/>
+                                            Text="{Binding nombreArreglo}"
+                                            FontSize="15"
+                                            FontAttributes="Bold"
+                                            TextColor="#752B43"
+                                            LineBreakMode="TailTruncation"
+                                            MaxLines="2"/>
 
                                         <Label
-                                        Text="{Binding fecha_pedido,
-                                            StringFormat='Fecha: {0}'}"
-                                        FontSize="12"
-                                        TextColor="#8A7A78"/>
+                                            Text="{Binding fecha_pedido,
+                                                StringFormat='Fecha: {0}'}"
+                                            FontSize="12"
+                                            TextColor="#8A7A78"
+                                            MaxLines="2"/>
 
                                         <Label
-                                        Text="{Binding total,
-                                            StringFormat='Saldo restante: ${0:F2}'}"
-                                        FontSize="15"
-                                        FontAttributes="Bold"
-                                        TextColor="#63754D"/>
+                                            Text="{Binding total,
+                                                StringFormat='Saldo restante: ${0:F2}'}"
+                                            FontSize="15"
+                                            FontAttributes="Bold"
+                                            TextColor="#63754D"/>
 
                                     </VerticalStackLayout>
+
                                 </Grid>
 
-                                <!-- HISTORIAL DE PAGOS / ABONOS REALIZADOS -->
-                                <Label Text="Historial de Abonos:" FontSize="12" FontAttributes="Bold" TextColor="#7F8C8D" Margin="0,4,0,0"/>
-                                <CollectionView ItemsSource="{Binding pagos}" HeightRequest="60">
-                                    <CollectionView.ItemTemplate>
+                                <!-- SEPARADOR -->
+                                <BoxView
+                                    HeightRequest="1"
+                                    Color="#EBDCE0"/>
+
+                                <!-- DATOS DE ENTREGA -->
+                                <HorizontalStackLayout Spacing="8">
+                                    <mi:MauiIcon
+                                        Icon="{mi:Material Icon=LocalShipping}"
+                                        IconSize="20"
+                                        IconColor="#8B9779"/>
+
+                                    <Label
+                                        Text="Información de entrega"
+                                        FontSize="13"
+                                        FontAttributes="Bold"
+                                        TextColor="#752B43"
+                                        VerticalTextAlignment="Center"/>
+                                </HorizontalStackLayout>
+
+                                <Label
+                                    Text="{Binding direccion_envio}"
+                                    FontSize="12"
+                                    TextColor="#8A7A78"
+                                    LineBreakMode="WordWrap"
+                                    MaxLines="3"/>
+
+                                <!-- HISTORIAL DE ABONOS -->
+                                <HorizontalStackLayout Spacing="8">
+
+                                    <mi:MauiIcon
+                                        Icon="{mi:Material Icon=Payments}"
+                                        IconColor="#9B3E5C"
+                                        IconSize="21"/>
+
+                                    <Label
+                                        Text="Historial de abonos"
+                                        FontSize="13"
+                                        FontAttributes="Bold"
+                                        TextColor="#752B43"
+                                        VerticalTextAlignment="Center"/>
+
+                                </HorizontalStackLayout>
+
+                                <!-- SIN ABONOS -->
+                                <Label
+                                    Text="Sin abonos registrados"
+                                    FontSize="12"
+                                    TextColor="#8A7A78">
+
+                                    <Label.Triggers>
+                                        <DataTrigger
+                                            TargetType="Label"
+                                            Binding="{Binding pagos.Count}"
+                                            Value="0">
+                                            <Setter
+                                                Property="IsVisible"
+                                                Value="True"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+
+                                </Label>
+
+                                <!-- LISTA DE PAGOS -->
+                                <VerticalStackLayout
+                                    Spacing="8"
+                                    BindableLayout.ItemsSource="{Binding pagos}">
+
+                                    <BindableLayout.ItemTemplate>
                                         <DataTemplate>
-                                            <HorizontalStackLayout Spacing="10">
-                                                <Label Text="{Binding monto, StringFormat='• ${0:F2}'}" FontSize="12" TextColor="#2980B9" FontAttributes="Bold"/>
-                                                <Label Text="{Binding metodo_pago}" FontSize="12" TextColor="Gray"/>
-                                                <Label Text="{Binding fecha_pago}" FontSize="11" TextColor="#95A5A6"/>
-                                            </HorizontalStackLayout>
+
+                                            <Border
+                                                BackgroundColor="#FFF4F6"
+                                                Stroke="#EBDCE0"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 12"
+                                                Padding="10">
+
+                                                <VerticalStackLayout Spacing="5">
+
+                                                    <Grid ColumnDefinitions="*,Auto">
+
+                                                        <Label
+                                                            Text="{Binding metodo_pago}"
+                                                            FontSize="12"
+                                                            TextColor="#752B43"
+                                                            FontAttributes="Bold"/>
+
+                                                        <Label
+                                                            Grid.Column="1"
+                                                            Text="{Binding monto,
+                                                                StringFormat='${0:F2}'}"
+                                                            FontSize="13"
+                                                            FontAttributes="Bold"
+                                                            TextColor="#63754D"/>
+                                                    </Grid>
+
+                                                    <Label
+                                                        Text="{Binding fecha_pago}"
+                                                        FontSize="11"
+                                                        TextColor="#8A7A78"/>
+
+                                                </VerticalStackLayout>
+                                            </Border>
+
                                         </DataTemplate>
-                                    </CollectionView.ItemTemplate>
-                                </CollectionView>
+                                    </BindableLayout.ItemTemplate>
 
-                                <!-- Botón para Negociar por WhatsApp -->
-                                <Button Text="Negociar por WhatsApp" 
-                                        BackgroundColor="#25D366" 
-                                        TextColor="White" 
-                                        FontSize="12"
-                                        CommandParameter="{Binding .}"
-                                        Clicked="Button_Clicked"
-                                        Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" 
-                                        Margin="0,6,0,0"/>
+                                </VerticalStackLayout>
 
-                                <!-- Botón para Registrar Pago / Abono -->
-                                <Button Text="Registrar Pago / Abono" 
-                                        BackgroundColor="#8E44AD" 
-                                        TextColor="White" 
-                                        FontSize="12"
-                                        CommandParameter="{Binding .}"
-                                        Clicked="Button_Clicked_1"
-                                        Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" 
-                                        Margin="0,4,0,0"/>
 
-                                <!-- Botón para cambiar estado manualmente -->
-                                <Button Text="Cambiar Estado (Pago Mínimo / Completo)" 
-                                        BackgroundColor="#2980B9" 
-                                        TextColor="White" 
-                                        FontSize="12"
-                                        CommandParameter="{Binding .}"
-                                        Clicked="Button_Clicked_2"
-                                        Margin="0,2,0,0"/>      
+
+
+                                <!-- ACCIONES ADMINISTRATIVAS -->
+                                <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="10"
+                                  Margin="0,10,0,0"
+                                  IsVisible="{Binding MostrarAccionesAdmin}">
+
+                                    <!-- REGISTRAR PAGO -->
+                                    <Button
+                                    Grid.Column="0"
+                                    Text="Registrar pago"
+                                    Clicked="RegistrarAbono_Clicked"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="#F9ECE8"
+                                    TextColor="#9B3E5C"
+                                    BorderColor="#E2C1B4"
+                                    BorderWidth="1"
+                                    FontSize="13"
+                                    FontAttributes="Bold"
+                                    CornerRadius="13"
+                                    HeightRequest="50"
+                                    Padding="8,0"/>
+
+                                    <!-- WHATSAPP CON LOGOTIPO SVG -->
+                                    <Button
+                                    Grid.Column="1"
+                                    Text="WhatsApp"
+                                    ImageSource="whatsapp.png"
+                                    ContentLayout="Left,8"
+                                    Clicked="Button_Clicked"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="#EAF7ED"
+                                    TextColor="#278B4D"
+                                    BorderColor="#B6DDC0"
+                                    BorderWidth="1"
+                                    FontSize="13"
+                                    FontAttributes="Bold"
+                                    CornerRadius="13"
+                                    HeightRequest="50"
+                                    Padding="8,0"/>
+
+                                </Grid>
+
+
+
                             </VerticalStackLayout>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
 
-    </ScrollView>
+                        </Border>
+
+                    </DataTemplate>
+
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+            <!-- PIE DE PANTALLA -->
+            <Button
+                Grid.Row="3"
+                Text="Actualizar pedidos"
+                Clicked="Actualizar_Clicked"
+                BackgroundColor="#8B9779"
+                TextColor="White"
+                FontSize="15"
+                FontAttributes="Bold"
+                CornerRadius="15"
+                HeightRequest="50"/>
+
+        </Grid>
+
+    </Grid>
 </ContentPage>

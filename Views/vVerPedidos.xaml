@@ -239,12 +239,9 @@
                                             LineBreakMode="TailTruncation"
                                             MaxLines="2"/>
 
-                                        <Label
-                                            Text="{Binding fecha_pedido,
-                                                StringFormat='Fecha: {0}'}"
-                                            FontSize="12"
-                                            TextColor="#8A7A78"
-                                            MaxLines="2"/>
+                                        <Label Text="{Binding FechaFormateada, StringFormat='Fecha: {0}'}"
+                                             FontSize="12"
+                                             TextColor="#9B8A8D"/>
 
                                         <Label
                                             Text="{Binding total,
@@ -283,6 +280,12 @@
                                     TextColor="#8A7A78"
                                     LineBreakMode="WordWrap"
                                     MaxLines="3"/>
+                                <Label
+                                    Text="{Binding FechaEntregaFormateada,
+                                           StringFormat='Fecha de Entrega: {0}'}"
+                                    FontSize="12"
+                                    TextColor="#63754D"
+                                    Margin="0,5,0,0"/>
 
                                 <!-- HISTORIAL DE ABONOS -->
                                 <HorizontalStackLayout Spacing="8">
@@ -301,23 +304,24 @@
 
                                 </HorizontalStackLayout>
 
-                                <!-- SIN ABONOS -->
+
+                                <!-- MENSAJE CUANDO NO EXISTEN ABONOS -->
                                 <Label
                                     Text="Sin abonos registrados"
                                     FontSize="12"
-                                    TextColor="#8A7A78">
+                                    TextColor="#8A7A78"
+                                    IsVisible="False">
 
                                     <Label.Triggers>
                                         <DataTrigger
-                                            TargetType="Label"
-                                            Binding="{Binding pagos.Count}"
-                                            Value="0">
+                                                TargetType="Label"
+                                                Binding="{Binding TienePagos}"
+                                                Value="False">
                                             <Setter
                                                 Property="IsVisible"
                                                 Value="True"/>
                                         </DataTrigger>
                                     </Label.Triggers>
-
                                 </Label>
 
                                 <!-- LISTA DE PAGOS -->
@@ -355,7 +359,7 @@
                                                     </Grid>
 
                                                     <Label
-                                                        Text="{Binding fecha_pago}"
+                                                        Text="{Binding FechaPagoFormateada}"
                                                         FontSize="11"
                                                         TextColor="#8A7A78"/>
 

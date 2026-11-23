@@ -215,7 +215,14 @@ public partial class vVerPedidos : ContentPage
                                 if (arreglo != null)
                                 {
                                     pedido.nombreArreglo = arreglo.nombre;
-                                    pedido.imagenArreglo = arreglo.imagen;
+
+                                    pedido.imagenArreglo = arreglo.imagen?.Trim()
+                                        ?? string.Empty;
+
+                                    System.Diagnostics.Debug.WriteLine(
+                                        $"PEDIDO #{pedido.id_pedido} | " +
+                                        $"ARREGLO: {arreglo.nombre} | " +
+                                        $"IMAGEN: {pedido.imagenArreglo}");
                                 }
                             }
                         }

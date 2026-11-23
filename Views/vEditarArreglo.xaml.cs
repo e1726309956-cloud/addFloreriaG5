@@ -10,7 +10,7 @@ using addFloreriaG5.Views;
 public partial class vEditarArreglo : ContentPage
 {
     private int idArregloActual;
-    private string rutaImagenLocal = string.Empty;
+    private FileResult? imagenSeleccionada;
 
     public vEditarArreglo(ArregloModel arregloAEditar)
 	{
@@ -77,9 +77,12 @@ public partial class vEditarArreglo : ContentPage
 
             if (resultado != null)
             {
-                rutaImagenLocal = resultado.FullPath;
-                imgPrevia.Source = ImageSource.FromFile(rutaImagenLocal);
-                txtImagenUrl.Text = string.Empty; // Limpiamos la URL si eligió local
+                imagenSeleccionada = resultado;
+
+                imgPrevia.Source = ImageSource.FromStream(
+                    () => resultado.OpenReadAsync().GetAwaiter().GetResult());
+
+                txtImagenUrl.Text = string.Empty;
             }
         }
         catch (Exception ex)
@@ -154,10 +157,34 @@ public partial class vEditarArreglo : ContentPage
         {
             SupabaseService servicio = new SupabaseService();
 
-            string urlOImagenFinal =
-                !string.IsNullOrWhiteSpace(txtImagenUrl.Text)
-                    ? txtImagenUrl.Text.Trim()
-                    : rutaImagenLocal;
+
+            string urlOImagenFinal = txtImagenUrl.Text?.Trim()
+                ?? string.Empty;
+
+            // SI EL ADMINISTRADOR SELECCIONÓ UNA NUEVA FOTOGRAFÍA,
+            // SUBIRLA AUTOMÁTICAMENTE A STORAGE
+            if (imagenSeleccionada != null)
+            {
+                var imagenService = new ImagenStorageService();
+
+                urlOImagenFinal = await imagenService
+                    .SubirImagenAsync(imagenSeleccionada);
+            }
+
+            // CONSERVAR LA IMAGEN EXISTENTE SI NO SE CAMBIÓ.
+            // txtImagenUrl inicialmente contiene la URL guardada.
+
+            if (!string.IsNullOrWhiteSpace(urlOImagenFinal) &&
+                (!Uri.TryCreate(urlOImagenFinal, UriKind.Absolute, out var uri) ||
+                 uri.Scheme != Uri.UriSchemeHttps))
+            {
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "Imagen inválida",
+                    "Selecciona una nueva fotografía o introduce una URL HTTPS válida.",
+                    "advertencia");
+                return;
+            }
 
             var arregloActualizado = new
             {

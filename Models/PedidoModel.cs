@@ -39,7 +39,10 @@ namespace addFloreriaG5.Models
         [JsonIgnore]
         public bool MostrarAccionesCliente { get; set; }
 
+        public decimal total_original { get; set; }
+
         // FECHA FORMATEADA
+
         [JsonIgnore]
         public string FechaFormateada
         {
@@ -51,12 +54,16 @@ namespace addFloreriaG5.Models
                     DateTimeStyles.AssumeUniversal,
                     out var fecha))
                 {
-                    return fecha.ToString("dd/MM/yyyy");
+                    // Convertir UTC a hora de Ecuador (UTC-5)
+                    return fecha.ToOffset(
+                        TimeSpan.FromHours(-5)
+                    ).ToString("dd/MM/yyyy");
                 }
 
-                return fecha_pedido;
+                return "Sin fecha";
             }
         }
+
 
         // TOTAL FORMATEADO
         [JsonIgnore]
@@ -74,6 +81,16 @@ namespace addFloreriaG5.Models
         [JsonIgnore]
         public bool TienePagos =>
             pagos != null && pagos.Count > 0;
+
+
+        public DateTime? fecha_entrega_solicitada { get; set; }
+
+        [JsonIgnore]
+        public string FechaEntregaFormateada =>
+            fecha_entrega_solicitada.HasValue
+                ? fecha_entrega_solicitada.Value.ToString("dd/MM/yyyy HH:mm")
+                : "Fecha pendiente de coordinación";
+
     }
 
     // MODELO DE PAGOS

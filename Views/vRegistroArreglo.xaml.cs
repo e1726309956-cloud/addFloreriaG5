@@ -6,7 +6,7 @@ using System.Text.Json;
 
 public partial class vRegistroArreglo : ContentPage
 {
-    private string rutaImagenLocal = string.Empty;
+    private FileResult? imagenSeleccionada;
     public vRegistroArreglo()
 	{
 		InitializeComponent();
@@ -56,9 +56,13 @@ public partial class vRegistroArreglo : ContentPage
 
             if (resultado != null)
             {
-                rutaImagenLocal = resultado.FullPath;
+                imagenSeleccionada = resultado;
+
                 lblRutaArchivo.Text = resultado.FileName;
-                imgPrevia.Source = ImageSource.FromFile(rutaImagenLocal);
+
+                imgPrevia.Source = ImageSource.FromStream(
+                    () => resultado.OpenReadAsync().GetAwaiter().GetResult());
+
                 txtImagenUrl.Text = string.Empty;
             }
         }
@@ -136,10 +140,32 @@ public partial class vRegistroArreglo : ContentPage
         {
             SupabaseService servicio = new SupabaseService();
 
-            string urlOImagenFinal =
-                string.IsNullOrWhiteSpace(txtImagenUrl.Text)
-                    ? rutaImagenLocal
-                    : txtImagenUrl.Text.Trim();
+
+            string urlOImagenFinal = txtImagenUrl.Text?.Trim()
+                ?? string.Empty;
+
+            // SUBIR AUTOMÁTICAMENTE LA FOTOGRAFÍA SELECCIONADA
+            if (imagenSeleccionada != null)
+            {
+                var imagenService = new ImagenStorageService();
+
+                urlOImagenFinal = await imagenService
+                    .SubirImagenAsync(imagenSeleccionada);
+            }
+
+            // VALIDAR URL SI FUE ESCRITA MANUALMENTE
+            if (!string.IsNullOrWhiteSpace(urlOImagenFinal) &&
+                (!Uri.TryCreate(urlOImagenFinal, UriKind.Absolute, out var uri) ||
+                 uri.Scheme != Uri.UriSchemeHttps))
+            {
+                await MensajeModal.MostrarAsync(
+                    this,
+                    "Imagen inválida",
+                    "La dirección de la fotografía debe ser una URL HTTPS válida.",
+                    "advertencia");
+                return;
+            }
+
 
             var nuevoArreglo = new
             {

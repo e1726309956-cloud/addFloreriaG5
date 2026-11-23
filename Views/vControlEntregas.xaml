@@ -1,90 +1,395 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="addFloreriaG5.Views.vControlEntregas"
-             Title="Control de Entregas"
-             BackgroundColor="#F9F6F0">
-    <ScrollView>
-        <VerticalStackLayout Padding="15" Spacing="10">
-            <Label Text="Entregas Programadas" 
-                   FontSize="20" 
-                   FontAttributes="Bold" 
-                   HorizontalOptions="Center" 
-                   TextColor="#2C3E50" />
 
-            <CollectionView x:Name="cvEntregas" HeightRequest="650">
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    x:Class="addFloreriaG5.Views.vControlEntregas"
+    Title="Control de entregas"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
+
+    <Grid>
+
+        <!-- FONDO FLORAL -->
+        <Image Source="fondo_login_floral.png"
+               Aspect="AspectFill"
+               InputTransparent="True"/>
+
+        <!-- CONTENIDO -->
+        <Grid RowDefinitions="Auto,*"
+              RowSpacing="18"
+              Padding="18,25"
+              MaximumWidthRequest="760"
+              HorizontalOptions="Fill">
+
+            <!-- ENCABEZADO -->
+            <Grid Grid.Row="0"
+      ColumnDefinitions="45,*,45"
+      ColumnSpacing="10">
+
+                <!-- BOTÓN REGRESAR -->
+                <Border Grid.Column="0"
+            WidthRequest="44"
+            HeightRequest="44"
+            BackgroundColor="White"
+            Stroke="#E6D6DA"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 14"
+            VerticalOptions="Start">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="Volver_Tapped"/>
+                    </Border.GestureRecognizers>
+
+                    <mi:MauiIcon
+            Icon="{mi:Material Icon=ArrowBack}"
+            IconColor="#752B43"
+            IconSize="24"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"/>
+                </Border>
+
+                <!-- TÍTULOS -->
+                <VerticalStackLayout Grid.Column="1"
+                         Spacing="5"
+                         HorizontalOptions="Fill">
+
+                    <Label Text="NOVA FLORERÍA"
+               FontSize="12"
+               FontAttributes="Bold"
+               CharacterSpacing="2"
+               TextColor="#9B3E5C"
+               HorizontalTextAlignment="Center"/>
+
+                    <Label Text="Control de entregas"
+               FontSize="23"
+               FontAttributes="Bold"
+               TextColor="#752B43"
+               HorizontalTextAlignment="Center"/>
+
+                    <Label Text="Gestiona las entregas confirmadas y sus pagos pendientes."
+               FontSize="11"
+               TextColor="#8A7A78"
+               HorizontalTextAlignment="Center"
+               LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+
+            </Grid>
+
+            <!-- LISTADO -->
+            <CollectionView Grid.Row="1"
+                            x:Name="cvEntregas"
+                            SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="20,50"
+                                         Spacing="10">
+
+                        <Label Text="No hay entregas disponibles"
+                               FontSize="17"
+                               FontAttributes="Bold"
+                               TextColor="#752B43"
+                               HorizontalTextAlignment="Center"/>
+
+                        <Label
+                            Text="Las entregas aparecerán cuando un pedido alcance el 50 % de pago."
+                            FontSize="12"
+                            TextColor="#8A7A78"
+                            HorizontalTextAlignment="Center"/>
+
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame BorderColor="#CCCCCC" CornerRadius="10" Padding="12" Margin="0,6" BackgroundColor="White">
-                            <VerticalStackLayout Spacing="5">
-                                <!-- Cabecera -->
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <Label Text="{Binding id_pedido, StringFormat='Pedido #{0}'}" FontAttributes="Bold" FontSize="16" TextColor="#2980B9" Grid.Column="0"/>
-                                    <Label Text="{Binding estado}" FontAttributes="Bold" FontSize="13" TextColor="#E67E22" Grid.Column="1" HorizontalOptions="End"/>
+
+                        <!-- TARJETA -->
+                        <Border BackgroundColor="White"
+                                Stroke="#EBDCE0"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 20"
+                                Padding="18"
+                                Margin="0,0,0,15">
+
+                            <VerticalStackLayout Spacing="15">
+
+                                <!-- PEDIDO Y ESTADO -->
+                                <Grid ColumnDefinitions="*,Auto"
+                                      ColumnSpacing="10">
+
+                                    <Label
+                                        Text="{Binding id_pedido, StringFormat='Pedido #{0}'}"
+                                        FontSize="19"
+                                        FontAttributes="Bold"
+                                        TextColor="#752B43"
+                                        VerticalTextAlignment="Center"/>
+
+                                    <Border Grid.Column="1"
+                                            BackgroundColor="#F9ECE8"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 12"
+                                            Padding="11,7">
+
+                                        <Label Text="{Binding TextoEstadoEntrega}"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="#9B3E5C"/>
+                                    </Border>
                                 </Grid>
 
-                                <!-- Dirección Real del Cliente -->
-                                <Label Text="{Binding direccion, StringFormat=' Dirección: {0}'}" FontSize="15" FontAttributes="Bold" TextColor="#C0392B"/>
+                                <BoxView HeightRequest="1"
+                                         Color="#EBDCE0"/>
 
-                                <!-- Destinatario y Teléfono -->
-                                <Label Text="{Binding destinatario, StringFormat='Destinatario: {0}'}" FontSize="14" TextColor="#2C3E50"/>
-                                <Label Text="{Binding telefono_destinatario, StringFormat='Tel: {0}'}" FontSize="13" TextColor="Gray"/>
+                                <!-- INFORMACIÓN DE ENTREGA -->
+                                <Label Text="Información de entrega"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#752B43"/>
 
-                                <!-- VALOR PENDIENTE A COBRAR -->
-                                <Frame BackgroundColor="#FADBD8" Padding="8" CornerRadius="6" HasShadow="False">
-                                    <Label Text="{Binding observaciones, StringFormat=' {0}'}" 
-           FontSize="14" FontAttributes="Bold" TextColor="#922B21" HorizontalOptions="Center"/>
-                                </Frame>
+                                <Label Text="Dirección"
+                                       FontSize="12"
+                                       FontAttributes="Bold"
+                                       TextColor="#9B3E5C"/>
 
-                                <Label Text="{Binding fecha_entrega, StringFormat=' Fecha: {0}'}" FontSize="12" TextColor="#7F8C8D"/>
-                                <Label Text="{Binding observaciones, StringFormat='Obs: {0}'}" FontSize="12" TextColor="#95A5A6" FontAttributes="Italic"/>
-                                
+                                <Label Text="{Binding direccion}"
+                                       FontSize="13"
+                                       TextColor="#8A7A78"
+                                       LineBreakMode="WordWrap"/>
 
-                                <!-- Botón para abrir el Mapa con la dirección -->
-                                <Button Text=" Ver en el Mapa (Ruta)" 
-                                        BackgroundColor="#2980B9" 
-                                        TextColor="White" 
-                                        FontSize="12"
+                                <Grid ColumnDefinitions="*,*"
+                                      ColumnSpacing="12">
+
+                                    <VerticalStackLayout Spacing="5">
+                                        <Label Text="Destinatario"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="#752B43"/>
+
+                                        <Label Text="{Binding destinatario}"
+                                               FontSize="12"
+                                               TextColor="#8A7A78"/>
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         Spacing="5">
+                                        <Label Text="Teléfono"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="#752B43"/>
+
+                                        <Label Text="{Binding telefono_destinatario}"
+                                               FontSize="12"
+                                               TextColor="#8A7A78"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+
+
+                                <!-- ARREGLOS QUE SE VAN A ENTREGAR -->
+                                <Label
+                                    Text="Arreglos del pedido"
+                                    FontSize="15"
+                                    FontAttributes="Bold"
+                                    TextColor="#752B43"/>
+
+                                <VerticalStackLayout
+                                        BindableLayout.ItemsSource="{Binding Arreglos}"
+                                        Spacing="10">
+
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border
+                                            BackgroundColor="#FFF9F6"
+                                            Stroke="#EBDCE0"
+                                            StrokeShape="RoundRectangle 14"
+                                            Padding="10">
+
+                                                <Grid ColumnDefinitions="90,*"
+                                                      ColumnSpacing="12">
+
+                                                    <!-- FOTOGRAFÍA -->
+                                                    <Border
+                                                        BackgroundColor="#FFF4F6"
+                                                        StrokeThickness="0"
+                                                        StrokeShape="RoundRectangle 10"
+                                                        HeightRequest="90"
+                                                        WidthRequest="90">
+
+                                                        <Image
+                                                        Source="{Binding imagen}"
+                                                        Aspect="AspectFill"/>
+                                                    </Border>
+
+                                                    <!-- DATOS DEL ARREGLO -->
+                                                    <VerticalStackLayout
+                                                        Grid.Column="1"
+                                                        Spacing="5"
+                                                        VerticalOptions="Center">
+
+                                                        <Label
+                                                            Text="{Binding nombre}"
+                                                            FontSize="14"
+                                                            FontAttributes="Bold"
+                                                            TextColor="#752B43"/>
+
+                                                        <Label
+                                                            Text="{Binding CantidadTexto}"
+                                                            FontSize="12"
+                                                            TextColor="#63754D"/>
+
+                                                        <Label
+                                                            Text="{Binding PrecioTexto}"
+                                                            FontSize="12"
+                                                            TextColor="#8A7A78"/>
+
+                                                    </VerticalStackLayout>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+
+                                <!-- FECHA PROGRAMADA -->
+                                <Label
+                                    Text="Fecha y hora de entrega"
+                                    FontSize="13"
+                                    FontAttributes="Bold"
+                                    TextColor="#752B43"/>
+
+                                <Label
+                                    Text="{Binding FechaEntregaFormateada}"
+                                    FontSize="13"
+                                    TextColor="#63754D"/>
+
+
+                                <!-- RESUMEN FINANCIERO -->
+                                <Border BackgroundColor="#FFF4F6"
+                                        Stroke="#EBDCE0"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 15"
+                                        Padding="15">
+
+                                    <VerticalStackLayout Spacing="12">
+
+                                        <Label Text="Resumen del pago"
+                                               FontSize="15"
+                                               FontAttributes="Bold"
+                                               TextColor="#752B43"/>
+
+                                        <Label Text="{Binding TotalFormateado}"
+                                               FontSize="13"
+                                               TextColor="#8A7A78"/>
+
+                                        <Label Text="{Binding AbonadoFormateado}"
+                                               FontSize="13"
+                                               TextColor="#63754D"/>
+
+                                        <BoxView HeightRequest="1"
+                                                 Color="#EBDCE0"/>
+
+                                        <Label Text="{Binding SaldoFormateado}"
+                                               FontSize="17"
+                                               FontAttributes="Bold"
+                                               TextColor="#9B3E5C"/>
+
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- OBSERVACIONES -->
+                                <Label Text="{Binding observaciones}"
+                                       FontSize="12"
+                                       FontAttributes="Italic"
+                                       TextColor="#8A7A78"
+                                       LineBreakMode="WordWrap"/>
+
+                                <!-- MAPA Y WHATSAPP -->
+                                <Grid ColumnDefinitions="*,*"
+                                      ColumnSpacing="10">
+
+                                    <Button Grid.Column="0"
+                                            Text="Ver ubicación"
+                                            Clicked="Button_Clicked"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#F9ECE8"
+                                            TextColor="#9B3E5C"
+                                            BorderColor="#E2C1B4"
+                                            BorderWidth="1"
+                                            FontSize="13"
+                                            FontAttributes="Bold"
+                                            CornerRadius="13"
+                                            HeightRequest="48"
+                                            Padding="5,0"/>
+
+                                    <Button Grid.Column="1"
+                                            Text="WhatsApp"
+                                            Clicked="Button_Clicked_2"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#EAF7ED"
+                                            TextColor="#278B4D"
+                                            BorderColor="#B6DDC0"
+                                            BorderWidth="1"
+                                            FontSize="13"
+                                            FontAttributes="Bold"
+                                            CornerRadius="13"
+                                            HeightRequest="48"
+                                            Padding="5,0"/>
+                                </Grid>
+
+                                <!-- REGISTRAR SALDO -->
+                                <Button
+                                    Text="Registrar saldo pendiente"
+                                    Clicked="RegistrarAbonoEntrega_Clicked"
+                                    CommandParameter="{Binding .}"
+                                    IsVisible="{Binding TieneSaldoPendiente}"
+                                    BackgroundColor="#9B3E5C"
+                                    TextColor="White"
+                                    FontSize="13"
+                                    FontAttributes="Bold"
+                                    CornerRadius="13"
+                                    HeightRequest="50"/>
+
+                                <!-- COMPLETAR ENTREGA -->
+
+                                <!-- MARCAR ENTREGA COMO COMPLETADA -->
+                                <Button
+                                        Text="Marcar como entregado"
+                                        Clicked="MarcarEntregado_Clicked"
                                         CommandParameter="{Binding .}"
-                                        Clicked="Button_Clicked"
-                                        Margin="0,6,0,0"/>
+                                        IsVisible="{Binding PuedeMarcarEntregado}"
+                                        BackgroundColor="#EDF3E9"
+                                        TextColor="#63754D"
+                                        BorderColor="#C8D8BE"
+                                        BorderWidth="1"
+                                        FontSize="13"
+                                        FontAttributes="Bold"
+                                        CornerRadius="13"
+                                        HeightRequest="50"/>
 
-                                <!-- 2. Botón WhatsApp para que el mensajero se comunique con el cliente -->
-                                <Button Text=" Escribir al Cliente por WhatsApp" 
-                                        BackgroundColor="#25D366" 
-                                        TextColor="White" 
-                                        FontSize="12"
-                                        CommandParameter="{Binding .}"
-                                        Clicked="Button_Clicked_2"
-                                        Margin="0,2,0,0"/>
+                                <!-- MENSAJE DE ENTREGA COMPLETADA -->
+                                <Border
+                                        IsVisible="{Binding EstaEntregado}"
+                                        BackgroundColor="#EDF3E9"
+                                        Stroke="#C8D8BE"
+                                        StrokeShape="RoundRectangle 13"
+                                        Padding="15">
+
+                                    <Label
+                                        Text="✓ Entrega completada"
+                                        FontSize="14"
+                                        FontAttributes="Bold"
+                                        TextColor="#63754D"
+                                        HorizontalTextAlignment="Center"/>
+                                </Border>
 
 
-                                <!-- 3. Registrar Abono / Pago en tiempo real -->
-                                <Button Text=" Registrar Abono / Pago" 
-                                        BackgroundColor="#E67E22" 
-                                        TextColor="White" 
-                                        FontSize="12"
-                                        CommandParameter="{Binding .}"
-                                        Clicked="RegistrarAbonoEntrega_Clicked"
-                                        Margin="0,2,0,0"/>
-
-
-                                <!-- Botón para cambiar estado a "Entregado" -->
-                                <Button Text="Marcar como Entregado" 
-                                        BackgroundColor="#27AE60" 
-                                        TextColor="White" 
-                                        FontSize="12"
-                                        CommandParameter="{Binding .}"
-                                        Clicked="Button_Clicked_1"
-                                        Margin="0,2,0,0"/>
                             </VerticalStackLayout>
-                        </Frame>
+                        </Border>
+
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
+
             </CollectionView>
-            
-            
-            
-        </VerticalStackLayout>
-    </ScrollView>
+        </Grid>
+    </Grid>
 </ContentPage>

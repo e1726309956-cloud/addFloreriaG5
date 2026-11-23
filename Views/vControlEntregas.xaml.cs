@@ -1,9 +1,11 @@
 namespace addFloreriaG5.Views;
 using addFloreriaG5.Models;
 using addFloreriaG5.Services;
+using System.Globalization;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Globalization;
+
 public partial class vControlEntregas : ContentPage
 {
     private readonly Dictionary<int, Guid> solicitudesAbonoPendientes = new();
@@ -18,38 +20,129 @@ public partial class vControlEntregas : ContentPage
         await CargarEntregas();
     }
 
-
     private async Task CargarEntregas()
     {
         try
         {
-            SupabaseService servicio = new SupabaseService();
+            var servicio = new SupabaseService();
 
-            // Aseguramos traer la entrega y los datos completos de 'pedidos' y 'pagos'
-            string endpoint = $"{servicio.GetUrl()}/rest/v1/entregas?select=*,pedidos(*,pagos(*))&order=id_entrega.desc";
+            string endpoint = $"{servicio.GetUrl()}/rest/v1/entregas" +
+                  "?select=*,pedido:pedidos(*,pagos(*))" +
+                  "&order=id_entrega.desc";
 
-            var respuesta = await servicio.GetClient().GetAsync(endpoint);
-            if (respuesta.IsSuccessStatusCode)
+            using var respuesta = await servicio.GetClient().GetAsync(endpoint);
+            string contenido = await respuesta.Content.ReadAsStringAsync();
+
+            if (!respuesta.IsSuccessStatusCode)
             {
-                string contenido = await respuesta.Content.ReadAsStringAsync();
-                var listaEntregas = JsonSerializer.Deserialize<List<EntregaModel>>(contenido, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                await DisplayAlertAsync("Error", $"No se pudieron cargar las entregas:\n{contenido}", "Aceptar");
+                return;
+            }
 
-                cvEntregas.ItemsSource = listaEntregas;
-            }
-            else
+            var entregas = JsonSerializer.Deserialize<List<EntregaModel>>(
+                contenido,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            ) ?? new List<EntregaModel>();
+
+            await CargarArreglosEntregas(entregas, servicio);
+
+
+            // CARGAR LOS ARREGLOS DE CADA PEDIDO
+            await CargarArreglosEntregas(entregas, servicio);
+
+            // MOSTRAR ENTREGAS CON SUS PRODUCTOS
+            cvEntregas.ItemsSource = entregas;
+
+            System.Diagnostics.Debug.WriteLine(
+                $"Entregas cargadas: {entregas.Count}");
+
+            foreach (var entrega in entregas)
             {
-                string error = await respuesta.Content.ReadAsStringAsync();
-                await DisplayAlert("Error", "No se pudieron cargar las entregas: " + error, "Aceptar");
+                System.Diagnostics.Debug.WriteLine(
+                    $"Pedido #{entrega.id_pedido}: " +
+                    $"{entrega.Arreglos.Count} arreglos cargados");
             }
+
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", "Excepción: " + ex.Message, "Aceptar");
+            System.Diagnostics.Debug.WriteLine(ex);
+            await DisplayAlertAsync("Error", $"No se pudieron cargar las entregas:\n{ex.Message}", "Aceptar");
         }
     }
+
+
+    private async Task CargarArreglosEntregas(
+        List<EntregaModel> entregas,
+        SupabaseService servicio)
+    {
+        if (entregas.Count == 0) return;
+
+        var cliente = servicio.GetClient();
+        string url = servicio.GetUrl().TrimEnd('/');
+
+        string idsPedidos = string.Join(",",
+            entregas.Select(e => e.id_pedido).Distinct());
+
+        // CONSULTAR DETALLES DE LOS PEDIDOS
+        string urlDetalles =
+            $"{url}/rest/v1/detalle_pedido" +
+            $"?select=id_pedido,id_arreglo,cantidad,precio_unitario" +
+            $"&id_pedido=in.({idsPedidos})";
+
+        using var respuestaDetalles =
+            await cliente.GetAsync(urlDetalles);
+
+        respuestaDetalles.EnsureSuccessStatusCode();
+
+        var detalles = await respuestaDetalles.Content
+            .ReadFromJsonAsync<List<DetalleEntregaConsulta>>()
+            ?? new();
+
+        if (detalles.Count == 0) return;
+
+        // CONSULTAR LOS ARREGLOS QUE SE VAN A ENTREGAR
+        string idsArreglos = string.Join(",",
+            detalles.Select(d => d.id_arreglo).Distinct());
+
+        string urlArreglos =
+            $"{url}/rest/v1/arreglos" +
+            $"?select=id_arreglo,nombre,imagen" +
+            $"&id_arreglo=in.({idsArreglos})";
+
+        using var respuestaArreglos =
+            await cliente.GetAsync(urlArreglos);
+
+        respuestaArreglos.EnsureSuccessStatusCode();
+
+        var arreglos = await respuestaArreglos.Content
+            .ReadFromJsonAsync<List<ArregloEntregaConsulta>>()
+            ?? new();
+
+        var catalogo = arreglos.ToDictionary(a => a.id_arreglo);
+
+        // ASIGNAR TODOS LOS ARREGLOS A CADA ENTREGA
+        foreach (var entrega in entregas)
+        {
+            entrega.Arreglos = detalles
+                .Where(d => d.id_pedido == entrega.id_pedido)
+                .Select(d =>
+                {
+                    catalogo.TryGetValue(d.id_arreglo, out var arreglo);
+
+                    return new ArregloEntregaModel
+                    {
+                        id_arreglo = d.id_arreglo,
+                        nombre = arreglo?.nombre ?? "Arreglo no disponible",
+                        imagen = arreglo?.imagen ?? "",
+                        cantidad = d.cantidad,
+                        precio_unitario = d.precio_unitario
+                    };
+                })
+                .ToList();
+        }
+    }
+
 
     private async void Button_Clicked(object sender, EventArgs e)
     {
@@ -76,53 +169,79 @@ public partial class vControlEntregas : ContentPage
         }
     }
 
-    private async void Button_Clicked_1(object sender, EventArgs e)
+
+    private async void MarcarEntregado_Clicked(object sender, EventArgs e)
     {
-        if (sender is Button button && button.CommandParameter is EntregaModel entrega)
+        if (sender is not Button boton || boton.CommandParameter is not EntregaModel entrega)
+            return;
+
+        if (!SesionAuth.TieneSesion)
         {
-            bool confirmar = await DisplayAlert("Confirmar", $"¿Deseas marcar el pedido #{entrega.id_pedido} como ENTREGADO?", "Sí", "No");
-
-            if (!confirmar) return;
-
-            try
-            {
-                SupabaseService servicio = new SupabaseService();
-                var client = servicio.GetClient();
-
-                var actualizarEstado = new
-                {
-                    estado = "Entregado"
-                };
-
-                string json = JsonSerializer.Serialize(actualizarEstado);
-                StringContent contenido = new StringContent(json, Encoding.UTF8, "application/json");
-
-                string endpoint = $"{servicio.GetUrl()}/rest/v1/entregas?id_entrega=eq.{entrega.id_entrega}";
-                var request = new HttpRequestMessage(new HttpMethod("PATCH"), endpoint)
-                {
-                    Content = contenido
-                };
-                request.Headers.Add("Prefer", "return=minimal");
-
-                var respuesta = await client.SendAsync(request);
-
-                if (respuesta.IsSuccessStatusCode)
-                {
-                    await DisplayAlert("Éxito", "La entrega ha sido marcada como completada.", "Aceptar");
-                    await CargarEntregas(); // Recargamos la lista
-                }
-                else
-                {
-                    string error = await respuesta.Content.ReadAsStringAsync();
-                    await DisplayAlert("Error", "No se pudo actualizar: " + error, "Aceptar");
-                }
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", ex.Message, "Aceptar");
-            }
+            await MensajeModal.MostrarAsync(this, "Sesión vencida", "Inicia sesión nuevamente.", "advertencia");
+            return;
         }
 
+        if (entrega.estado == "Entregado")
+        {
+            await MensajeModal.MostrarAsync(this, "Entrega completada", "Este pedido ya fue marcado como entregado.", "advertencia");
+            return;
+        }
+
+        // CONFIRMACIÓN PERSONALIZADA
+        bool confirmar = await MensajeModal.ConfirmarAsync(
+            this,
+            "Confirmar entrega",
+            $"¿Estás seguro de marcar el pedido #{entrega.id_pedido} como ENTREGADO?");
+
+        if (!confirmar) return;
+
+        boton.IsEnabled = false;
+
+        try
+        {
+            var servicio = new SupabaseService();
+            var datos = new { estado = "Entregado" };
+            string endpoint = $"{servicio.GetUrl()}/rest/v1/entregas?id_entrega=eq.{entrega.id_entrega}";
+
+            using var solicitud = new HttpRequestMessage(HttpMethod.Patch, endpoint)
+            {
+                Content = JsonContent.Create(datos)
+            };
+
+            solicitud.Headers.TryAddWithoutValidation("Prefer", "return=representation");
+
+            using var respuesta = await servicio.GetClient().SendAsync(solicitud);
+            string contenido = await respuesta.Content.ReadAsStringAsync();
+
+            if (!respuesta.IsSuccessStatusCode)
+                throw new Exception($"HTTP {(int)respuesta.StatusCode}: {contenido}");
+
+            // Verificar que realmente se haya actualizado una fila.
+            using var documento = JsonDocument.Parse(contenido);
+
+            if (documento.RootElement.ValueKind != JsonValueKind.Array ||
+                documento.RootElement.GetArrayLength() == 0)
+                throw new Exception("La entrega no se actualizó. Verifica los permisos de Supabase.");
+
+            await MensajeModal.MostrarAsync(
+                this, "Entrega completada",
+                $"El pedido #{entrega.id_pedido} fue marcado como entregado correctamente.",
+                "exito");
+
+            await CargarEntregas();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"ERROR ENTREGA: {ex}");
+
+            await MensajeModal.MostrarAsync(
+                this, "No se pudo actualizar la entrega",
+                ex.Message, "error");
+        }
+        finally
+        {
+            boton.IsEnabled = true;
+        }
     }
 
     private async void Button_Clicked_2(object sender, EventArgs e)
@@ -162,184 +281,102 @@ public partial class vControlEntregas : ContentPage
 
     }
 
-    private async void RegistrarAbonoEntrega_Clicked(
-        object sender,
-        EventArgs e)
+
+    private async void RegistrarAbonoEntrega_Clicked(object sender, EventArgs e)
     {
-        // VALIDAR BOTÓN Y ENTREGA
-        if (sender is not Button boton ||
-            boton.CommandParameter is not EntregaModel entrega)
+        if (sender is not Button boton || boton.CommandParameter is not EntregaModel entrega)
             return;
 
-        // VALIDAR SESIÓN
         if (!SesionAuth.TieneSesion)
         {
-            await DisplayAlert(
-                "Sesión vencida",
-                "Inicia sesión nuevamente.",
-                "Aceptar");
+            await MensajeModal.MostrarAsync(this, "Sesión vencida", "Inicia sesión nuevamente.", "advertencia");
             return;
         }
 
-        // VALIDAR PEDIDO ASOCIADO
         if (entrega.pedido == null)
         {
-            await DisplayAlert(
-                "Error",
-                "No se encontró el pedido asociado.",
-                "Aceptar");
+            await MensajeModal.MostrarAsync(this, "Error", "No se encontró el pedido asociado.", "error");
             return;
         }
 
-        // OBTENER SALDO PENDIENTE
         decimal saldoPendiente = entrega.pedido.total;
 
         if (saldoPendiente <= 0)
         {
-            await DisplayAlert(
-                "Pedido pagado",
-                "Este pedido no tiene saldo pendiente.",
-                "Aceptar");
+            await MensajeModal.MostrarAsync(this, "Pedido pagado", "Este pedido no tiene saldo pendiente.", "advertencia");
             return;
         }
 
-        // SELECCIONAR MÉTODO DE PAGO
-        string metodoPago = await DisplayActionSheet(
-            "Método de pago",
-            "Cancelar",
-            null,
-            "Efectivo",
-            "Transferencia");
+        // 1. SELECCIONAR MÉTODO DE PAGO
+        var ventanaMetodo = new vMetodoPago();
+        await Navigation.PushModalAsync(ventanaMetodo);
 
-        if (string.IsNullOrWhiteSpace(metodoPago) ||
-            metodoPago == "Cancelar")
-            return;
+        string? metodoPago = await ventanaMetodo.EsperarSeleccionAsync();
+        if (string.IsNullOrWhiteSpace(metodoPago)) return;
 
-        // SOLICITAR MONTO
-        string resultadoMonto = await DisplayPromptAsync(
-            "Registrar abono de entrega",
-            $"Pedido #{entrega.id_pedido}\n" +
-            $"Saldo pendiente: ${saldoPendiente:F2}\n\n" +
-            "Ingresa el monto recibido:",
-            "Continuar",
-            "Cancelar",
-            initialValue: saldoPendiente.ToString("F2"),
-            placeholder: "Ej. 20.00",
-            keyboard: Keyboard.Numeric);
+        // 2. INGRESAR MONTO DEL ABONO
+        var ventanaMonto = new vMontoAbono(entrega.id_pedido, saldoPendiente);
+        await Navigation.PushModalAsync(ventanaMonto);
 
-        if (string.IsNullOrWhiteSpace(resultadoMonto))
-            return;
+        decimal? montoSeleccionado = await ventanaMonto.EsperarMontoAsync();
+        if (!montoSeleccionado.HasValue) return;
 
-        // VALIDAR MONTO
-        bool montoValido = decimal.TryParse(
-            resultadoMonto,
-            NumberStyles.Number,
-            CultureInfo.CurrentCulture,
-            out decimal montoAbono);
+        decimal montoAbono = montoSeleccionado.Value;
 
-        if (!montoValido)
-        {
-            montoValido = decimal.TryParse(
-                resultadoMonto,
-                NumberStyles.Number,
-                CultureInfo.InvariantCulture,
-                out montoAbono);
-        }
-
-        if (!montoValido ||
-            montoAbono <= 0 ||
+        // 3. VALIDACIÓN ADICIONAL
+        if (montoAbono <= 0 || montoAbono > saldoPendiente ||
             decimal.Round(montoAbono, 2) != montoAbono)
         {
-            await DisplayAlert(
-                "Monto inválido",
-                "Ingresa un monto válido mayor que cero, " +
-                "con máximo dos decimales.",
-                "Aceptar");
+            await MensajeModal.MostrarAsync(this, "Monto inválido", "El abono debe ser mayor que cero y no superar el saldo pendiente.", "advertencia");
             return;
         }
 
-        if (montoAbono > saldoPendiente)
-        {
-            await DisplayAlert(
-                "Monto incorrecto",
-                "El abono no puede superar " +
-                "el saldo pendiente.",
-                "Aceptar");
-            return;
-        }
+        // 4. CONFIRMAR PAGO
+        bool confirmar = await MensajeModal.ConfirmarAsync(
+            this, "Confirmar abono",
+            $"Pedido #{entrega.id_pedido}\nMonto: ${montoAbono:F2}\nMétodo: {metodoPago}\n\n¿Confirmas que recibiste este dinero?");
 
-        // CONFIRMAR EL PAGO
-        bool confirmar = await DisplayAlert(
-            "Confirmar pago",
-            $"Pedido #{entrega.id_pedido}\n" +
-            $"Monto: ${montoAbono:F2}\n" +
-            $"Método: {metodoPago}\n\n" +
-            "¿Confirmas que recibiste este dinero?",
-            "Sí, registrar",
-            "Cancelar");
-
-        if (!confirmar)
-            return;
+        if (!confirmar) return;
 
         boton.IsEnabled = false;
 
         try
         {
-            // CONSERVAR IDENTIFICADOR DE SOLICITUD
-            if (!solicitudesAbonoPendientes.TryGetValue(
-                entrega.id_pedido,
-                out Guid solicitudId))
+            // 5. REGISTRAR PAGO EN SUPABASE
+            if (!solicitudesAbonoPendientes.TryGetValue(entrega.id_pedido, out Guid solicitudId))
             {
                 solicitudId = Guid.NewGuid();
-
-                solicitudesAbonoPendientes[
-                    entrega.id_pedido] = solicitudId;
+                solicitudesAbonoPendientes[entrega.id_pedido] = solicitudId;
             }
 
-            // REGISTRAR MEDIANTE LA FUNCIÓN DE SUPABASE
             var pagosService = new PagosService();
 
-            ResultadoPago resultado =
-                await pagosService.RegistrarAbonoAsync(
-                    entrega.id_pedido,
-                    montoAbono,
-                    metodoPago,
-                    solicitudId);
+            ResultadoPago resultado = await pagosService.RegistrarAbonoAsync(
+                entrega.id_pedido, montoAbono, metodoPago, solicitudId);
 
-            // EL SERVIDOR CONFIRMÓ LA OPERACIÓN
-            solicitudesAbonoPendientes.Remove(
-                entrega.id_pedido);
+            solicitudesAbonoPendientes.Remove(entrega.id_pedido);
 
-            // MOSTRAR RESULTADO
-            string mensaje =
-                $"Abono registrado: ${montoAbono:F2}\n" +
-                $"Saldo pendiente: ${resultado.SaldoRestante:F2}\n" +
-                $"Estado: {resultado.Estado}";
+            // 6. MOSTRAR RESULTADO
+            string mensaje = $"Abono registrado: ${montoAbono:F2}\n" +
+                             $"Saldo pendiente: ${resultado.SaldoRestante:F2}\n" +
+                             $"Estado: {resultado.Estado}";
 
             if (resultado.SaldoRestante == 0)
-            {
-                mensaje +=
-                    "\n\n¡El pedido está pagado al 100 %!";
-            }
+                mensaje += "\n\n¡El pedido está pagado al 100 %!";
 
-            await DisplayAlert(
-                "Pago registrado",
-                mensaje,
-                "Aceptar");
+            await MensajeModal.MostrarAsync(this, "Pago registrado", mensaje, "exito");
 
-            // ACTUALIZAR LISTA DE ENTREGAS
+            // 7. ACTUALIZAR ENTREGAS
             await CargarEntregas();
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine(ex);
+            System.Diagnostics.Debug.WriteLine($"ERROR AL REGISTRAR ABONO EN ENTREGA: {ex}");
 
-            await DisplayAlert(
-                "No se pudo confirmar",
-                "No se pudo verificar el resultado del pago. " +
-                "Consulta el historial antes de repetirlo.\n\n" +
-                ex.Message,
-                "Aceptar");
+            await MensajeModal.MostrarAsync(
+                this, "No se pudo confirmar",
+                "No se pudo verificar el registro del abono. Revisa el historial antes de repetirlo.\n\n" + ex.Message,
+                "error");
         }
         finally
         {
@@ -348,6 +385,21 @@ public partial class vControlEntregas : ContentPage
     }
 
 
-
+    private async void Volver_Tapped(object sender, TappedEventArgs e)
+    {
+        if (Navigation.ModalStack.Count > 0 &&
+            Navigation.ModalStack[^1] == this)
+        {
+            await Navigation.PopModalAsync();
+        }
+        else if (Navigation.NavigationStack.Count > 1)
+        {
+            await Navigation.PopAsync();
+        }
+        else if (Shell.Current != null)
+        {
+            await Shell.Current.GoToAsync("..");
+        }
+    }
 
 }

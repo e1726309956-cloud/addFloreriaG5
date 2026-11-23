@@ -364,6 +364,64 @@
                                 MinimumHeightRequest="85"/>
                         </Border>
 
+
+                        <!-- FECHA Y HORA SOLICITADA DE ENTREGA -->
+                        <Label Text="Fecha y hora de entrega"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="#752B43"
+                           Margin="0,6,0,0"/>
+
+                        <Grid ColumnDefinitions="*,*"
+                            ColumnSpacing="10">
+
+                            <!-- FECHA -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="7">
+                                <Label Text="Fecha"
+                                   FontSize="12"
+                                   TextColor="#8A7A78"/>
+
+                                <Border BackgroundColor="#FFF4F6"
+                                    Stroke="#D7B4BC"
+                                    StrokeShape="RoundRectangle 12"
+                                    Padding="8,0">
+
+                                    <DatePicker x:Name="dpFechaEntrega"
+                                    Format="dd/MM/yyyy"
+                                    TextColor="#752B43"
+                                    BackgroundColor="Transparent"
+                                    HeightRequest="50"
+                                    HorizontalOptions="Fill"/>
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- HORA -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="7">
+                                <Label Text="Hora"
+                                   FontSize="12"
+                                   TextColor="#8A7A78"/>
+
+                                <Border BackgroundColor="#FFF4F6"
+                                    Stroke="#D7B4BC"
+                                    StrokeShape="RoundRectangle 12"
+                                    Padding="8,0">
+
+                                    <TimePicker x:Name="tpHoraEntrega"
+                                    Format="HH:mm"
+                                    TextColor="#752B43"
+                                    BackgroundColor="Transparent"
+                                    HeightRequest="50"
+                                    HorizontalOptions="Fill"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Label
+                                    Text="Selecciona cuándo necesitas recibir tu arreglo. La disponibilidad será confirmada por la florería."
+                                    FontSize="11"
+                                    TextColor="#8A7A78"
+                                    LineBreakMode="WordWrap"/>
+
                     </VerticalStackLayout>
                 </Border>
 

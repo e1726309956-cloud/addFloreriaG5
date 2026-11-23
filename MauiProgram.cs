@@ -41,16 +41,44 @@ namespace addFloreriaG5
             builder.Logging.AddDebug();
 
 
+
 #if ANDROID
+            var transparente = Android.Content.Res.ColorStateList.ValueOf(
+                Android.Graphics.Color.Transparent);
+
+            // ENTRY
             Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping(
                 "SinSubrayado",
                 (handler, view) =>
                 {
-                    handler.PlatformView.BackgroundTintList =
-                        Android.Content.Res.ColorStateList.ValueOf(
-                            Android.Graphics.Color.Transparent);
+                    handler.PlatformView.BackgroundTintList = transparente;
+                });
+
+            // EDITOR - DIRECCIÓN
+            Microsoft.Maui.Handlers.EditorHandler.Mapper.AppendToMapping(
+                "SinSubrayado",
+                (handler, view) =>
+                {
+                    handler.PlatformView.BackgroundTintList = transparente;
+                });
+
+            // DATEPICKER - FECHA
+            Microsoft.Maui.Handlers.DatePickerHandler.Mapper.AppendToMapping(
+                "SinSubrayado",
+                (handler, view) =>
+                {
+                    handler.PlatformView.BackgroundTintList = transparente;
+                });
+
+            // TIMEPICKER - HORA
+            Microsoft.Maui.Handlers.TimePickerHandler.Mapper.AppendToMapping(
+                "SinSubrayado",
+                (handler, view) =>
+                {
+                    handler.PlatformView.BackgroundTintList = transparente;
                 });
 #endif
+
 
 #endif
 

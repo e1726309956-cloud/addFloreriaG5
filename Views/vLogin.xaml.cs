@@ -150,6 +150,11 @@ public partial class vLogin : ContentPage
         await Navigation.PushAsync(new vRegistro());
     }
 
+    private async void RecuperarPassword_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PushAsync(new vRecuperarPassword(txtCorreo.Text?.Trim() ?? ""));
+    }
+
     private void TogglePassword_Clicked(
         object sender,
         EventArgs e)

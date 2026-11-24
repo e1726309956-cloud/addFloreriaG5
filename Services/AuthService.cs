@@ -10,6 +10,47 @@ public class AuthService
 {
     private readonly HttpClient _http = new();
 
+    public async Task SolicitarRecuperacionAsync(string correo)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"{SupabaseSettings.Url}/auth/v1/recover");
+        request.Headers.Add("apikey", SupabaseSettings.PublishableKey);
+        request.Content = JsonContent.Create(new { email = correo.Trim() });
+        using var response = await _http.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+        {
+            var estado = (int)response.StatusCode;
+            if (estado == 429)
+                throw new InvalidOperationException("Se alcanzó el límite de solicitudes. Espera unos minutos antes de intentarlo de nuevo.");
+            if (estado >= 500)
+                throw new InvalidOperationException($"Supabase no pudo procesar el envío (código {estado}). Revisa la configuración SMTP y los registros de autenticación en Supabase.");
+            throw new InvalidOperationException($"Supabase rechazó la solicitud (código {estado}). Revisa la configuración de autenticación y los registros en Supabase.");
+        }
+    }
+
+    public async Task<string> VerificarRecuperacionAsync(string correo, string codigo)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"{SupabaseSettings.Url}/auth/v1/verify");
+        request.Headers.Add("apikey", SupabaseSettings.PublishableKey);
+        request.Content = JsonContent.Create(new { email = correo.Trim(), token = codigo.Trim(), type = "recovery" });
+        using var response = await _http.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException("El código no es válido o ha vencido. Solicita uno nuevo.");
+        var sesion = await response.Content.ReadFromJsonAsync<AuthSession>();
+        return !string.IsNullOrWhiteSpace(sesion?.AccessToken) ? sesion.AccessToken :
+            throw new InvalidOperationException("No se pudo verificar el código de recuperación.");
+    }
+
+    public async Task CambiarPasswordAsync(string token, string password)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Put, $"{SupabaseSettings.Url}/auth/v1/user");
+        request.Headers.Add("apikey", SupabaseSettings.PublishableKey);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        request.Content = JsonContent.Create(new { password });
+        using var response = await _http.SendAsync(request);
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException("No se pudo actualizar la contraseña. Revisa los requisitos de seguridad o solicita un código nuevo.");
+    }
+
     // AUTENTICAR EN SUPABASE AUTH
     public async Task<AuthSession> IniciarSesionAsync(
         string correo,

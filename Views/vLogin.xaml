@@ -160,6 +160,12 @@
 
                         </Border>
 
+                        <Button Text="¿Olvidaste tu contraseña?"
+                                Clicked="RecuperarPassword_Clicked"
+                                BackgroundColor="Transparent"
+                                TextColor="#812A44"
+                                HorizontalOptions="End" />
+
                         <!-- BOTÓN INGRESAR -->
                         <Button
                             Text="Ingresar"

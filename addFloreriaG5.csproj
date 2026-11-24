@@ -67,10 +67,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.Material" Version="6.0.0" />
+		<PackageReference Include="ClosedXML" Version="0.105.1" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="PDFsharp" Version="6.2.4" />
 		<PackageReference Include="Supabase" Version="8.7.0" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
 		<PackageReference Include="System.Text.Json" Version="10.0.14" />
 	</ItemGroup>
 
@@ -114,5 +117,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Configuration\supabase.settings.json" LogicalName="supabase.settings.json" />
+		<EmbeddedResource Include="Resources\Fonts\OpenSans-Regular.ttf" LogicalName="Reportes.OpenSans-Regular.ttf" />
 	</ItemGroup>
 </Project>

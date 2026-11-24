@@ -85,11 +85,7 @@ public partial class vMenuAdministrador : ContentPage
         object sender,
         TappedEventArgs e)
     {
-        await MensajeModal.MostrarAsync(
-            this,
-            "Reportería",
-            "Próximamente podrás consultar reportes de ventas, pedidos y productos.",
-            "advertencia");
+        await Navigation.PushAsync(new vReportes());
     }
 
 

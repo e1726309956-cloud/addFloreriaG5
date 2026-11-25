@@ -44,7 +44,7 @@ public partial class vRegistroArreglo : ContentPage
     }
 
 
-    private async void Button_Clicked(object sender, EventArgs e)
+    private async void btnSeleccionarImagen(object sender, EventArgs e)
     {
         try
         {

@@ -244,7 +244,7 @@ public partial class vCatalogoArreglos : ContentPage
     }
 
 
-    private void Button_Clicked_2(object sender, EventArgs e)
+    private void btnDetalles(object sender, EventArgs e)
     {
         if (sender is Button button &&
             button.CommandParameter is ArregloModel arreglo)
@@ -293,7 +293,7 @@ public partial class vCatalogoArreglos : ContentPage
     }
 
 
-    private async void Button_Clicked_3(object sender, EventArgs e)
+    private async void btnEditar(object sender, EventArgs e)
     {
         if (sender is Button button && button.CommandParameter is ArregloModel arreglo)
         {

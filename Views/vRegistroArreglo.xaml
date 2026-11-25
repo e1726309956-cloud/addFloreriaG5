@@ -296,7 +296,7 @@
                         <!-- SELECCIONAR IMAGEN -->
                         <Button
                             Text="Seleccionar fotografía"
-                            Clicked="Button_Clicked"
+                            Clicked="btnSeleccionarImagen"
                             BackgroundColor="#FFF6F7"
                             TextColor="#9B3E5C"
                             BorderColor="#D7B4BC"

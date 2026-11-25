@@ -309,7 +309,7 @@
 
                                     <Button Grid.Column="0"
                                             Text="Ver ubicación"
-                                            Clicked="Button_Clicked"
+                                            Clicked="btnUbicacion"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#F9ECE8"
                                             TextColor="#9B3E5C"
@@ -323,7 +323,7 @@
 
                                     <Button Grid.Column="1"
                                             Text="WhatsApp"
-                                            Clicked="Button_Clicked_2"
+                                            Clicked="btnWhatsApp"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#EAF7ED"
                                             TextColor="#278B4D"

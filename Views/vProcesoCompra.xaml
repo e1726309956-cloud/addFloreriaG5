@@ -429,7 +429,7 @@
                 <Button
                     x:Name="btnConfirmarPedido"
                     Text="Confirmar pedido"
-                    Clicked="Button_Clicked"
+                    Clicked="btnConfirmarPedidos"
                     IsEnabled="True"
                     BackgroundColor="#9B3E5C"
                     TextColor="White"

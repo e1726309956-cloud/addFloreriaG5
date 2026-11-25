@@ -289,7 +289,7 @@
                         <!-- BOTÓN VOLVER -->
                         <Button
                             Text="Ya tengo una cuenta"
-                            Clicked="Button_Clicked_1"
+                            Clicked="btnVolver"
                             BackgroundColor="#FFF6F7"
                             TextColor="#812A44"
                             BorderColor="#A33B59"

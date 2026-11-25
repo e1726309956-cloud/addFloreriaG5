@@ -145,7 +145,7 @@ public partial class vLogin : ContentPage
     }
 
 
-    private async void Button_Clicked_2(object sender, EventArgs e)
+    private async void btnRegistrarse(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new vRegistro());
     }

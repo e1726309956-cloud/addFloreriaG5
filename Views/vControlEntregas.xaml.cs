@@ -144,7 +144,7 @@ public partial class vControlEntregas : ContentPage
     }
 
 
-    private async void Button_Clicked(object sender, EventArgs e)
+    private async void btnUbicacion(object sender, EventArgs e)
     {
         if (sender is Button button && button.CommandParameter is EntregaModel entrega)
         {
@@ -244,7 +244,7 @@ public partial class vControlEntregas : ContentPage
         }
     }
 
-    private async void Button_Clicked_2(object sender, EventArgs e)
+    private async void btnWhatsApp(object sender, EventArgs e)
     {
         if (sender is Button button && button.CommandParameter is EntregaModel entrega)
         {

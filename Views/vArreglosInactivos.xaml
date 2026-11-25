@@ -25,7 +25,7 @@
                                     TextColor="White" 
                                     FontSize="12"
                                     CommandParameter="{Binding .}"
-                                    Clicked="Button_Clicked"
+                                    Clicked="btnReactivo"
                                     Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" 
                                     VerticalOptions="Center"/>
                         </Grid>

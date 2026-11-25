@@ -110,7 +110,7 @@ public partial class vProcesoCompra : ContentPage
     }
 
 
-    private async void Button_Clicked(object sender, EventArgs e)
+    private async void btnConfirmarPedidos(object sender, EventArgs e)
     {
         if (!btnConfirmarPedido.IsEnabled) return;
 

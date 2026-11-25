@@ -65,7 +65,7 @@ public partial class vEditarArreglo : ContentPage
         }
     }
 
-    private async void Button_Clicked(object sender, EventArgs e)
+    private async void btnCambiarImagen(object sender, EventArgs e)
     {
         try
         {

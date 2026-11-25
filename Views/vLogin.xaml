@@ -183,7 +183,7 @@
                         <!-- BOTÓN REGISTRARSE -->
                         <Button
                             Text="Registrarse"
-                            Clicked="Button_Clicked_2"
+                            Clicked="btnRegistrarse"
                             BackgroundColor="#FFF6F7"
                             TextColor="#812A44"
                             BorderColor="#A33B59"

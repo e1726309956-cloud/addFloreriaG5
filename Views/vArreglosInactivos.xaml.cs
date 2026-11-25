@@ -47,7 +47,7 @@ public partial class vArreglosInactivos : ContentPage
 
 
 
-    private async void Button_Clicked(object sender, EventArgs e)
+    private async void btnReactivo(object sender, EventArgs e)
     {
         if (sender is Button button && button.CommandParameter is ArregloModel arreglo)
         {

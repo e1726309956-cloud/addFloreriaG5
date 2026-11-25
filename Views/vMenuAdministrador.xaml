@@ -71,7 +71,7 @@
 
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer
-                                Tapped="Button_Clicked"/>
+                                Tapped="btnCatalogo"/>
                         </Border.GestureRecognizers>
 
                         <VerticalStackLayout
@@ -120,7 +120,7 @@
 
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer
-                                Tapped="Button_Clicked_1"/>
+                                Tapped="btnPedidos"/>
                         </Border.GestureRecognizers>
 
                         <VerticalStackLayout
@@ -167,7 +167,7 @@
 
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer
-                                Tapped="Button_Clicked_2"/>
+                                Tapped="btnEntregas"/>
                         </Border.GestureRecognizers>
 
                         <VerticalStackLayout
@@ -218,7 +218,7 @@
 
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer
-                                Tapped="Button_Clicked_3"/>
+                                Tapped="btnUsuarios"/>
                         </Border.GestureRecognizers>
 
                         <VerticalStackLayout

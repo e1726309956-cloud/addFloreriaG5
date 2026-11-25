@@ -71,7 +71,7 @@ public partial class vVerPedidos : ContentPage
             CommandParameter = pedido
         };
 
-        Button_Clicked(boton, EventArgs.Empty);
+        btnLogoWhatsApp(boton, EventArgs.Empty);
     }
 
 
@@ -267,7 +267,7 @@ public partial class vVerPedidos : ContentPage
     }
 
 
-    private async void Button_Clicked(object sender, EventArgs e)
+    private async void btnLogoWhatsApp(object sender, EventArgs e)
     {
         if (sender is Button button && button.CommandParameter is PedidoModel pedido)
         {

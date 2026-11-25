@@ -390,7 +390,7 @@
                                     <Button
                                     Grid.Column="0"
                                     Text="Detalles"
-                                    Clicked="Button_Clicked_2"
+                                    Clicked="btnDetalles"
                                     CommandParameter="{Binding .}"
                                     BackgroundColor="#F2F4EA"
                                     TextColor="#63754D"
@@ -405,7 +405,7 @@
                                     <Button
                                     Grid.Column="1"
                                     Text="Editar"
-                                    Clicked="Button_Clicked_3"
+                                    Clicked="btnEditar"
                                     CommandParameter="{Binding .}"
                                     BackgroundColor="#F9ECE8"
                                     TextColor="#A56F58"
@@ -455,7 +455,7 @@
                                     IsVisible="{Binding MostrarAccionesCliente}">
 
                                     <!-- DETALLES -->
-                                    <Button
+                                    <!--<Button
                                     Grid.Column="0"
                                     Text="Detalles"
                                     Clicked="Button_Clicked_2"
@@ -467,7 +467,7 @@
                                     FontSize="12"
                                     FontAttributes="Bold"
                                     CornerRadius="11"
-                                    HeightRequest="45"/>
+                                    HeightRequest="45"/>-->
 
                                     <!-- AGREGAR AL CARRITO -->
                                     <Button

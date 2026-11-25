@@ -402,7 +402,7 @@
                                     Text="WhatsApp"
                                     ImageSource="whatsapp.png"
                                     ContentLayout="Left,8"
-                                    Clicked="Button_Clicked"
+                                    Clicked="btnLogoWhatsApp"
                                     CommandParameter="{Binding .}"
                                     BackgroundColor="#EAF7ED"
                                     TextColor="#278B4D"

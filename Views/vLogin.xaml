@@ -178,7 +178,7 @@
                             HeightRequest="45"
                             WidthRequest="230"
                             HorizontalOptions="Center"
-                            Margin="0,22,0,4"/>
+                            Margin="0,0,0,4"/>
 
                         <!-- BOTÓN REGISTRARSE -->
                         <Button

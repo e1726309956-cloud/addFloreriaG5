@@ -228,6 +228,9 @@
                             </Grid>
                         </Border>
 
+                        <Label Text="Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo."
+                               TextColor="#806771" FontSize="12" />
+
                         <!-- CONFIRMAR CONTRASEÑA -->
                         <Label
                             Text="Confirmar contraseña"

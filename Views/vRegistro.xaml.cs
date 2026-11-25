@@ -78,12 +78,12 @@ public partial class vRegistro : ContentPage
             return;
         }
 
-        if (password.Length < 8)
+        if (!ValidadorPassword.EsValida(password))
         {
             await MensajeModal.MostrarAsync(
                 this,
                 "Contraseña insegura",
-                "Utiliza una contraseña de al menos 8 caracteres.",
+                ValidadorPassword.Requisitos,
                 "advertencia");
 
             return;

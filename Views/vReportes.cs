@@ -15,7 +15,7 @@ public class vReportes : ContentPage
     private readonly Label estado = new() { Text = "Validando acceso…", TextColor = Texto };
     private readonly Label periodo = new() { TextColor = Texto, FontSize = 13 };
     private readonly VerticalStackLayout contenido = new() { Spacing = 10 };
-    private readonly List<(string Titulo, string Detalle)> filasExportacion = new();
+    private readonly List<FilaReporte> filasExportacion = new();
     private readonly HorizontalStackLayout navegacion = new() { Spacing = 8 };
     private readonly Picker filtro = new() { Title = "Todos los estados" };
     private readonly VerticalStackLayout panelFiltro = new() { Spacing = 4, IsVisible = false };
@@ -177,9 +177,11 @@ public class vReportes : ContentPage
     {
         var pedidos = datos!.Pedidos.Where(p => Coincide(p.estado)).ToList();
         Titulo("Pedidos", "Importes originales y saldos actuales de pedidos creados en el período; se incluyen todos los estados seleccionados.");
+        Titulo("Resumen por estado", "Totales de los pedidos que coinciden con el filtro.");
         foreach (var g in pedidos.GroupBy(p => Estado(p.estado), StringComparer.OrdinalIgnoreCase).OrderBy(g => g.Key))
             Fila(g.Key, $"{g.Count()} pedidos · importe original {Dinero(g.Sum(p => p.total_original))} · saldo actual {Dinero(g.Sum(p => p.total))}");
         if (pedidos.Count == 0) Vacio("No hay pedidos para este filtro.");
+        Titulo("Detalle de pedidos", "Pedidos individuales del período seleccionado.");
         foreach (var p in pedidos.OrderByDescending(p => p.fecha_pedido))
             Fila($"Pedido #{p.id_pedido} · {Estado(p.estado)}", $"{Fecha(p.fecha_pedido)} · original {Dinero(p.total_original)} · saldo actual {Dinero(p.total)}");
     }
@@ -188,9 +190,11 @@ public class vReportes : ContentPage
     {
         var pagos = datos!.Pagos.Where(p => Coincide(p.estado)).ToList();
         Titulo("Pagos", "Pagos registrados en el período por fecha de pago. Los estados se muestran por separado y no implican cobros confirmados.");
+        Titulo("Resumen por estado y método", "Cantidad e importe de los pagos registrados.");
         foreach (var g in pagos.GroupBy(p => (Estado: Estado(p.estado), Metodo: Estado(p.metodo_pago))).OrderBy(g => g.Key.Estado).ThenBy(g => g.Key.Metodo))
             Fila($"{g.Key.Estado} · {g.Key.Metodo}", $"{g.Count()} pagos · {Dinero(g.Sum(p => p.monto))}");
         if (pagos.Count == 0) Vacio("No hay pagos para este filtro.");
+        Titulo("Detalle de pagos", "Pagos individuales del período seleccionado.");
         foreach (var p in pagos.OrderByDescending(p => p.fecha_pago))
             Fila($"Pago #{p.id_pago} · pedido #{p.id_pedido}", $"{Fecha(p.fecha_pago)} · {Estado(p.estado)} · {Estado(p.metodo_pago)} · {Dinero(p.monto)}");
     }
@@ -211,8 +215,10 @@ public class vReportes : ContentPage
     {
         var entregas = datos!.Entregas.Where(e => Coincide(e.estado)).ToList();
         Titulo("Entregas", "Estado actual de todas las entregas. La fecha de entrega necesita verificarse y no se aplica el filtro de fechas.");
+        Titulo("Resumen por estado", "Cantidad de entregas según su estado actual.");
         foreach (var g in entregas.GroupBy(e => Estado(e.estado), StringComparer.OrdinalIgnoreCase).OrderBy(g => g.Key)) Fila(g.Key, $"{g.Count()} entregas");
         if (entregas.Count == 0) Vacio("No hay entregas para este filtro.");
+        Titulo("Detalle de entregas", "Entregas individuales y fecha registrada.");
         foreach (var e in entregas.OrderByDescending(e => e.id_entrega)) Fila($"Entrega #{e.id_entrega} · pedido #{e.id_pedido}", $"{Estado(e.estado)} · fecha registrada: {Fecha(e.fecha_entrega)}");
     }
 
@@ -232,7 +238,7 @@ public class vReportes : ContentPage
         var max = lista.Max(x => x.cantidad);
         foreach (var item in lista)
         {
-            filasExportacion.Add((item.nombre, item.cantidad.ToString(CultureInfo.InvariantCulture)));
+            filasExportacion.Add(new(TipoFilaReporte.Dato, item.nombre, item.cantidad.ToString(CultureInfo.InvariantCulture)));
             contenido.Add(new Label { Text = $"{item.nombre} · {item.cantidad}", TextColor = Texto });
             var resto = Math.Max(0.001, max - item.cantidad);
             contenido.Add(new Grid { HeightRequest = 9, ColumnDefinitions = new ColumnDefinitionCollection { new(new GridLength(item.cantidad, GridUnitType.Star)), new(new GridLength(resto, GridUnitType.Star)) }, Children = { new BoxView { Color = Color.FromArgb("#B75F78"), CornerRadius = 4 } } });
@@ -240,7 +246,7 @@ public class vReportes : ContentPage
     }
     private void AgregarTarjeta(FlexLayout layout, string titulo, string valor, string descripcion)
     {
-        filasExportacion.Add((titulo, $"{valor} · {descripcion}"));
+        filasExportacion.Add(new(TipoFilaReporte.Indicador, titulo, $"{valor} · {descripcion}"));
         var tarjeta = new Border { BackgroundColor = Colors.White, Stroke = Color.FromArgb("#EBDCE0"), Padding = 14, Margin = new Thickness(0, 0, 10, 10), WidthRequest = 180, Content = new VerticalStackLayout { Spacing = 3, Children = {
             new Label { Text = titulo, TextColor = Texto, FontSize = 13 }, new Label { Text = valor, TextColor = Vino, FontSize = 25, FontAttributes = FontAttributes.Bold }, new Label { Text = descripcion, TextColor = Texto, FontSize = 12 }
         } } };
@@ -248,12 +254,12 @@ public class vReportes : ContentPage
     }
     private void Titulo(string titulo, string explicacion)
     {
-        filasExportacion.Add((titulo, explicacion));
+        filasExportacion.Add(new(TipoFilaReporte.Seccion, titulo, explicacion));
         contenido.Add(new Label { Text = titulo, FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Vino, Margin = new Thickness(0, 8, 0, 0) });
         contenido.Add(new Label { Text = explicacion, FontSize = 13, TextColor = Texto });
     }
-    private void Vacio(string texto) { filasExportacion.Add((texto, "")); contenido.Add(new Label { Text = texto, TextColor = Texto, Margin = new Thickness(0, 8) }); }
-    private void Fila(string titulo, string detalle) { filasExportacion.Add((titulo, detalle)); contenido.Add(new Border { BackgroundColor = Colors.White, Stroke = Color.FromArgb("#EBDCE0"), Padding = 12, Content = new VerticalStackLayout { Spacing = 3, Children = { new Label { Text = titulo, FontAttributes = FontAttributes.Bold, TextColor = Vino }, new Label { Text = detalle, TextColor = Texto } } } }); }
+    private void Vacio(string texto) { filasExportacion.Add(new(TipoFilaReporte.Dato, texto, "")); contenido.Add(new Label { Text = texto, TextColor = Texto, Margin = new Thickness(0, 8) }); }
+    private void Fila(string titulo, string detalle) { filasExportacion.Add(new(TipoFilaReporte.Dato, titulo, detalle)); contenido.Add(new Border { BackgroundColor = Colors.White, Stroke = Color.FromArgb("#EBDCE0"), Padding = 12, Content = new VerticalStackLayout { Spacing = 3, Children = { new Label { Text = titulo, FontAttributes = FontAttributes.Bold, TextColor = Vino }, new Label { Text = detalle, TextColor = Texto } } } }); }
 
     private View CrearBotonesExportacion()
     {
@@ -283,7 +289,7 @@ public class vReportes : ContentPage
             string seleccion = seccion == "Resumen" || filtro.SelectedIndex <= 0 ? "Todos los estados" : filtro.SelectedItem?.ToString() ?? "Todos los estados";
             string contexto = $"Período cargado: {inicioCargado:dd/MM/yyyy} - {finCargado:dd/MM/yyyy} (Ecuador UTC-5) · Filtro: {seleccion}";
             var exportador = new ExportarReportesService();
-            byte[] bytes = formato == "PDF" ? exportador.CrearPdf(nombreSeccion, contexto, filas) : exportador.CrearExcel(nombreSeccion, contexto, filas);
+            byte[] bytes = formato == "PDF" ? exportador.CrearPdf(nombreSeccion, contexto, filas) : exportador.CrearExcel(nombreSeccion, contexto, filas.Select(f => (f.Titulo, f.Detalle)).ToList());
             string extension = formato == "PDF" ? ".pdf" : ".xlsx";
             bool guardado = await exportador.GuardarAsync(bytes, $"Reporte_{nombreSeccion}_{inicioCargado:yyyyMMdd}_{finCargado:yyyyMMdd}{extension}", extension);
             if (guardado) await DisplayAlertAsync("Reporte generado", "El archivo está listo.", "Aceptar");

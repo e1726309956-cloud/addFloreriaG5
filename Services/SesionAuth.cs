@@ -1,4 +1,6 @@
 ﻿
+using addFloreriaG5.Models;
+
 namespace addFloreriaG5.Services;
 
 public static class SesionAuth
@@ -29,5 +31,9 @@ public static class SesionAuth
         AccessToken = string.Empty;
         RefreshToken = string.Empty;
         ExpiraEn = default;
+        SesionUsuario.Nombre = string.Empty;
+        SesionUsuario.Telefono = string.Empty;
+        SesionUsuario.IdUsuario = 0;
+        CarritoCompras.Limpiar();
     }
 }

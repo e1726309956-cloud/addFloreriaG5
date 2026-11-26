@@ -5,6 +5,7 @@ using System.Text.Json;
 
 public partial class vLogin : ContentPage
 {
+    private bool ingresando;
 	public vLogin()
 	{
 		InitializeComponent();
@@ -15,6 +16,7 @@ public partial class vLogin : ContentPage
         object sender,
         EventArgs e)
     {
+        if (ingresando) return;
         string correo = txtCorreo.Text?.Trim() ?? "";
         string password = txtPassword.Text ?? "";
 
@@ -30,6 +32,7 @@ public partial class vLogin : ContentPage
             return;
         }
 
+        ingresando = true;
         try
         {
             AuthService authService = new AuthService();
@@ -80,10 +83,12 @@ public partial class vLogin : ContentPage
             }
 
             // 5. GUARDAR SESIÓN
+            SesionAuth.CerrarSesionLocal();
             SesionAuth.GuardarSesion(sesion);
 
             SesionUsuario.Nombre = perfil.nombres;
             SesionUsuario.Telefono = perfil.telefono;
+            SesionUsuario.IdUsuario = perfil.id_usuario;
 
             // 6. ABRIR MENÚ CORRESPONDIENTE
             if (perfil.id_rol == 1)
@@ -94,9 +99,9 @@ public partial class vLogin : ContentPage
                     $"Hola, {perfil.nombres}.",
                     "exito");
 
-                await Navigation.PushAsync(
-                    new vMenuAdministrador(
-                        perfil.nombres));
+                var ventana = GetParentWindow();
+                if (ventana != null)
+                    ventana.Page = new NavigationPage(new vMenuAdministrador(perfil.nombres));
             }
             else if (perfil.id_rol == 3)
             {
@@ -106,9 +111,9 @@ public partial class vLogin : ContentPage
                     $"Hola, {perfil.nombres}.",
                     "exito");
 
-                await Navigation.PushAsync(
-                    new vMenuCliente(
-                        perfil.nombres));
+                var ventana = GetParentWindow();
+                if (ventana != null)
+                    ventana.Page = new NavigationPage(new vMenuCliente(perfil.nombres));
             }
 
             // No conservar la contraseña en el formulario
@@ -141,6 +146,10 @@ public partial class vLogin : ContentPage
                 "Error",
                 "Ocurrió un problema al iniciar sesión.",
                 "error");
+        }
+        finally
+        {
+            ingresando = false;
         }
     }
 

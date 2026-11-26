@@ -52,10 +52,6 @@ public partial class vMenuAdministrador : ContentPage
         // Limpiar la sesión de autenticación local
         SesionAuth.CerrarSesionLocal();
 
-        // Limpiar los datos temporales del usuario
-        SesionUsuario.Nombre = string.Empty;
-        SesionUsuario.Telefono = string.Empty;
-
         // Regresar al login
         var ventana =
             Application.Current?.Windows.FirstOrDefault();

@@ -36,11 +36,7 @@ public partial class vMenuCliente : ContentPage
         object sender,
         TappedEventArgs e)
     {
-        await MensajeModal.MostrarAsync(
-            this,
-            "Mi perfil",
-            "Aquí podrás consultar y actualizar tus datos personales.",
-            "advertencia");
+        await Navigation.PushAsync(new vPerfilCliente());
     }
 
     // FAVORITOS

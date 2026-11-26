@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="addFloreriaG5.Views.vPerfilCliente" Title="Mi perfil" BackgroundColor="#FFF9F6">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12" MaximumWidthRequest="500">
+            <Label Text="Mi perfil" FontSize="26" FontAttributes="Bold" TextColor="#7D273E" />
+            <Label Text="Consulta y actualiza tus datos personales." TextColor="#35232A" />
+            <Label Text="Nombres" FontAttributes="Bold" TextColor="#35232A" />
+            <Entry x:Name="nombres" Placeholder="Nombres" MaxLength="100" />
+            <Label Text="Apellidos" FontAttributes="Bold" TextColor="#35232A" />
+            <Entry x:Name="apellidos" Placeholder="Apellidos" MaxLength="100" />
+            <Label Text="Teléfono" FontAttributes="Bold" TextColor="#35232A" />
+            <Entry x:Name="telefono" Placeholder="Teléfono" Keyboard="Telephone" MaxLength="30" TextChanged="Telefono_TextChanged" />
+            <Label Text="Correo de la cuenta" FontAttributes="Bold" TextColor="#35232A" />
+            <Entry x:Name="correo" IsReadOnly="True" Keyboard="Email" BackgroundColor="#EEE8E9" TextColor="#68454D" />
+            <Label Text="El correo es de solo lectura y no se puede cambiar aquí." FontSize="12" TextColor="#68454D" />
+            <Button x:Name="guardar" Text="Guardar cambios" IsEnabled="False" BackgroundColor="#812A44" TextColor="White" CornerRadius="12" Clicked="Guardar_Clicked" />
+            <Button Text="Volver a cargar" BackgroundColor="White" TextColor="#812A44" Clicked="Recargar_Clicked" />
+            <Label x:Name="estado" TextColor="#68454D" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

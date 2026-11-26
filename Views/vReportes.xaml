@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="addFloreriaG5.Views.vReportes" Title="Reportería" BackgroundColor="#FFF9F6">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12" MaximumWidthRequest="900">
+            <Label Text="Reportería" FontSize="27" FontAttributes="Bold" TextColor="#812A44" />
+            <Label Text="Consulta la actividad y el estado actual de la florería." TextColor="#68454D" />
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never"><HorizontalStackLayout x:Name="periodos" Spacing="8" /></ScrollView>
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout><Label Text="Desde" TextColor="#68454D" /><DatePicker x:Name="desde" Format="dd/MM/yyyy" /></VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1"><Label Text="Hasta" TextColor="#68454D" /><DatePicker x:Name="hasta" Format="dd/MM/yyyy" /></VerticalStackLayout>
+            </Grid>
+            <Button x:Name="consultar" Text="Actualizar reportes" BackgroundColor="#9B3E5C" TextColor="White" CornerRadius="12" IsEnabled="False" />
+            <Label x:Name="estado" Text="Validando acceso…" TextColor="#68454D" />
+            <Label x:Name="periodo" TextColor="#68454D" FontSize="13" />
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never"><HorizontalStackLayout x:Name="navegacion" Spacing="8" /></ScrollView>
+            <VerticalStackLayout x:Name="panelFiltro" Spacing="4" IsVisible="False">
+                <Label Text="Filtrar por estado" TextColor="#68454D" FontAttributes="Bold" />
+                <Picker x:Name="filtro" Title="Todos los estados" />
+            </VerticalStackLayout>
+            <HorizontalStackLayout x:Name="exportacion" Spacing="10" />
+            <VerticalStackLayout x:Name="contenido" Spacing="10" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,49 +1,19 @@
 using System.Net.Mail;
 using addFloreriaG5.Services;
 namespace addFloreriaG5.Views;
-public class vRecuperarPassword : ContentPage
+public partial class vRecuperarPassword : ContentPage
 {
-    private readonly Entry correo = new() { Placeholder = "Correo electrónico", Keyboard = Keyboard.Email };
-    private readonly Button enviar = new() { Text = "Enviar enlace" };
     private readonly Entry[] digitos = new Entry[8];
     private bool actualizandoCodigo;
-    private readonly Entry clave = new() { Placeholder = "Nueva contraseña", IsPassword = true };
-    private readonly Entry confirmar = new() { Placeholder = "Confirmar contraseña", IsPassword = true };
-    private readonly Button cambiar = new() { Text = "Cambiar contraseña", IsEnabled = false };
-    private readonly Button verificar = new() { Text = "Verificar código", IsEnabled = false };
     private readonly AuthService auth = new();
     private string? correoSolicitado;
     private string? token;
     public vRecuperarPassword(string correoInicial)
     {
-        Title = "Recuperar contraseña";
-        BackgroundColor = Color.FromArgb("#FFF9F6");
-        foreach (var campo in new[] { correo, clave, confirmar })
-        {
-            campo.TextColor = Color.FromArgb("#35232A");
-            campo.PlaceholderColor = Color.FromArgb("#765B63");
-            campo.BackgroundColor = Colors.Transparent;
-            campo.HeightRequest = 50;
-        }
-        foreach (var boton in new[] { enviar, verificar, cambiar })
-        {
-            boton.BackgroundColor = Color.FromArgb("#812A44");
-            boton.TextColor = Colors.White;
-            boton.CornerRadius = 12;
-            boton.HeightRequest = 50;
-        }
+        InitializeComponent();
         correo.Text = correoInicial;
-        enviar.Text = "Enviar código";
-        enviar.Clicked += Enviar_Clicked;
-        verificar.Clicked += Verificar_Clicked;
-        cambiar.Clicked += Cambiar_Clicked;
-        clave.IsEnabled = confirmar.IsEnabled = false;
-        var codigo = CrearCasillasCodigo();
-        Content = new ScrollView { Content = new VerticalStackLayout { Padding = 24, Spacing = 16, MaximumWidthRequest = 450, Children = {
-            new Label { Text = "Recuperar contraseña", FontSize = 24, FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#7D273E") },
-            new Label { Text = "Solicita un código y consulta tu correo desde cualquier dispositivo.", TextColor = Color.FromArgb("#35232A") }, Campo(correo), enviar,
-            new Label { Text = "Código de verificación (8 dígitos)", TextColor = Color.FromArgb("#35232A") }, codigo, verificar,
-            Campo(clave), new Label { Text = ValidadorPassword.Requisitos, FontSize = 12, TextColor = Color.FromArgb("#68454D") }, Campo(confirmar), cambiar } } };
+        requisitos.Text = ValidadorPassword.Requisitos;
+        contenedorCodigo.Children.Add(CrearCasillasCodigo());
     }
 
     private Grid CrearCasillasCodigo()
@@ -54,7 +24,23 @@ public class vRecuperarPassword : ContentPage
             fila.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
             var indice = i;
             var entrada = new Entry { Keyboard = Keyboard.Numeric, HorizontalTextAlignment = TextAlignment.Center,
-                TextColor = Color.FromArgb("#35232A"), BackgroundColor = Colors.Transparent, HeightRequest = 50, FontSize = 18 };
+                VerticalTextAlignment = TextAlignment.Center, HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Fill, TextColor = Color.FromArgb("#35232A"),
+                BackgroundColor = Colors.Transparent, HeightRequest = 50, FontSize = 18 };
+#if WINDOWS
+            // El TextBox de Windows tiene un ancho mínimo y márgenes internos
+            // pensados para campos largos, que desplazan el texto en estas casillas.
+            entrada.HandlerChanged += (_, _) =>
+            {
+                if (entrada.Handler?.PlatformView is Microsoft.UI.Xaml.Controls.TextBox caja)
+                {
+                    caja.MinWidth = 0;
+                    caja.Padding = new Microsoft.UI.Xaml.Thickness(0);
+                    caja.TextAlignment = Microsoft.UI.Xaml.TextAlignment.Center;
+                    caja.VerticalContentAlignment = Microsoft.UI.Xaml.VerticalAlignment.Center;
+                }
+            };
+#endif
             SemanticProperties.SetDescription(entrada, $"Dígito {i + 1} de 8 del código de verificación");
             digitos[i] = entrada;
             entrada.TextChanged += (_, e) => CodigoCambiado(indice, e.OldTextValue, e.NewTextValue);

@@ -4,21 +4,12 @@ using Microsoft.Maui.Layouts;
 
 namespace addFloreriaG5.Views;
 
-public class vReportes : ContentPage
+public partial class vReportes : ContentPage
 {
     private static readonly Color Vino = Color.FromArgb("#812A44");
     private static readonly Color Texto = Color.FromArgb("#68454D");
     private static readonly string[] Secciones = { "Resumen", "Pedidos", "Pagos", "Arreglos", "Entregas", "Inventario" };
-    private readonly DatePicker desde = new() { Format = "dd/MM/yyyy" };
-    private readonly DatePicker hasta = new() { Format = "dd/MM/yyyy" };
-    private readonly Button consultar = new() { Text = "Actualizar reportes", BackgroundColor = Color.FromArgb("#9B3E5C"), TextColor = Colors.White, CornerRadius = 12 };
-    private readonly Label estado = new() { Text = "Validando acceso…", TextColor = Texto };
-    private readonly Label periodo = new() { TextColor = Texto, FontSize = 13 };
-    private readonly VerticalStackLayout contenido = new() { Spacing = 10 };
     private readonly List<FilaReporte> filasExportacion = new();
-    private readonly HorizontalStackLayout navegacion = new() { Spacing = 8 };
-    private readonly Picker filtro = new() { Title = "Todos los estados" };
-    private readonly VerticalStackLayout panelFiltro = new() { Spacing = 4, IsVisible = false };
     private DatosReportes? datos;
     private string seccion = "Resumen";
     private bool autorizado;
@@ -29,16 +20,13 @@ public class vReportes : ContentPage
 
     public vReportes()
     {
-        Title = "Reportería";
-        BackgroundColor = Color.FromArgb("#FFF9F6");
+        InitializeComponent();
         var hoy = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(-5)).Date;
         desde.Date = new DateTime(hoy.Year, hoy.Month, 1);
         hasta.Date = hoy;
         consultar.Clicked += async (_, _) => await CargarAsync();
         consultar.IsEnabled = false;
         filtro.SelectedIndexChanged += (_, _) => { if (!actualizandoFiltro) MostrarSeccion(); };
-        panelFiltro.Children.Add(new Label { Text = "Filtrar por estado", TextColor = Texto, FontAttributes = FontAttributes.Bold });
-        panelFiltro.Children.Add(filtro);
         foreach (var nombre in Secciones)
         {
             var boton = new Button { Text = nombre, BackgroundColor = Color.FromArgb("#F7E8ED"), TextColor = Vino, CornerRadius = 18, Padding = new Thickness(16, 8), MinimumHeightRequest = 44 };
@@ -46,21 +34,10 @@ public class vReportes : ContentPage
             navegacion.Children.Add(boton);
         }
         ActualizarNavegacion();
-        var periodos = new HorizontalStackLayout { Spacing = 8 };
         periodos.Children.Add(BotonPeriodo("Hoy", () => (hoy: FechaHoy(), inicio: FechaHoy())));
         periodos.Children.Add(BotonPeriodo("Esta semana", () => { var hoy = FechaHoy(); return (hoy, hoy.AddDays(-(((int)hoy.DayOfWeek + 6) % 7))); }));
         periodos.Children.Add(BotonPeriodo("Este mes", () => { var hoy = FechaHoy(); return (hoy, new DateTime(hoy.Year, hoy.Month, 1)); }));
-        Content = new ScrollView { Content = new VerticalStackLayout { Padding = 20, Spacing = 12, MaximumWidthRequest = 900, Children = {
-            new Label { Text = "Reportería", FontSize = 27, FontAttributes = FontAttributes.Bold, TextColor = Vino },
-            new Label { Text = "Consulta la actividad y el estado actual de la florería.", TextColor = Texto },
-            new ScrollView { Orientation = ScrollOrientation.Horizontal, Content = periodos, HorizontalScrollBarVisibility = ScrollBarVisibility.Never },
-            new Grid { ColumnDefinitions = new ColumnDefinitionCollection { new(GridLength.Star), new(GridLength.Star) }, ColumnSpacing = 12, Children = {
-                new VerticalStackLayout { Children = { new Label { Text = "Desde", TextColor = Texto }, desde } },
-                EnColumna(new VerticalStackLayout { Children = { new Label { Text = "Hasta", TextColor = Texto }, hasta } }, 1)
-            } }, consultar, estado, periodo,
-            new ScrollView { Orientation = ScrollOrientation.Horizontal, Content = navegacion, HorizontalScrollBarVisibility = ScrollBarVisibility.Never },
-            panelFiltro, CrearBotonesExportacion(), contenido
-        } } };
+        CrearBotonesExportacion();
     }
 
     private static DateTime FechaHoy() => DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(-5)).Date;
@@ -70,7 +47,6 @@ public class vReportes : ContentPage
         boton.Clicked += (_, _) => { var fechas = rango(); desde.Date = fechas.inicio; hasta.Date = fechas.hoy; estado.Text = "Pulsa Actualizar reportes para aplicar las fechas."; };
         return boton;
     }
-    private static View EnColumna(View vista, int columna) { Grid.SetColumn(vista, columna); return vista; }
     private void ActualizarNavegacion()
     {
         foreach (var boton in navegacion.Children.OfType<Button>())
@@ -261,16 +237,14 @@ public class vReportes : ContentPage
     private void Vacio(string texto) { filasExportacion.Add(new(TipoFilaReporte.Dato, texto, "")); contenido.Add(new Label { Text = texto, TextColor = Texto, Margin = new Thickness(0, 8) }); }
     private void Fila(string titulo, string detalle) { filasExportacion.Add(new(TipoFilaReporte.Dato, titulo, detalle)); contenido.Add(new Border { BackgroundColor = Colors.White, Stroke = Color.FromArgb("#EBDCE0"), Padding = 12, Content = new VerticalStackLayout { Spacing = 3, Children = { new Label { Text = titulo, FontAttributes = FontAttributes.Bold, TextColor = Vino }, new Label { Text = detalle, TextColor = Texto } } } }); }
 
-    private View CrearBotonesExportacion()
+    private void CrearBotonesExportacion()
     {
-        var botones = new HorizontalStackLayout { Spacing = 10 };
         foreach (var formato in new[] { "PDF", "Excel" })
         {
             var boton = new Button { Text = $"Exportar {formato}", BackgroundColor = Colors.White, TextColor = Vino, BorderColor = Vino, BorderWidth = 1, CornerRadius = 12 };
             boton.Clicked += async (_, _) => await ExportarAsync(formato, boton);
-            botones.Children.Add(boton);
+            exportacion.Children.Add(boton);
         }
-        return botones;
     }
 
     private async Task ExportarAsync(string formato, Button boton)

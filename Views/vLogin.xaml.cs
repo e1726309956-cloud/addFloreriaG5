@@ -5,7 +5,8 @@ using System.Text.Json;
 
 public partial class vLogin : ContentPage
 {
-	public vLogin()
+    // TEST DE USUARIO ADMINISTRADOR
+    public vLogin()
 	{
 		InitializeComponent();
 	}

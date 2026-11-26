@@ -117,6 +117,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Configuration\supabase.settings.json" LogicalName="supabase.settings.json" />
-		<EmbeddedResource Include="Resources\Fonts\OpenSans-Regular.ttf" LogicalName="Reportes.OpenSans-Regular.ttf" />
+		<EmbeddedResource Include="Resources\Fonts\OpenSans-Regular.ttf" LogicalName="Reportes.OpenSans-Regular.ttf" />  
 	</ItemGroup>
 </Project>

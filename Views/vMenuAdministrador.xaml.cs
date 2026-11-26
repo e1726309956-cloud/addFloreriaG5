@@ -32,7 +32,7 @@ public partial class vMenuAdministrador : ContentPage
 
     private async void btnUsuarios(object sender, EventArgs e)
     {
-        await DisplayAlert("Usuarios", "Módulo de gestión de personal y roles.", "Aceptar");
+        await Navigation.PushAsync(new vGestionUsuarios());
 
     }
 
@@ -67,11 +67,6 @@ public partial class vMenuAdministrador : ContentPage
         }
     }
 
-
-    private async void Button_Clicked_5(object sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new vArreglosInactivos());
-    }
 
     private async void Categorias_Tapped(
         object sender,

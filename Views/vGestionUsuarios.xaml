@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="addFloreriaG5.Views.vGestionUsuarios"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False">
+
+    <Grid>
+        <!-- FONDO FLORAL -->
+        <Image
+            Source="fondo_login_floral.png"
+            Aspect="AspectFill"
+            InputTransparent="True"/>
+
+        <Grid RowDefinitions="Auto,Auto,*"
+              Padding="20,25,20,15"
+              RowSpacing="15"
+              MaximumWidthRequest="780"
+              HorizontalOptions="Center"
+              WidthRequest="-1">
+
+            <!-- ENCABEZADO -->
+            <Grid Grid.Row="0"
+                  ColumnDefinitions="50,*">
+
+                <Button
+                    Text="‹"
+                    BackgroundColor="White"
+                    TextColor="#752B43"
+                    FontSize="28"
+                    CornerRadius="14"
+                    WidthRequest="48"
+                    HeightRequest="48"
+                    Clicked="Volver_Clicked"/>
+
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Spacing="4"
+                    VerticalOptions="Center">
+
+                    <Label
+                        Text="NOVA FLORERÍA"
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        TextColor="#9B3E5C"
+                        HorizontalTextAlignment="Center"/>
+
+                    <Label
+                        Text="Gestión de usuarios"
+                        FontSize="23"
+                        FontAttributes="Bold"
+                        TextColor="#752B43"
+                        HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- BÚSQUEDA -->
+            <Border Grid.Row="1"
+                    BackgroundColor="White"
+                    Stroke="#EBDCE0"
+                    StrokeShape="RoundRectangle 16"
+                    Padding="12,2">
+
+                <Entry
+                    x:Name="txtBuscar"
+                    Placeholder="Buscar por nombre o correo"
+                    PlaceholderColor="#A08B91"
+                    TextColor="#752B43"
+                    BackgroundColor="Transparent"
+                    TextChanged="Buscar_TextChanged"/>
+            </Border>
+
+            <!-- LISTADO -->
+            <RefreshView Grid.Row="2"
+                         x:Name="refreshUsuarios"
+                         Refreshing="Refrescar_Refreshing">
+
+                <CollectionView
+                    x:Name="cvUsuarios"
+                    SelectionMode="None"
+                    EmptyView="No se encontraron usuarios.">
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                BackgroundColor="White"
+                                Stroke="#EBDCE0"
+                                StrokeShape="RoundRectangle 18"
+                                Padding="16"
+                                Margin="0,0,0,12">
+
+                                <VerticalStackLayout Spacing="10">
+
+                                    <Label
+                                        Text="{Binding NombreCompleto}"
+                                        FontSize="17"
+                                        FontAttributes="Bold"
+                                        TextColor="#752B43"/>
+
+                                    <Label
+                                        Text="{Binding correo}"
+                                        FontSize="13"
+                                        TextColor="#887A7D"/>
+
+                                    <Label
+                                        Text="{Binding telefono}"
+                                        FontSize="13"
+                                        TextColor="#887A7D"/>
+
+                                    <Grid ColumnDefinitions="*,Auto"
+                                          ColumnSpacing="10">
+
+                                        <Label
+                                            Text="{Binding NombreRol}"
+                                            FontSize="13"
+                                            TextColor="#752B43"
+                                            VerticalOptions="Center"/>
+
+                                        <Label
+                                            Grid.Column="1"
+                                            Text="{Binding EstadoTexto}"
+                                            TextColor="{Binding ColorEstado}"
+                                            FontAttributes="Bold"
+                                            FontSize="13"/>
+                                    </Grid>
+
+                                    <Button
+                                        Text="{Binding TextoBoton}"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="CambiarEstado_Clicked"
+                                        BackgroundColor="#FFF0F2"
+                                        TextColor="#9B3E5C"
+                                        BorderColor="#EACBD2"
+                                        BorderWidth="1"
+                                        CornerRadius="12"
+                                        HeightRequest="44"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+        </Grid>
+    </Grid>
+</ContentPage>
+

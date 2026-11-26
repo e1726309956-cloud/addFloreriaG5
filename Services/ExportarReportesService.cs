@@ -5,6 +5,9 @@ using PdfSharp.Pdf;
 
 namespace addFloreriaG5.Services;
 
+public enum TipoFilaReporte { Seccion, Indicador, Dato }
+public record FilaReporte(TipoFilaReporte Tipo, string Titulo, string Detalle);
+
 public class ExportarReportesService
 {
     public byte[] CrearExcel(string seccion, string contexto, IReadOnlyList<(string Titulo, string Detalle)> filas)
@@ -44,17 +47,23 @@ public class ExportarReportesService
         return stream.ToArray();
     }
 
-    public byte[] CrearPdf(string seccion, string contexto, IReadOnlyList<(string Titulo, string Detalle)> filas)
+    public byte[] CrearPdf(string seccion, string contexto, IReadOnlyList<FilaReporte> filas)
     {
         if (GlobalFontSettings.FontResolver == null) GlobalFontSettings.FontResolver = new FuenteReportes();
         using var documento = new PdfDocument();
         documento.Info.Title = $"Nova Florería - {seccion}";
-        var titulo = new XFont("ReporteOpenSans", 17);
+        var titulo = new XFont("ReporteOpenSans", 21);
+        var subtitulo = new XFont("ReporteOpenSans", 13);
         var normal = new XFont("ReporteOpenSans", 10);
+        var pequeno = new XFont("ReporteOpenSans", 9);
+        var cifra = new XFont("ReporteOpenSans", 22);
         XGraphics? grafico = null;
         double y = 0, ancho = 0, alto = 0;
         int numeroPagina = 0;
         var vino = new XSolidBrush(XColor.FromArgb(125, 39, 62));
+        var gris = new XSolidBrush(XColor.FromArgb(104, 69, 77));
+        var fondo = new XSolidBrush(XColor.FromArgb(249, 238, 241));
+        var borde = new XPen(XColor.FromArgb(235, 220, 224));
         void Pagina()
         {
             grafico?.Dispose();
@@ -63,32 +72,79 @@ public class ExportarReportesService
             grafico = XGraphics.FromPdfPage(pagina);
             ancho = pagina.Width.Point - 72;
             alto = pagina.Height.Point;
-            grafico.DrawRectangle(vino, 0, 0, pagina.Width.Point, 28);
-            grafico.DrawString("NOVA FLORERÍA  |  REPORTES", normal, XBrushes.White, new XPoint(36, 19));
-            y = 57;
+            grafico.DrawRectangle(vino, 0, 0, pagina.Width.Point, 34);
+            grafico.DrawString("NOVA FLORERÍA  /  REPORTES", pequeno, XBrushes.White, new XPoint(36, 22));
+            y = 65;
             grafico.DrawString(seccion, titulo, vino, new XPoint(36, y));
-            grafico.DrawString($"Página {numeroPagina}", normal, vino, new XPoint(36, alto - 20));
-            y += 24;
+            grafico.DrawString($"Página {numeroPagina}", pequeno, gris, new XPoint(36, alto - 20));
+            y += 23;
+            foreach (var linea in DividirLineas(grafico, contexto, pequeno, ancho))
+            { grafico.DrawString(linea, pequeno, gris, new XPoint(36, y)); y += 13; }
+            y += 12;
         }
-        void Linea(string texto, XFont fuente, double sangria = 0)
+        void Espacio(double altura)
         {
-            foreach (var linea in DividirLineas(grafico!, texto, fuente, ancho - sangria))
-            {
-                if (y > alto - 45) Pagina();
-                grafico!.DrawString(linea, fuente, XBrushes.Black, new XPoint(36 + sangria, y));
-                y += 15;
-            }
+            if (y + altura > alto - 42) Pagina();
         }
         Pagina();
-        Linea(contexto, normal);
-        y += 10;
-        foreach (var fila in filas)
+        for (int i = 0; i < filas.Count; i++)
         {
-            if (y > alto - 65) Pagina();
-            grafico!.DrawLine(new XPen(XColor.FromArgb(235, 220, 224)), 36, y - 10, 36 + ancho, y - 10);
-            Linea(fila.Titulo ?? "", normal);
-            if (!string.IsNullOrWhiteSpace(fila.Detalle)) Linea(fila.Detalle, normal, 12);
-            y += 5;
+            var fila = filas[i];
+            if (fila.Tipo == TipoFilaReporte.Seccion)
+            {
+                var lineas = DividirLineas(grafico!, fila.Detalle, pequeno, ancho - 16).ToList();
+                Espacio(45 + lineas.Count * 12);
+                grafico!.DrawString(fila.Titulo, subtitulo, vino, new XPoint(36, y + 13));
+                y += 20;
+                foreach (var linea in lineas) { grafico.DrawString(linea, pequeno, gris, new XPoint(36, y + 8)); y += 12; }
+                y += 9;
+            }
+            else if (fila.Tipo == TipoFilaReporte.Indicador)
+            {
+                const double hueco = 10;
+                double anchoTarjeta = (ancho - hueco) / 2;
+                int cantidad = Math.Min(2, filas.Skip(i).TakeWhile(f => f.Tipo == TipoFilaReporte.Indicador).Count());
+                var tarjetas = filas.Skip(i).Take(cantidad).Select(f => new {
+                    Fila = f,
+                    Titulo = DividirLineas(grafico!, f.Titulo, pequeno, anchoTarjeta - 24).ToList(),
+                    Partes = f.Detalle.Split('·', 2, StringSplitOptions.TrimEntries)
+                }).ToList();
+                double altura = Math.Max(80, 62 + tarjetas.Max(t => t.Titulo.Count) * 12);
+                Espacio(altura + 10);
+                for (int j = 0; j < tarjetas.Count; j++)
+                {
+                    var tarjeta = tarjetas[j]; double x = 36 + j * (anchoTarjeta + hueco);
+                    grafico!.DrawRoundedRectangle(borde, fondo, x, y, anchoTarjeta, altura, 8, 8);
+                    double ty = y + 17;
+                    foreach (var linea in tarjeta.Titulo) { grafico.DrawString(linea, pequeno, gris, new XPoint(x + 12, ty)); ty += 12; }
+                    grafico.DrawString(tarjeta.Partes[0], cifra, vino, new XPoint(x + 12, ty + 18));
+                    if (tarjeta.Partes.Length > 1) grafico.DrawString(tarjeta.Partes[1], pequeno, gris, new XPoint(x + 12, ty + 34));
+                }
+                y += altura + 10; i += cantidad - 1;
+            }
+            else
+            {
+                var titulos = DividirLineas(grafico!, fila.Titulo, normal, ancho * 0.38 - 20).ToList();
+                var detalles = DividirLineas(grafico!, fila.Detalle, normal, ancho * 0.62 - 20).ToList();
+                double altura = Math.Max(titulos.Count, detalles.Count) * 14 + 16;
+                // Las filas largas se distribuyen en varias páginas sin perder texto.
+                int maxLineas = Math.Max(titulos.Count, detalles.Count), indice = 0;
+                while (indice < maxLineas)
+                {
+                    Espacio(30);
+                    int disponibles = Math.Max(1, (int)((alto - 42 - y - 16) / 14));
+                    int cantidad = Math.Min(disponibles, maxLineas - indice);
+                    altura = cantidad * 14 + 16;
+                    grafico!.DrawRectangle(borde, indice == 0 && i % 2 == 0 ? fondo : XBrushes.White, 36, y, ancho, altura);
+                    for (int j = 0; j < cantidad; j++)
+                    {
+                        if (indice + j < titulos.Count) grafico.DrawString(titulos[indice + j], normal, vino, new XPoint(46, y + 17 + j * 14));
+                        if (indice + j < detalles.Count) grafico.DrawString(detalles[indice + j], normal, XBrushes.Black, new XPoint(36 + ancho * 0.38, y + 17 + j * 14));
+                    }
+                    y += altura; indice += cantidad;
+                    if (indice < maxLineas) Pagina();
+                }
+            }
         }
         grafico?.Dispose();
         using var stream = new MemoryStream();

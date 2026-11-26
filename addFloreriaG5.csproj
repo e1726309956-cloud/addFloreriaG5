@@ -87,6 +87,9 @@
 	  <MauiXaml Update="Views\vCatalogoArreglos.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\vChatBot.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\vControlEntregas.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

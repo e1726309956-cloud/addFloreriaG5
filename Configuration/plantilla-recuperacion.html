@@ -1,14 +1,75 @@
-﻿<!doctype html>
+﻿<!DOCTYPE html>
 <html lang="es">
-<body style="margin:0;padding:28px;background:#fff9f6;font-family:Arial,sans-serif;color:#45343a">
-  <div style="max-width:520px;margin:auto;background:#fff;border:1px solid #ebdce0;border-radius:12px;overflow:hidden">
-    <div style="background:#7d273e;padding:20px 24px;color:#fff;font-size:18px;font-weight:bold">Nova Florería</div>
-    <div style="padding:24px">
-      <h1 style="font-size:22px;color:#7d273e">Recupera tu contraseña</h1>
-      <p>Ingresa este código en la aplicación para continuar:</p>
-      <p style="padding:18px;text-align:center;background:#f9eef1;color:#7d273e;font-size:28px;font-weight:bold;letter-spacing:5px">{{ .Token }}</p>
-      <p>Si no solicitaste cambiar tu contraseña, puedes ignorar este mensaje.</p>
-    </div>
-  </div>
-</body>
+  <body style="margin: 0; padding: 24px 12px; background-color: #fff9f6; font-family: Arial, sans-serif; color: #49373d;">
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+      <tr>
+        <td align="center">
+
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                 style="max-width: 520px; border-collapse: separate; border-spacing: 0; background-color: #ffffff; border: 1px solid #ebdce0; border-radius: 16px; overflow: hidden;">
+
+            <!-- Encabezado -->
+            <tr>
+              <td style="background-color: #812a44; padding: 24px 30px; text-align: center;">
+                <p style="margin: 0; color: #ffffff; font-size: 13px; letter-spacing: 2px;">
+                  NOVA FLORERÍA
+                </p>
+                <p style="margin: 8px 0 0; color: #f8e5eb; font-size: 14px;">
+                  Flores para momentos especiales
+                </p>
+              </td>
+            </tr>
+
+            <!-- Contenido -->
+            <tr>
+              <td style="padding: 32px 30px 20px;">
+                <h1 style="margin: 0 0 16px; color: #812a44; font-size: 24px; line-height: 1.3;">
+                  Recupera tu contraseña
+                </h1>
+
+                <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6;">
+                  Recibimos una solicitud para cambiar la contraseña de tu cuenta.
+                  Ingresa el siguiente código en la aplicación para continuar:
+                </p>
+
+                <!-- Código -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                       style="border-collapse: separate; border-spacing: 0; background-color: #f9edf1; border: 1px solid #ead1da; border-radius: 12px;">
+                  <tr>
+                    <td align="center" style="padding: 20px 12px;">
+                      <p style="margin: 0 0 8px; color: #80616b; font-size: 12px; letter-spacing: 1px;">
+                        TU CÓDIGO DE VERIFICACIÓN
+                      </p>
+                      <p style="margin: 0; color: #812a44; font-size: 32px; font-weight: bold; letter-spacing: 5px;">
+                        {{ .Token }}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin: 22px 0 0; font-size: 14px; line-height: 1.6;">
+                  Si no solicitaste este cambio, puedes ignorar este mensaje.
+                  Tu contraseña permanecerá sin cambios.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Pie -->
+            <tr>
+              <td style="padding: 20px 30px 26px; border-top: 1px solid #f1e4e7; text-align: center;">
+                <p style="margin: 0; color: #927982; font-size: 12px; line-height: 1.5;">
+                  Con cariño,<br>
+                  <strong style="color: #812a44;">Nova Florería</strong>
+                </p>
+              </td>
+            </tr>
+
+          </table>
+
+        </td>
+      </tr>
+    </table>
+
+  </body>
 </html>

@@ -359,6 +359,72 @@
 
 
 
+                <!-- CHATBOT -->
+                <Border
+                    BackgroundColor="#F3F6EF"
+                    Stroke="#DCE5D3"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="16">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="ChatBot_Tapped"/>
+                    </Border.GestureRecognizers>
+
+                    <Grid
+                        ColumnDefinitions="54,*,24"
+                        ColumnSpacing="12">
+
+                        <Border
+                            BackgroundColor="#8B9779"
+                            WidthRequest="54"
+                            HeightRequest="54"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 15"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+
+                            <mi:MauiIcon
+                                Icon="{mi:Material Icon=SmartToy}"
+                                IconColor="White"
+                                IconSize="30"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"/>
+
+                        </Border>
+
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="3"
+                            VerticalOptions="Center">
+
+                            <Label
+                                Text="ChatBot"
+                                FontSize="16"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"/>
+
+                            <Label
+                                Text="Consultas de ventas, pedidos e inventario"
+                                FontSize="12"
+                                TextColor="#806771"
+                                LineBreakMode="WordWrap"/>
+
+                        </VerticalStackLayout>
+
+                        <mi:MauiIcon
+                            Grid.Column="2"
+                            Icon="{mi:Material Icon=ChevronRight}"
+                            IconColor="#8B9779"
+                            IconSize="24"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"/>
+
+                    </Grid>
+
+                </Border>
+
                 <!-- CERRAR SESIÓN -->
                 <Border
                     BackgroundColor="#FFF9F6"

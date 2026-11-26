@@ -99,6 +99,9 @@
 	  <MauiXaml Update="Views\vGestionCategorias.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\vGestionUsuarios.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\vMetodoPago.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

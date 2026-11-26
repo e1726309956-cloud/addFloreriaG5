@@ -88,5 +88,12 @@ public partial class vMenuAdministrador : ContentPage
         await Navigation.PushAsync(new vReportes());
     }
 
+    private async void ChatBot_Tapped(
+        object? sender,
+        TappedEventArgs e)
+    {
+        await Navigation.PushAsync(new vChatBot(true));
+    }
+
 
 }

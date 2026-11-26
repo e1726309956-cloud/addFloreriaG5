@@ -55,6 +55,15 @@ public partial class vMenuCliente : ContentPage
             "advertencia");
     }
 
+    // CHATBOT
+    private async void ChatBot_Tapped(
+        object? sender,
+        TappedEventArgs e)
+    {
+        await Navigation.PushAsync(
+            new vChatBot(false));
+    }
+
     // CERRAR SESIÓN
     private async void CerrarSesion_Tapped(
         object sender,

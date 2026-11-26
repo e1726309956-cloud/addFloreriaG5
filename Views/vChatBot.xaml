@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:models="clr-namespace:addFloreriaG5.Models"
+    x:Class="addFloreriaG5.Views.vChatBot"
+    BackgroundColor="#FFF9F6"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
+
+    <Grid>
+
+        <!-- FONDO FLORAL -->
+        <Image
+            Source="fondo_login_floral.png"
+            Aspect="AspectFill"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            InputTransparent="True"/>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <Grid
+            Padding="16,18,16,14"
+            RowDefinitions="Auto,*,Auto"
+            RowSpacing="12"
+            MaximumWidthRequest="680"
+            HorizontalOptions="Fill">
+
+            <!-- ENCABEZADO -->
+            <Grid
+                Grid.Row="0"
+                ColumnDefinitions="45,*,45"
+                ColumnSpacing="10">
+
+                <!-- REGRESAR -->
+                <Border
+                    Grid.Column="0"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    BackgroundColor="White"
+                    Stroke="#E6D6DA"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    VerticalOptions="Center">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="Volver_Tapped"/>
+                    </Border.GestureRecognizers>
+
+                    <mi:MauiIcon
+                        Icon="{mi:Material Icon=ArrowBack}"
+                        IconColor="#752B43"
+                        IconSize="24"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"/>
+
+                </Border>
+
+                <!-- TÍTULOS -->
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Spacing="2"
+                    VerticalOptions="Center">
+
+                    <Label
+                        Text="NOVA FLORERÍA"
+                        FontSize="11"
+                        FontAttributes="Bold"
+                        CharacterSpacing="2"
+                        TextColor="#9B3E5C"
+                        HorizontalTextAlignment="Center"/>
+
+                    <Label
+                        x:Name="lblTituloChat"
+                        Text="ChatBot"
+                        FontSize="23"
+                        FontAttributes="Bold"
+                        TextColor="#752B43"
+                        HorizontalTextAlignment="Center"/>
+
+                    <Label
+                        x:Name="lblSubtituloChat"
+                        Text="Asistente floral con IA"
+                        FontSize="11"
+                        TextColor="#8A7A78"
+                        HorizontalTextAlignment="Center"/>
+
+                </VerticalStackLayout>
+
+                <!-- ICONO -->
+                <Border
+                    Grid.Column="2"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    BackgroundColor="#F9E9EE"
+                    Stroke="#EBD1DA"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 14"
+                    VerticalOptions="Center">
+
+                    <mi:MauiIcon
+                        Icon="{mi:Material Icon=SmartToy}"
+                        IconColor="#9B3E5C"
+                        IconSize="25"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"/>
+
+                </Border>
+
+            </Grid>
+
+            <!-- PANEL DEL CHAT -->
+            <Border
+                Grid.Row="1"
+                BackgroundColor="#FDF8F6"
+                Stroke="#EBDCE0"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 22"
+                Padding="8">
+
+                <Grid RowDefinitions="Auto,*" RowSpacing="4">
+
+                    <!-- ESTADO DEL ASISTENTE -->
+                    <Grid
+                        Grid.Row="0"
+                        ColumnDefinitions="34,*,Auto"
+                        ColumnSpacing="8"
+                        Padding="8,6,8,8">
+
+                        <Border
+                            Grid.Column="0"
+                            WidthRequest="32"
+                            HeightRequest="32"
+                            BackgroundColor="#9B3E5C"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 10"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+
+                            <mi:MauiIcon
+                                Icon="{mi:Material Icon=SmartToy}"
+                                IconColor="White"
+                                IconSize="19"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"/>
+
+                        </Border>
+
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="1"
+                            VerticalOptions="Center">
+
+                            <Label
+                                Text="Nova"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                TextColor="#752B43"/>
+
+                            <Label
+                                Text="Asistente virtual"
+                                FontSize="10"
+                                TextColor="#8A7A78"/>
+
+                        </VerticalStackLayout>
+
+                        <HorizontalStackLayout
+                            Grid.Column="2"
+                            Spacing="5"
+                            VerticalOptions="Center">
+
+                            <BoxView
+                                Color="#6D9B5E"
+                                WidthRequest="8"
+                                HeightRequest="8"
+                                CornerRadius="4"
+                                VerticalOptions="Center"/>
+
+                            <Label
+                                Text="En línea"
+                                FontSize="10"
+                                TextColor="#6D9B5E"
+                                VerticalTextAlignment="Center"/>
+
+                        </HorizontalStackLayout>
+
+                    </Grid>
+
+                    <!-- MENSAJES -->
+                    <CollectionView
+                        Grid.Row="1"
+                        x:Name="cvMensajes"
+                        ItemsUpdatingScrollMode="KeepLastItemInView"
+                        ItemSizingStrategy="MeasureAllItems"
+                        SelectionMode="None"
+                        VerticalScrollBarVisibility="Never">
+
+                        <CollectionView.ItemTemplate>
+
+                            <DataTemplate x:DataType="models:MensajeChat">
+
+                                <Grid Padding="4,5">
+
+                                    <Border
+                                        HorizontalOptions="{Binding Alineacion}"
+                                        BackgroundColor="{Binding ColorFondo}"
+                                        Stroke="{Binding ColorBorde}"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 18"
+                                        Padding="14,10"
+                                        MaximumWidthRequest="330">
+
+                                        <VerticalStackLayout Spacing="4">
+
+                                            <Label
+                                                Text="{Binding Texto}"
+                                                TextColor="{Binding ColorTexto}"
+                                                FontSize="14"
+                                                LineBreakMode="WordWrap"/>
+
+                                            <Label
+                                                Text="{Binding HoraTexto}"
+                                                IsVisible="{Binding MostrarHora}"
+                                                TextColor="{Binding ColorHora}"
+                                                FontSize="10"
+                                                HorizontalOptions="{Binding AlineacionHora}"/>
+
+                                        </VerticalStackLayout>
+
+                                    </Border>
+
+                                </Grid>
+
+                            </DataTemplate>
+
+                        </CollectionView.ItemTemplate>
+
+                    </CollectionView>
+
+                </Grid>
+
+            </Border>
+
+            <!-- PIE: SUGERENCIAS, ENTRADA Y AVISO -->
+            <VerticalStackLayout
+                Grid.Row="2"
+                Spacing="8">
+
+                <!-- SUGERENCIAS -->
+                <ScrollView
+                    x:Name="scrollSugerencias"
+                    Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never">
+
+                    <HorizontalStackLayout
+                        x:Name="panelSugerencias"
+                        Spacing="8"/>
+
+                </ScrollView>
+
+                <!-- ENTRADA -->
+                <Grid
+                    ColumnDefinitions="*,50"
+                    ColumnSpacing="8">
+
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="White"
+                        Stroke="#E6D6DA"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="12,2">
+
+                        <Entry
+                            x:Name="txtMensaje"
+                            Placeholder="Escribe tu mensaje..."
+                            PlaceholderColor="#A89297"
+                            TextColor="#68454D"
+                            BackgroundColor="Transparent"
+                            FontSize="14"
+                            HeightRequest="46"
+                            MaxLength="600"
+                            ReturnType="Send"
+                            ClearButtonVisibility="WhileEditing"
+                            Completed="Enviar_Completed"/>
+
+                    </Border>
+
+                    <Border
+                        Grid.Column="1"
+                        x:Name="btnEnviar"
+                        WidthRequest="50"
+                        HeightRequest="50"
+                        BackgroundColor="#9B3E5C"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16"
+                        SemanticProperties.Description="Enviar mensaje">
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="Enviar_Tapped"/>
+                        </Border.GestureRecognizers>
+
+                        <mi:MauiIcon
+                            Icon="{mi:Material Icon=Send}"
+                            IconColor="White"
+                            IconSize="24"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"/>
+
+                    </Border>
+
+                </Grid>
+
+                <Label
+                    Text="Nova usa inteligencia artificial. Verifica precios y disponibilidad antes de confirmar tu pedido."
+                    FontSize="10"
+                    TextColor="#8A7A78"
+                    HorizontalTextAlignment="Center"
+                    LineBreakMode="WordWrap"/>
+
+            </VerticalStackLayout>
+
+        </Grid>
+
+    </Grid>
+
+</ContentPage>
